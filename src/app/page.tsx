@@ -2689,10 +2689,14 @@ export default function SettimanaSmartMVP() {
     if (tutorialDone) return;
     const step = TOUR_STEPS[tutorialStep];
     if (step.waitFor === action) {
-      if (tutorialStep >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
-      const next = TOUR_STEPS[tutorialStep + 1];
-      setActiveTab(next.tab);
-      setTutorialStep((p) => p + 1);
+      // Delay per azioni visive: l'utente deve vedere l'effetto prima di andare avanti
+      const delay = ["regenerated", "item_checked"].includes(action) ? 1500 : 0;
+      setTimeout(() => {
+        if (tutorialStep >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
+        const next = TOUR_STEPS[tutorialStep + 1];
+        setActiveTab(next.tab);
+        setTutorialStep((p) => p + 1);
+      }, delay);
     }
   };
 
@@ -2941,7 +2945,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Premi 'Avvia procedimento guidato' su una ricetta",
       waitFor: "guided_started",
       highlight: "btn-guida",
-      position: "bottom",
+      position: "top",
     },
     {
       tab: "planner",
