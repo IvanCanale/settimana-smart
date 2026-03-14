@@ -1812,11 +1812,40 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   const pantrySet = new Set(pantryItems.map((x) => normalize(x.name)));
   const exclusions = preferences.exclusions || [];
 
+  // Ogni settimana esclude una delle 3 categorie proteiche principali a rotazione
+  // seed % 3: 0=escludi carne, 1=escludi pesce, 2=escludi pollo
+  const proteinRotation = seed % 3;
+  const MEAT_INGREDIENTS = [
+    // Manzo
+    "carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)","manzo","controfiletto","scamone","fesa di manzo",
+    // Maiale
+    "maiale","lonza di maiale","braciole di maiale","costine di maiale","salsiccia","pancetta","guanciale","speck","prosciutto crudo",
+    // Vitello
+    "vitello","fettine di vitello","scaloppine di vitello","ossobuco","macinato di vitello",
+    // Agnello
+    "agnello","costolette di agnello",
+  ];
+  const FISH_INGREDIENTS = [
+    "filetti di salmone","filetti di salmone con pelle","filetti di merluzzo","gamberi freschi o decongelati","gamberi","cozze fresche",
+    "tonno sott\'olio di qualità","tonno sott\'olio","salmone affumicato","orata intera o filetti","branzino","spigola",
+    "filetti di sogliola","filetti di trota","acciughe","sardine","polpo","seppie","calamari","vongole",
+  ];
+  const POULTRY_INGREDIENTS = [
+    "petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino","fesa di tacchino a fette",
+    "pollo intero o cosce e sovracosce","petto di pollo macinato","tacchino","ali di pollo","sovracosce di pollo",
+    "petto di tacchino","fesa di tacchino","anatra","coniglio",
+  ];
+  const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
+
   const eligible = RECIPE_LIBRARY.filter((recipeItem) => {
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
     if (exclusions.some((ex) => recipeItem.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
+    // Escludi la categoria proteica di questa settimana (solo per diete onnivore/mediterranee)
+    if (["onnivora","mediterranea"].includes(preferences.diet)) {
+      if (recipeItem.ingredients.some((i) => excludedProtein.includes(normalize(i.name)))) return false;
+    }
     return true;
   });
 
@@ -1860,8 +1889,8 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
 
   const freshnessWeight = (name: string) => {
     const key = normalize(name);
-    if (["spinaci freschi","lattuga o misticanza","lattuga","rucola","filetti di salmone con pelle","filetti di salmone","filetti di merluzzo","gamberi freschi o decongelati","gamberi"].includes(key)) return 5;
-    if (["zucchine","funghi champignon","pomodori ciliegia","pomodori ciliegia misti (anche gialli)","pomodorini","cetriolo","tofu compatto","petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino","burrata","asparagi"].includes(key)) return 4;
+    if (["spinaci freschi","lattuga o misticanza","lattuga","rucola","filetti di salmone con pelle","filetti di salmone","filetti di merluzzo","gamberi freschi o decongelati","gamberi","petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino","fesa di tacchino a fette","pollo intero o cosce e sovracosce","petto di pollo macinato","carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)"].includes(key)) return 5;
+    if (["zucchine","funghi champignon","pomodori ciliegia","pomodori ciliegia misti (anche gialli)","pomodorini","cetriolo","tofu compatto","burrata"].includes(key)) return 4;
     if (["broccoli","peperoni","peperoni misti (rosso e giallo)","melanzane","ricotta fresca","mozzarella fiordilatte","mozzarella","feta greca","feta","yogurt greco","avocado"].includes(key)) return 3;
     if (["carote","patate","cipolla","ceci in lattina","lenticchie verdi o marroni","lenticchie rosse decorticate","fagioli borlotti in lattina","fagioli cannellini in lattina","riso basmati","farro perlato","orzo perlato","bulgur","cous cous","quinoa"].includes(key)) return 1;
     return 2;
