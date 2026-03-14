@@ -3535,7 +3535,7 @@ export default function SettimanaSmartMVP() {
                 <h3 className="font-display" style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 700, color: "var(--sepia)" }}>{runningRecipe.title}</h3>
                 <p style={{ margin: 0, fontSize: 13, color: "var(--sepia-light)" }}>Step {runningStepIndex + 1} di {runningRecipe.steps.length}</p>
               </div>
-              <button onClick={closeRecipeFlow} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 22, color: "var(--sepia-light)", lineHeight: 1 }}>×</button>
+              <button onClick={() => closeRecipeFlow()} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 22, color: "var(--sepia-light)", lineHeight: 1 }}>×</button>
             </div>
 
             {/* Progress steps */}
@@ -3559,7 +3559,7 @@ export default function SettimanaSmartMVP() {
             </label>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button className="btn-ghost" onClick={closeRecipeFlow}>Chiudi</button>
+              <button className="btn-ghost" onClick={() => closeRecipeFlow()}>Chiudi</button>
               <button className="btn-terra" onClick={advanceRecipeFlow}>{runningStepIndex >= runningRecipe.steps.length - 1 ? "✓ Fine!" : "Avanti →"}</button>
             </div>
           </div>
