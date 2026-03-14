@@ -2558,6 +2558,11 @@ export default function SettimanaSmartMVP() {
     return localStorage.getItem("ss_onboarding_done") === "1";
   });
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [tutorialDone, setTutorialDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ss_tutorial_done") === "1";
+  });
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [manualOverrides, setManualOverrides] = useState<ManualOverrides>(() => {
     if (typeof window === "undefined") return {};
     try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
@@ -2730,11 +2735,18 @@ export default function SettimanaSmartMVP() {
   const completeOnboarding = () => {
     localStorage.setItem("ss_onboarding_done", "1");
     setOnboardingDone(true);
-    // Auto-genera il piano subito
     setSeed((prev) => prev + 1);
     setShowGeneratedBanner(true);
     setLastMessage("Piano generato — benvenuto!");
     setActiveTab("week");
+    // Mostra tutorial dopo onboarding
+    setTutorialDone(false);
+    setTutorialStep(0);
+  };
+
+  const completeTutorial = () => {
+    localStorage.setItem("ss_tutorial_done", "1");
+    setTutorialDone(true);
   };
 
   // ── ONBOARDING ──
@@ -2845,9 +2857,83 @@ export default function SettimanaSmartMVP() {
     );
   }
 
+  const TUTORIAL_SLIDES = [
+    {
+      emoji: "📅",
+      title: "Il tuo piano settimanale",
+      desc: "Nel tab Settimana trovi pranzo e cena per ogni giorno, già bilanciati e pensati per ridurre gli sprechi. Puoi rigenerare un singolo piatto o invertire pranzo con cena.",
+      tab: "week",
+    },
+    {
+      emoji: "🛒",
+      title: "La lista della spesa",
+      desc: "Nel tab Spesa trovi tutto quello che devi comprare, già organizzato per categoria. Spunta gli ingredienti mentre fai la spesa. Puoi aggiungere qualsiasi altra cosa manualmente.",
+      tab: "shopping",
+    },
+    {
+      emoji: "🍳",
+      title: "Ora cucino",
+      desc: "Il banner arancione in cima mostra sempre il pasto del momento — pranzo o cena in base all'orario. Clicca 'Vedi ricetta' per vedere ingredienti e passaggi dettagliati.",
+      tab: "week",
+    },
+    {
+      emoji: "📖",
+      title: "Il procedimento guidato",
+      desc: "Nel tab Ricette puoi avviare il procedimento guidato: ti mostra uno step alla volta, con istruzioni dettagliate su tempi e tecniche. Spunta ogni step per andare avanti.",
+      tab: "recipes",
+    },
+    {
+      emoji: "🧊",
+      title: "La dispensa",
+      desc: "Nel Planner puoi aggiungere gli ingredienti che hai già in casa. Il sistema li esclude automaticamente dalla lista della spesa. Le erbe avanzate te le ricorda alla generazione successiva.",
+      tab: "planner",
+    },
+  ];
+
   return (
     <>
       <style>{designTokens}</style>
+      {/* ── TUTORIAL OVERLAY ── */}
+      {isMounted && !tutorialDone && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(61,43,31,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 0 24px" }}>
+          <div className="card-warm animate-in" style={{ maxWidth: 480, width: "calc(100% - 32px)", padding: "24px 24px 20px", borderRadius: 24, boxShadow: "0 24px 60px rgba(61,43,31,0.3)" }}>
+            {/* Progress dots */}
+            <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 20 }}>
+              {TUTORIAL_SLIDES.map((_, i) => (
+                <div key={i} style={{ width: i === tutorialStep ? 24 : 8, height: 8, borderRadius: 100, background: i <= tutorialStep ? "var(--terra)" : "var(--cream-dark)", transition: "all 0.3s" }} />
+              ))}
+            </div>
+
+            {/* Content */}
+            <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 20 }}>
+              <div style={{ fontSize: 40, flexShrink: 0, lineHeight: 1 }}>{TUTORIAL_SLIDES[tutorialStep].emoji}</div>
+              <div>
+                <h3 className="font-display" style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700, color: "var(--sepia)" }}>{TUTORIAL_SLIDES[tutorialStep].title}</h3>
+                <p style={{ margin: 0, fontSize: 14, color: "var(--sepia-light)", lineHeight: 1.6 }}>{TUTORIAL_SLIDES[tutorialStep].desc}</p>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {tutorialStep > 0 && (
+                <button className="btn-ghost" onClick={() => setTutorialStep((p) => p - 1)} style={{ padding: "10px 14px" }}>←</button>
+              )}
+              <button className="btn-terra" style={{ flex: 1, justifyContent: "center" }}
+                onClick={() => {
+                  if (tutorialStep < TUTORIAL_SLIDES.length - 1) {
+                    setActiveTab(TUTORIAL_SLIDES[tutorialStep + 1].tab as string);
+                    setTutorialStep((p) => p + 1);
+                  } else {
+                    completeTutorial();
+                  }
+                }}>
+                {tutorialStep < TUTORIAL_SLIDES.length - 1 ? "Avanti →" : "Inizia a usare l'app ✓"}
+              </button>
+              <button className="btn-ghost" onClick={completeTutorial} style={{ padding: "10px 14px", fontSize: 12 }}>Salta</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-texture" style={{ minHeight: "100vh", paddingBottom: 60 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(14px, 4vw, 28px) clamp(12px, 4vw, 20px)" }}>
 
