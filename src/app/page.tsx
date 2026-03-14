@@ -115,7 +115,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("cipolla dorata", 0.5, "pz", "Verdure"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
-      ing("basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("basilico fresco", 8, "foglie", "Verdure"),
       ing("parmigiano grattugiato", 25, "g", "Latticini"),
     ],
     [
@@ -136,7 +136,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("aglio", 3, "spicchi", "Verdure"),
       ing("olio extravergine", 5, "cucchiai", "Dispensa"),
       ing("peperoncino fresco o secco", 1, "pz", "Dispensa"),
-      ing("prezzemolo fresco", 1, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
     ],
     [
       "Cuoci gli spaghetti in abbondante acqua salata. Tieni da parte una tazza d'acqua di cottura prima di scolarli.",
@@ -156,7 +156,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("peperoncino fresco", 1, "pz", "Dispensa"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
     ],
     [
       "Scalda l'olio in una padella a fuoco medio. Aggiungi l'aglio schiacciato e il peperoncino tagliato a rondelle (più peperoncino metti, più piccante sarà). Soffriggi per 1-2 minuti finché l'aglio sfrigola profumato.",
@@ -175,7 +175,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("ricotta fresca", 150, "g", "Latticini"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
-      ing("menta o basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("menta o basilico fresco", 8, "foglie", "Verdure"),
       ing("parmigiano grattugiato", 20, "g", "Latticini"),
     ],
     [
@@ -232,7 +232,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("pasta (tagliatelle o pappardelle)", 180, "g", "Cereali"),
       ing("funghi champignon", 300, "g", "Verdure"),
       ing("aglio", 2, "spicchi", "Verdure"),
-      ing("timo fresco", 4, "rametti", "Verdure"),
+      ing("timo fresco", 3, "rametti", "Verdure"),
       ing("burro", 20, "g", "Latticini"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
       ing("vino bianco secco", 50, "ml", "Dispensa"),
@@ -256,7 +256,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("passata di pomodoro", 250, "g", "Dispensa"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("ricotta salata", 40, "g", "Latticini"),
-      ing("basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("basilico fresco", 8, "foglie", "Verdure"),
       ing("olio extravergine", 4, "cucchiai", "Dispensa"),
     ],
     [
@@ -296,7 +296,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("vino bianco secco", 80, "ml", "Dispensa"),
       ing("olio extravergine", 4, "cucchiai", "Dispensa"),
-      ing("prezzemolo fresco", 1, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("peperoncino", 0.5, "pz", "Dispensa"),
     ],
     [
@@ -366,7 +366,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("coriandolo in polvere", 0.5, "cucchiaino", "Dispensa"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
       ing("limone", 0.5, "pz", "Verdure"),
-      ing("menta fresca", 1, "mazzetto", "Verdure"),
+      ing("menta fresca", 8, "foglie", "Verdure"),
     ],
     [
       "Porta a bollore 200ml di acqua salata con 1 cucchiaio di olio e le spezie (cumino, coriandolo). Versa il cous cous, mescola, copri e togli dal fuoco. Lascia gonfiare 5 minuti, poi sgrana con una forchetta.",
@@ -468,7 +468,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("farina 00", 2, "cucchiai", "Dispensa"),
       ing("limone", 1, "pz", "Verdure"),
       ing("capperi sotto sale", 1, "cucchiaio", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("burro", 15, "g", "Latticini"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
     ],
@@ -548,7 +548,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("vino bianco secco", 80, "ml", "Dispensa"),
       ing("brodo di pollo o verdure", 100, "ml", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
     ],
     [
@@ -567,7 +567,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("piselli (freschi o surgelati)", 220, "g", "Verdure"),
       ing("cipolla", 0.5, "pz", "Verdure"),
       ing("brodo vegetale", 100, "ml", "Dispensa"),
-      ing("menta fresca", 1, "mazzetto", "Verdure"),
+      ing("menta fresca", 8, "foglie", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
     ],
     [
@@ -641,7 +641,7 @@ const RECIPE_LIBRARY: Recipe[] = [
     [
       ing("filetti di salmone", 320, "g", "Proteine"),
       ing("zucchine", 2, "pz", "Verdure"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("pangrattato", 2, "cucchiai", "Dispensa"),
       ing("limone", 1, "pz", "Verdure"),
@@ -660,7 +660,7 @@ const RECIPE_LIBRARY: Recipe[] = [
     [
       ing("orata intera o filetti", 500, "g", "Proteine"),
       ing("patate", 400, "g", "Verdure"),
-      ing("rosmarino fresco", 2, "rametti", "Verdure"),
+      ing("rosmarino fresco", 1, "rametto", "Verdure"),
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("limone", 1, "pz", "Verdure"),
       ing("olio extravergine", 4, "cucchiai", "Dispensa"),
@@ -681,7 +681,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("zucchine", 2, "pz", "Verdure"),
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("vino bianco secco", 60, "ml", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("peperoncino", 0.5, "pz", "Dispensa"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
     ],
@@ -703,7 +703,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("sedano", 2, "gambi", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
       ing("aceto di vino bianco", 1, "cucchiaio", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
     ],
     [
       "Affetta la cipolla rossa finissima. Mettila in una ciotolina con un cucchiaio di aceto e un pizzico di sale per 5 minuti: si ammorbidirà e perderà l'asprezza cruda.",
@@ -722,7 +722,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("uova fresche", 5, "pz", "Proteine"),
       ing("zucchine", 2, "pz", "Verdure"),
       ing("parmigiano grattugiato", 30, "g", "Latticini"),
-      ing("menta fresca", 1, "mazzetto", "Verdure"),
+      ing("menta fresca", 8, "foglie", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
     ],
     [
@@ -743,7 +743,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("peperoncino", 0.5, "pz", "Dispensa"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
-      ing("basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("basilico fresco", 8, "foglie", "Verdure"),
     ],
     [
       "In una padella larga scalda l'olio a fuoco medio. Soffriggi cipolla e aglio tritati con il peperoncino per 4 minuti finché morbidi.",
@@ -765,7 +765,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("cumino in polvere", 1, "cucchiaino", "Dispensa"),
       ing("paprika dolce", 1, "cucchiaino", "Dispensa"),
       ing("feta sbriciolata", 60, "g", "Latticini"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("olio extravergine", 2, "cucchiai", "Dispensa"),
     ],
     [
@@ -783,7 +783,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("uova fresche", 4, "pz", "Proteine"),
       ing("emmenthal o gruyère grattugiato", 60, "g", "Latticini"),
       ing("burro", 15, "g", "Latticini"),
-      ing("erba cipollina", 1, "mazzetto", "Verdure"),
+      ing("erba cipollina", 1, "ciuffo", "Verdure"),
       ing("latte intero", 2, "cucchiai", "Latticini"),
     ],
     [
@@ -899,7 +899,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("fagioli cannellini in lattina", 480, "g", "Proteine"),
       ing("passata di pomodoro", 180, "g", "Dispensa"),
       ing("aglio", 2, "spicchi", "Verdure"),
-      ing("salvia fresca", 1, "mazzetto", "Verdure"),
+      ing("salvia fresca", 6, "foglie", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
     ],
     [
@@ -935,7 +935,7 @@ const RECIPE_LIBRARY: Recipe[] = [
     [
       ing("ceci in lattina", 480, "g", "Proteine"),
       ing("aglio", 3, "spicchi", "Verdure"),
-      ing("rosmarino fresco", 2, "rametti", "Verdure"),
+      ing("rosmarino fresco", 1, "rametto", "Verdure"),
       ing("passata di pomodoro", 100, "g", "Dispensa"),
       ing("brodo vegetale", 400, "ml", "Dispensa"),
       ing("olio extravergine", 4, "cucchiai", "Dispensa"),
@@ -1045,7 +1045,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("cipolla rossa", 0.25, "pz", "Verdure"),
       ing("limone", 1, "pz", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("paprika", 0.5, "cucchiaino", "Dispensa"),
     ],
     [
@@ -1064,7 +1064,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("pomodori maturi", 2, "pz", "Verdure"),
       ing("cipolla rossa", 0.5, "pz", "Verdure"),
       ing("cetriolo", 1, "pz", "Verdure"),
-      ing("prezzemolo fresco", 1, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
       ing("aceto di vino rosso", 1, "cucchiaio", "Dispensa"),
       ing("cumino in polvere", 0.5, "cucchiaino", "Dispensa"),
@@ -1250,7 +1250,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("pollo intero o cosce e sovracosce", 1000, "g", "Proteine"),
       ing("patate gialle", 800, "g", "Verdure"),
       ing("aglio", 4, "spicchi", "Verdure"),
-      ing("rosmarino fresco", 3, "rametti", "Verdure"),
+      ing("rosmarino fresco", 1, "rametto", "Verdure"),
       ing("limone", 1, "pz", "Verdure"),
       ing("vino bianco secco", 100, "ml", "Dispensa"),
       ing("olio extravergine", 5, "cucchiai", "Dispensa"),
@@ -1271,7 +1271,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("passata di pomodoro", 400, "g", "Dispensa"),
       ing("mozzarella fiordilatte", 300, "g", "Latticini"),
       ing("parmigiano grattugiato", 60, "g", "Latticini"),
-      ing("basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("basilico fresco", 8, "foglie", "Verdure"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("olio extravergine", 5, "cucchiai", "Dispensa"),
     ],
@@ -1338,7 +1338,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("pomodori ciliegia misti (anche gialli)", 300, "g", "Verdure"),
       ing("aglio", 2, "spicchi", "Verdure"),
       ing("burrata", 1, "pz", "Latticini"),
-      ing("basilico fresco", 1, "mazzetto", "Verdure"),
+      ing("basilico fresco", 8, "foglie", "Verdure"),
       ing("olio extravergine", 4, "cucchiai", "Dispensa"),
     ],
     [
@@ -1358,7 +1358,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("parmigiano grattugiato", 40, "g", "Latticini"),
       ing("uova", 1, "pz", "Proteine"),
       ing("aglio", 1, "spicchio", "Verdure"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("passata di pomodoro", 400, "g", "Dispensa"),
       ing("cipolla", 0.5, "pz", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
@@ -1400,7 +1400,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("riso carnaroli", 100, "g", "Cereali"),
       ing("pomodori maturi", 2, "pz", "Verdure"),
       ing("cipolla", 0.5, "pz", "Verdure"),
-      ing("basilico e menta freschi", 1, "mazzetto", "Verdure"),
+      ing("basilico e menta freschi", 8, "foglie", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
       ing("parmigiano grattugiato", 30, "g", "Latticini"),
     ],
@@ -1541,7 +1541,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("capperi sotto sale", 1, "cucchiaio", "Dispensa"),
       ing("aglio", 1, "spicchio", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
     ],
     [
       "Cuoci la pasta in acqua abbondante salata.",
@@ -1578,7 +1578,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("ceci in lattina", 240, "g", "Proteine"),
       ing("pomodori pelati in lattina", 200, "g", "Dispensa"),
       ing("aglio", 2, "spicchi", "Verdure"),
-      ing("prezzemolo fresco", 0.5, "mazzetto", "Verdure"),
+      ing("prezzemolo fresco", 1, "ciuffo", "Verdure"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
     ],
     [
@@ -1745,21 +1745,28 @@ function aggregateShopping(meals: Recipe[], pantryItems: PantryItem[], people: n
       shoppingMap.set(key, existing);
     });
   });
+  const FRESH_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto"];
+
   return Array.from(shoppingMap.values())
     .map((item) => {
       // Cerca nella dispensa con fuzzy match
       let pantryQty = pantryQtyMap.get(normalize(item.name)) || 0;
       if (pantryQty === 0) {
-        // Prova fuzzy match
         for (const [pantryKey, pantryVal] of pantryQtyMap.entries()) {
           if (pantryMatches(pantryKey, item.name)) { pantryQty = pantryVal; break; }
         }
       }
       const neededQty = item.qty - pantryQty;
       if (neededQty <= 0) return null;
+      // Erbe fresche: nella spesa sempre "1 mazzetto" indipendentemente dalle foglie
+      if (FRESH_HERBS.includes(normalize(item.name))) {
+        return { ...item, qty: 1, unit: "mazzetto", waste: 0 };
+      }
       const roundedQty = roundPurchaseQuantity(item, neededQty);
-      const waste = estimateWaste(neededQty, roundedQty);
-      return { ...item, qty: roundedQty, waste };
+      const wasteRatio = roundedQty > 0 ? (roundedQty - neededQty) / neededQty : 0;
+      const finalQty = wasteRatio > 0.4 && neededQty > 50 ? Math.ceil(neededQty / 50) * 50 : roundedQty;
+      const waste = estimateWaste(neededQty, finalQty);
+      return { ...item, qty: finalQty, waste };
     })
     .filter((item): item is ShoppingItem => Boolean(item))
     .sort((a, b) => {
@@ -2544,6 +2551,7 @@ export default function SettimanaSmartMVP() {
   const [extraShoppingInput, setExtraShoppingInput] = useState("");
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [isMounted, setIsMounted] = useState(false);
+  const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -2651,6 +2659,14 @@ export default function SettimanaSmartMVP() {
       else { next.regeneratedRecipeIds[recipeItem.id] = (next.regeneratedRecipeIds[recipeItem.id] || 0) + 1; next.dislikedCategories[category] = (next.dislikedCategories[category] || 0) + 1; recipeItem.ingredients.forEach((ingr) => { const k = normalize(ingr.name); next.dislikedIngredients[k] = (next.dislikedIngredients[k] || 0) + 1; }); }
       return next;
     });
+  };
+
+  const goToRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setActiveTab("recipes");
+    setTimeout(() => {
+      recipeDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const swapMeals = (dayName: string) => {
@@ -2884,7 +2900,7 @@ export default function SettimanaSmartMVP() {
                     <p style={{ margin: "3px 0 0", fontSize: 13, color: "rgba(255,255,255,0.8)" }}>⏱ {currentRecipe.time} min · {currentRecipe.ingredients.length} ingredienti</p>
                   </div>
                 </div>
-                <button onClick={() => { setSelectedRecipe(currentRecipe); setActiveTab("recipes"); }} style={{ background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 12, padding: "10px 18px", color: "white", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" }}>
+                <button onClick={() => goToRecipe(currentRecipe)} style={{ background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 12, padding: "10px 18px", color: "white", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" }}>
                   Vedi ricetta →
                 </button>
               </div>
@@ -3233,7 +3249,7 @@ export default function SettimanaSmartMVP() {
                 </div>
               </div>
 
-              <div style={{ position: "sticky", top: 20, alignSelf: "start" }}>
+              <div ref={recipeDetailRef} style={{ position: "sticky", top: 20, alignSelf: "start" }}>
                 {selectedRecipe ? (
                   <div className="card-warm" style={{ padding: 28 }}>
                     <h2 className="font-display" style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 700, color: "var(--sepia)", lineHeight: 1.2 }}>{selectedRecipe.title}</h2>
