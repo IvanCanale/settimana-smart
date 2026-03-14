@@ -2478,6 +2478,11 @@ const designTokens = `
   .delay-3 { animation-delay: 0.15s; }
   .delay-4 { animation-delay: 0.2s; }
 
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
   /* ── MOBILE ── */
   @media (max-width: 640px) {
     .mobile-stack { grid-template-columns: 1fr !important; }
@@ -2857,83 +2862,124 @@ export default function SettimanaSmartMVP() {
     );
   }
 
-  const TUTORIAL_SLIDES = [
+  // Tutorial steps: each step highlights a specific element in the real UI
+  const TOUR_STEPS = [
     {
-      emoji: "📅",
-      title: "Il tuo piano settimanale",
-      desc: "Nel tab Settimana trovi pranzo e cena per ogni giorno, già bilanciati e pensati per ridurre gli sprechi. Puoi rigenerare un singolo piatto o invertire pranzo con cena.",
-      tab: "week",
+      tab: "planner",
+      emoji: "👋",
+      title: "Benvenuto in Settimana Smart!",
+      desc: "Ti guido in 6 passi veloci. Prima cosa: sei già nel Planner. Da qui configuri le tue preferenze — dieta, tempo, persone.",
+      highlight: null,
+      action: null,
     },
     {
+      tab: "planner",
+      emoji: "✨",
+      title: "Genera il tuo piano",
+      desc: "Clicca il bottone 'Genera piano' qui sotto per creare la tua settimana personalizzata. L'app sceglie ricette bilanciate rispettando deperibilità e varietà.",
+      highlight: "btn-genera",
+      action: null,
+    },
+    {
+      tab: "week",
+      emoji: "📅",
+      title: "Ecco il tuo piano!",
+      desc: "Ogni giorno ha pranzo e cena. Clicca su un piatto per vedere la ricetta. Usa ↺ per rigenerare un singolo pasto, e ⇅ per invertire pranzo con cena.",
+      highlight: null,
+      action: null,
+    },
+    {
+      tab: "shopping",
       emoji: "🛒",
       title: "La lista della spesa",
-      desc: "Nel tab Spesa trovi tutto quello che devi comprare, già organizzato per categoria. Spunta gli ingredienti mentre fai la spesa. Puoi aggiungere qualsiasi altra cosa manualmente.",
-      tab: "shopping",
+      desc: "Tutto il necessario, organizzato per categoria. Spunta ogni prodotto mentre fai la spesa. Puoi aggiungere altri articoli nel campo in fondo.",
+      highlight: null,
+      action: null,
     },
     {
-      emoji: "🍳",
-      title: "Ora cucino",
-      desc: "Il banner arancione in cima mostra sempre il pasto del momento — pranzo o cena in base all'orario. Clicca 'Vedi ricetta' per vedere ingredienti e passaggi dettagliati.",
-      tab: "week",
-    },
-    {
-      emoji: "📖",
-      title: "Il procedimento guidato",
-      desc: "Nel tab Ricette puoi avviare il procedimento guidato: ti mostra uno step alla volta, con istruzioni dettagliate su tempi e tecniche. Spunta ogni step per andare avanti.",
       tab: "recipes",
+      emoji: "📖",
+      title: "Le ricette con istruzioni",
+      desc: "Seleziona una ricetta per vedere ingredienti e passaggi dettagliati. Premi 'Avvia procedimento guidato' per cucinare step by step.",
+      highlight: null,
+      action: null,
     },
     {
+      tab: "planner",
       emoji: "🧊",
       title: "La dispensa",
-      desc: "Nel Planner puoi aggiungere gli ingredienti che hai già in casa. Il sistema li esclude automaticamente dalla lista della spesa. Le erbe avanzate te le ricorda alla generazione successiva.",
-      tab: "planner",
+      desc: "Aggiungi qui quello che hai già in casa — il sistema lo escluderà dalla spesa. Scrivi 'olio', 'pasta', 'uova'... e risparmia sulla spesa settimanale.",
+      highlight: "dispensa",
+      action: "done",
     },
   ];
 
   return (
     <>
       <style>{designTokens}</style>
-      {/* ── TUTORIAL OVERLAY ── */}
-      {isMounted && !tutorialDone && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(61,43,31,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 0 24px" }}>
-          <div className="card-warm animate-in" style={{ maxWidth: 480, width: "calc(100% - 32px)", padding: "24px 24px 20px", borderRadius: 24, boxShadow: "0 24px 60px rgba(61,43,31,0.3)" }}>
-            {/* Progress dots */}
-            <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 20 }}>
-              {TUTORIAL_SLIDES.map((_, i) => (
-                <div key={i} style={{ width: i === tutorialStep ? 24 : 8, height: 8, borderRadius: 100, background: i <= tutorialStep ? "var(--terra)" : "var(--cream-dark)", transition: "all 0.3s" }} />
-              ))}
-            </div>
-
-            {/* Content */}
-            <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 20 }}>
-              <div style={{ fontSize: 40, flexShrink: 0, lineHeight: 1 }}>{TUTORIAL_SLIDES[tutorialStep].emoji}</div>
-              <div>
-                <h3 className="font-display" style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700, color: "var(--sepia)" }}>{TUTORIAL_SLIDES[tutorialStep].title}</h3>
-                <p style={{ margin: 0, fontSize: 14, color: "var(--sepia-light)", lineHeight: 1.6 }}>{TUTORIAL_SLIDES[tutorialStep].desc}</p>
+      {/* ── TOUR INTERATTIVO ── */}
+      {isMounted && !tutorialDone && (() => {
+        const step = TOUR_STEPS[tutorialStep];
+        const isLast = tutorialStep === TOUR_STEPS.length - 1;
+        const advance = () => {
+          if (isLast) { completeTutorial(); return; }
+          const next = TOUR_STEPS[tutorialStep + 1];
+          setActiveTab(next.tab);
+          setTutorialStep((p) => p + 1);
+        };
+        return (
+          <>
+            {/* Sfondo scuro semi-trasparente ma l'app rimane visibile e usabile */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 90, pointerEvents: "none", background: "rgba(61,43,31,0.25)" }} />
+            {/* Tooltip fisso in basso */}
+            <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, padding: "0 12px 16px" }}>
+              <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--warm-white)", borderRadius: "20px 20px 16px 16px", boxShadow: "0 -4px 30px rgba(61,43,31,0.2)", overflow: "hidden" }}>
+                {/* Progress bar */}
+                <div style={{ height: 4, background: "var(--cream-dark)" }}>
+                  <div style={{ height: "100%", background: "var(--terra)", width: `${((tutorialStep + 1) / TOUR_STEPS.length) * 100}%`, transition: "width 0.3s ease" }} />
+                </div>
+                <div style={{ padding: "16px 20px 18px" }}>
+                  {/* Step indicator + skip */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--terra)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Passo {tutorialStep + 1} di {TOUR_STEPS.length}</span>
+                    <button onClick={completeTutorial} style={{ background: "none", border: "none", fontSize: 12, color: "var(--sepia-light)", cursor: "pointer", fontWeight: 500 }}>Salta il tour</button>
+                  </div>
+                  {/* Content */}
+                  <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 16 }}>
+                    <span style={{ fontSize: 34, flexShrink: 0, lineHeight: 1 }}>{step.emoji}</span>
+                    <div>
+                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: 16, color: "var(--sepia)", fontFamily: "'Playfair Display', serif" }}>{step.title}</p>
+                      <p style={{ margin: 0, fontSize: 13, color: "var(--sepia-light)", lineHeight: 1.6 }}>{step.desc}</p>
+                    </div>
+                  </div>
+                  {/* Navigation */}
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {tutorialStep > 0 && (
+                      <button className="btn-ghost" onClick={() => { setActiveTab(TOUR_STEPS[tutorialStep - 1].tab); setTutorialStep((p) => p - 1); }} style={{ padding: "10px 14px" }}>←</button>
+                    )}
+                    <button className="btn-terra" style={{ flex: 1, justifyContent: "center", fontSize: 15 }} onClick={advance}>
+                      {isLast ? "Inizia a usare l'app ✓" : "Avanti →"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              {tutorialStep > 0 && (
-                <button className="btn-ghost" onClick={() => setTutorialStep((p) => p - 1)} style={{ padding: "10px 14px" }}>←</button>
-              )}
-              <button className="btn-terra" style={{ flex: 1, justifyContent: "center" }}
-                onClick={() => {
-                  if (tutorialStep < TUTORIAL_SLIDES.length - 1) {
-                    setActiveTab(TUTORIAL_SLIDES[tutorialStep + 1].tab as string);
-                    setTutorialStep((p) => p + 1);
-                  } else {
-                    completeTutorial();
-                  }
-                }}>
-                {tutorialStep < TUTORIAL_SLIDES.length - 1 ? "Avanti →" : "Inizia a usare l'app ✓"}
-              </button>
-              <button className="btn-ghost" onClick={completeTutorial} style={{ padding: "10px 14px", fontSize: 12 }}>Salta</button>
-            </div>
-          </div>
-        </div>
-      )}
+            {/* Freccia indicatore per il bottone Genera piano */}
+            {step.highlight === "btn-genera" && (
+              <div style={{ position: "fixed", bottom: 200, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ fontSize: 32, animation: "bounce 1s infinite" }}>👆</div>
+                <div style={{ background: "var(--terra)", color: "white", borderRadius: 100, padding: "6px 16px", fontSize: 12, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>Clicca qui!</div>
+              </div>
+            )}
+            {step.highlight === "dispensa" && (
+              <div style={{ position: "fixed", bottom: 200, right: 24, zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ fontSize: 28, animation: "bounce 1s infinite" }}>👆</div>
+                <div style={{ background: "var(--olive)", color: "white", borderRadius: 100, padding: "6px 14px", fontSize: 12, fontWeight: 700, marginTop: 4 }}>Dispensa</div>
+              </div>
+            )}
+          </>
+        );
+      })()}
       <div className="bg-texture" style={{ minHeight: "100vh", paddingBottom: 60 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(14px, 4vw, 28px) clamp(12px, 4vw, 20px)" }}>
 
