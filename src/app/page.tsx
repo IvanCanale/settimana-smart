@@ -2562,6 +2562,7 @@ export default function SettimanaSmartMVP() {
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("ss_onboarding_done") === "1";
@@ -2591,6 +2592,7 @@ export default function SettimanaSmartMVP() {
   const [runningStepIndex, setRunningStepIndex] = useState(0);
   const [currentStepChecked, setCurrentStepChecked] = useState(false);
   const reminderTimerRef = useRef<number | null>(null);
+  const tutorialStepRef = useRef(0);
 
   const computedPrefs = useMemo(() => ({
     ...preferences,
@@ -2687,17 +2689,18 @@ export default function SettimanaSmartMVP() {
   // Avanza il tour quando l'utente compie l'azione richiesta
   const tourAdvance = (action: string) => {
     if (tutorialDone) return;
-    const step = TOUR_STEPS[tutorialStep];
-    if (step.waitFor === action) {
-      // Delay per azioni visive: l'utente deve vedere l'effetto prima di andare avanti
-      const delay = ["regenerated", "item_checked"].includes(action) ? 1500 : 0;
-      setTimeout(() => {
-        if (tutorialStep >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
-        const next = TOUR_STEPS[tutorialStep + 1];
-        setActiveTab(next.tab);
-        setTutorialStep((p) => p + 1);
-      }, delay);
-    }
+    const currentStep = tutorialStepRef.current;
+    const step = TOUR_STEPS[currentStep];
+    if (!step || step.waitFor !== action) return;
+    const delay = ["regenerated", "item_checked"].includes(action) ? 1500 : 0;
+    setTimeout(() => {
+      const idx = tutorialStepRef.current;
+      if (idx >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
+      const next = TOUR_STEPS[idx + 1];
+      setActiveTab(next.tab);
+      setTutorialStep(idx + 1);
+      tutorialStepRef.current = idx + 1;
+    }, delay);
   };
 
   const swapMeals = (dayName: string) => {
@@ -2744,8 +2747,11 @@ export default function SettimanaSmartMVP() {
 
   const startRecipeFlow = (rec: Recipe | null) => { if (!rec) return; setRunningRecipe(rec); setRunningStepIndex(0); setCurrentStepChecked(false); };
   const closeRecipeFlow = (completed = false) => { 
-    if (completed) tourAdvance("guided_completed");
-    setRunningRecipe(null); setRunningStepIndex(0); setCurrentStepChecked(false); 
+    setRunningRecipe(null); 
+    setRunningStepIndex(0); 
+    setCurrentStepChecked(false);
+    // Chiamiamo tourAdvance dopo che React ha aggiornato lo stato del modale
+    if (completed) setTimeout(() => tourAdvance("guided_completed"), 50);
   };
   const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const completeCurrentStep = (checked: boolean) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); };
