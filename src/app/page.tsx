@@ -2470,6 +2470,29 @@ const designTokens = `
   .delay-2 { animation-delay: 0.1s; }
   .delay-3 { animation-delay: 0.15s; }
   .delay-4 { animation-delay: 0.2s; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    .mobile-stack { grid-template-columns: 1fr !important; }
+    .mobile-hide { display: none !important; }
+    .mobile-full { grid-column: 1 / -1 !important; }
+    .mobile-pad { padding: 16px !important; }
+    .mobile-small-text { font-size: 13px !important; }
+    
+    .tab-item { font-size: 11px !important; padding: 8px 2px !important; }
+    
+    .day-card { padding: 12px !important; }
+    .meal-slot { padding: 10px !important; }
+    
+    .card-warm { border-radius: 16px !important; }
+    
+    .shopping-category { padding: 12px !important; }
+    .shopping-item { padding: 6px 10px !important; }
+    
+    .step-item { padding: 10px 12px !important; }
+    
+    .modal-content { padding: 20px !important; border-radius: 20px !important; }
+  }
 `;
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -2797,20 +2820,20 @@ export default function SettimanaSmartMVP() {
     <>
       <style>{designTokens}</style>
       <div className="bg-texture" style={{ minHeight: "100vh", paddingBottom: 60 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 20px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(14px, 4vw, 28px) clamp(12px, 4vw, 20px)" }}>
 
           {/* ── HEADER ── */}
-          <div className="animate-in" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "start", gap: 20, marginBottom: 28 }}>
+          <div className="animate-in mobile-stack" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "start", gap: 12, marginBottom: 20 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
                 <div style={{ width: 52, height: 52, borderRadius: 16, background: "var(--terra)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, boxShadow: "0 4px 16px rgba(196,103,58,0.35)" }}>🍳</div>
                 <div>
-                  <h1 className="font-display" style={{ fontSize: 32, fontWeight: 700, color: "var(--sepia)", margin: 0, lineHeight: 1.1 }}>Settimana Smart</h1>
+                  <h1 className="font-display" style={{ fontSize: "clamp(22px, 6vw, 32px)", fontWeight: 700, color: "var(--sepia)", margin: 0, lineHeight: 1.1 }}>Settimana Smart</h1>
                   <p style={{ margin: 0, fontSize: 14, color: "var(--sepia-light)", fontWeight: 400 }}>Meal planning · {RECIPE_LIBRARY.length} ricette con istruzioni dettagliate</p>
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div className="mobile-hide" style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
               <div className="stat-chip" style={{ minWidth: 110 }}>
                 <div><div style={{ fontSize: 11, fontWeight: 600, color: "var(--sepia-light)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Riutilizzati</div><div className="font-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--terra)", lineHeight: 1.1 }}>{isMounted ? generated.stats.reusedIngredients : "—"}</div></div>
                 <span style={{ fontSize: 22 }}>♻️</span>
@@ -2839,7 +2862,7 @@ export default function SettimanaSmartMVP() {
               : todayPlan?.dinner;
             if (!currentRecipe) return null;
             return (
-              <div style={{ background: "linear-gradient(135deg, var(--terra), var(--terra-dark))", borderRadius: 18, padding: "18px 22px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, boxShadow: "0 4px 20px rgba(196,103,58,0.3)" }} className="animate-in">
+              <div style={{ background: "linear-gradient(135deg, var(--terra), var(--terra-dark))", borderRadius: 18, padding: "16px 18px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, boxShadow: "0 4px 20px rgba(196,103,58,0.3)", flexWrap: "wrap" }} className="animate-in">
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   <span style={{ fontSize: 32 }}>🍳</span>
                   <div>
@@ -2897,13 +2920,13 @@ export default function SettimanaSmartMVP() {
 
           {/* ══════════════ TAB: PLANNER ══════════════ */}
           {activeTab === "planner" && (
-            <div className="animate-in delay-2" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 20 }}>
+            <div className="animate-in delay-2 mobile-stack" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 20 }}>
 
               {/* Preferenze */}
-              <div className="card-warm" style={{ padding: 28 }}>
+              <div className="card-warm mobile-pad" style={{ padding: 28 }}>
                 <SectionHeader icon="🎛️" title="Preferenze" subtitle="Configura il tuo piano settimanale" />
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }} className="mobile-stack">
                   <div>
                     <label>👥 Persone</label>
                     <input type="number" min={1} value={preferences.people} onChange={(e) => setPreferences((p) => ({ ...p, people: Number(e.target.value || 1) }))} className="input-warm" style={{ marginTop: 6 }} />
@@ -2930,7 +2953,7 @@ export default function SettimanaSmartMVP() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }} className="mobile-stack">
                   <div>
                     <label>👨‍🍳 Livello</label>
                     <select value={preferences.skill} onChange={(e) => setPreferences((p) => ({ ...p, skill: e.target.value as Skill }))} className="select-warm" style={{ marginTop: 6 }}>
@@ -3030,7 +3053,7 @@ export default function SettimanaSmartMVP() {
 
           {/* ══════════════ TAB: SETTIMANA ══════════════ */}
           {activeTab === "week" && (
-            <div className="animate-in delay-2" style={{ display: "grid", gridTemplateColumns: "1.3fr 0.7fr", gap: 20 }}>
+            <div className="animate-in delay-2 mobile-stack" style={{ display: "grid", gridTemplateColumns: "1.3fr 0.7fr", gap: 20 }}>
               <div>
                 <SectionHeader icon="📅" title="Piano della settimana" subtitle="Bilanciato per riutilizzare ingredienti e ridurre gli sprechi" />
                 <div style={{ display: "grid", gap: 12 }}>
@@ -3118,7 +3141,7 @@ export default function SettimanaSmartMVP() {
               {generated.shopping.length === 0 ? (
                 <div className="card-warm" style={{ padding: 28, textAlign: "center", color: "var(--sepia-light)" }}>Nessun ingrediente da acquistare con questi parametri.</div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(260px, 100%), 1fr))", gap: 12 }}>
                   {CATEGORY_ORDER.map((cat) => {
                     const items = generated.shopping.filter((i) => i.category === cat);
                     if (!items.length) return null;
@@ -3181,7 +3204,7 @@ export default function SettimanaSmartMVP() {
 
           {/* ══════════════ TAB: RICETTE ══════════════ */}
           {activeTab === "recipes" && (
-            <div className="animate-in delay-2" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 20 }}>
+            <div className="animate-in delay-2 mobile-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 20 }}>
               <div>
                 <SectionHeader icon="📖" title="Ricette della settimana" subtitle="Clicca per vedere ingredienti e preparazione" />
                 <div style={{ display: "grid", gap: 8 }}>
