@@ -2729,14 +2729,27 @@ export default function SettimanaSmartMVP() {
         title: "Per quante persone cucini?",
         subtitle: "Adatteremo le dosi e la lista della spesa",
         content: (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-            {[1, 2, 3, 4].map((n) => (
-              <button key={n} onClick={() => { setPreferences((p) => ({ ...p, people: n })); setOnboardingStep(1); }}
-                style={{ background: preferences.people === n ? "var(--terra)" : "var(--cream)", border: `2px solid ${preferences.people === n ? "var(--terra)" : "var(--border)"}`, borderRadius: 16, padding: "20px 10px", cursor: "pointer", transition: "all 0.15s" }}>
-                <div style={{ fontSize: 28, marginBottom: 6 }}>{"👤".repeat(n)}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: preferences.people === n ? "white" : "var(--sepia)" }}>{n} {n === 1 ? "persona" : "persone"}</div>
-              </button>
-            ))}
+          <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+              <button onClick={() => setPreferences((p) => ({ ...p, people: Math.max(1, p.people - 1) }))}
+                style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--cream-dark)", border: "2px solid var(--border)", fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "var(--sepia)" }}>−</button>
+              <div style={{ textAlign: "center", minWidth: 100 }}>
+                <div style={{ fontSize: 52, fontWeight: 800, color: "var(--terra)", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>{preferences.people}</div>
+                <div style={{ fontSize: 14, color: "var(--sepia-light)", marginTop: 4 }}>{preferences.people === 1 ? "persona" : "persone"}</div>
+              </div>
+              <button onClick={() => setPreferences((p) => ({ ...p, people: Math.min(12, p.people + 1) }))}
+                style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--terra)", border: "none", fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white" }}>+</button>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <button key={n} onClick={() => setPreferences((p) => ({ ...p, people: n }))}
+                  style={{ width: 40, height: 40, borderRadius: "50%", background: preferences.people === n ? "var(--terra)" : "var(--cream)", border: `2px solid ${preferences.people === n ? "var(--terra)" : "var(--border)"}`, fontSize: 14, fontWeight: 700, cursor: "pointer", color: preferences.people === n ? "white" : "var(--sepia)", transition: "all 0.15s" }}>{n}</button>
+              ))}
+            </div>
+            <button onClick={() => setOnboardingStep(1)}
+              style={{ background: "var(--terra)", border: "none", borderRadius: 14, padding: "14px", color: "white", fontWeight: 700, fontSize: 16, cursor: "pointer", marginTop: 4 }}>
+              Continua →
+            </button>
           </div>
         ),
       },
@@ -2794,7 +2807,7 @@ export default function SettimanaSmartMVP() {
       <>
         <style>{designTokens}</style>
         <div className="bg-texture" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div className="card-warm animate-in" style={{ maxWidth: 480, width: "100%", padding: 36 }}>
+          <div className="card-warm animate-in" style={{ maxWidth: 480, width: "100%", padding: "clamp(20px, 6vw, 36px)" }}>
             {/* Progress dots */}
             <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 28 }}>
               {steps.map((_, i) => (
