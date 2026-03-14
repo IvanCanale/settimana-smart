@@ -2753,7 +2753,7 @@ export default function SettimanaSmartMVP() {
     // Chiamiamo tourAdvance dopo che React ha aggiornato lo stato del modale
     if (completed) setTimeout(() => tourAdvance("guided_completed"), 50);
   };
-  const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
+  const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(true); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const completeCurrentStep = (checked: boolean) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); };
   const meals = generated.days.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
   const confirmWeek = () => { meals.forEach((m) => learnFromRecipe(m, "keep")); setLastMessage("Settimana confermata ✓"); setShowGeneratedBanner(true); };
