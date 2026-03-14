@@ -2482,6 +2482,10 @@ const designTokens = `
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
   }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
 
   /* ── MOBILE ── */
   @media (max-width: 640px) {
@@ -2635,13 +2639,14 @@ export default function SettimanaSmartMVP() {
     return () => { if (reminderTimerRef.current) window.clearTimeout(reminderTimerRef.current); if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = null; };
   }, [selectedVoiceName]);
 
-  const addPantryItem = () => { if (!pantryInput.name.trim()) return; setPantryItems((prev) => [...prev, { name: pantryInput.name.trim(), quantity: Number(pantryInput.quantity || 0), unit: pantryInput.unit }]); setPantryInput({ name: "", quantity: "", unit: "g" }); };
+  const addPantryItem = () => { if (!pantryInput.name.trim()) return; setPantryItems((prev) => [...prev, { name: pantryInput.name.trim(), quantity: Number(pantryInput.quantity || 0), unit: pantryInput.unit }]); setPantryInput({ name: "", quantity: "", unit: "g" }); tourAdvance("pantry_added"); };
   const removePantryItem = (index: number) => setPantryItems((prev) => prev.filter((_, i) => i !== index));
   const toggleSkippedMeal = (value: string) => setPreferences((p) => ({ ...p, skippedMeals: p.skippedMeals.includes(value) ? p.skippedMeals.filter((x) => x !== value) : [...p.skippedMeals, value] }));
 
   const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto"];
 
   const regenerate = () => {
+    tourAdvance("generate");
     setIsGenerating(true); setShowGeneratedBanner(false); setShowHerbBanner(false); setLastMessage("Generazione in corso...");
     setTimeout(() => {
       // Calcola le erbe usate nel piano corrente prima di rigenerare
@@ -2677,6 +2682,18 @@ export default function SettimanaSmartMVP() {
     setTimeout(() => {
       recipeDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
+  };
+
+  // Avanza il tour quando l'utente compie l'azione richiesta
+  const tourAdvance = (action: string) => {
+    if (tutorialDone) return;
+    const step = TOUR_STEPS[tutorialStep];
+    if (step.waitFor === action) {
+      if (tutorialStep >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
+      const next = TOUR_STEPS[tutorialStep + 1];
+      setActiveTab(next.tab);
+      setTutorialStep((p) => p + 1);
+    }
   };
 
   const swapMeals = (dayName: string) => {
@@ -2715,12 +2732,13 @@ export default function SettimanaSmartMVP() {
     setSelectedRecipe(nextRecipe);
     setLastMessage(`Rigenerato ${slot === "lunch" ? "pranzo" : "cena"} di ${dayName}`);
     setShowGeneratedBanner(true);
+    tourAdvance("regenerated");
   };
 
   const playReminderPreview = () => { if (typeof window === "undefined" || !("speechSynthesis" in window)) return; const u = new SpeechSynthesisUtterance(prepReminderMessage || "È ora di iniziare a cucinare"); const v = window.speechSynthesis.getVoices().find((vx) => vx.name === selectedVoiceName); if (v) u.voice = v; u.lang = v?.lang || "it-IT"; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); };
   const scheduleReminder = async () => { if (typeof window === "undefined") return; if (reminderTimerRef.current) window.clearTimeout(reminderTimerRef.current); const [h, m] = prepTime.split(":").map(Number); const now = new Date(); const target = new Date(); target.setHours(h, m, 0, 0); if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 1); const delay = target.getTime() - now.getTime(); if (typeof Notification !== "undefined" && Notification.permission === "default") { try { await Notification.requestPermission(); } catch {} } reminderTimerRef.current = window.setTimeout(() => { const msg = prepReminderMessage || "È ora di iniziare a cucinare"; if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Settimana Smart", { body: msg }); if ("speechSynthesis" in window) { const u = new SpeechSynthesisUtterance(msg); const v = window.speechSynthesis.getVoices().find((vx) => vx.name === selectedVoiceName); if (v) u.voice = v; u.lang = v?.lang || "it-IT"; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } window.alert(msg); }, delay); setScheduledReminderText(`Promemoria impostato per le ${prepTime}`); };
 
-  const startRecipeFlow = (rec: Recipe | null) => { if (!rec) return; setRunningRecipe(rec); setRunningStepIndex(0); setCurrentStepChecked(false); };
+  const startRecipeFlow = (rec: Recipe | null) => { if (!rec) return; setRunningRecipe(rec); setRunningStepIndex(0); setCurrentStepChecked(false); tourAdvance("guided_started"); };
   const closeRecipeFlow = () => { setRunningRecipe(null); setRunningStepIndex(0); setCurrentStepChecked(false); };
   const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const completeCurrentStep = (checked: boolean) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); };
@@ -2862,55 +2880,71 @@ export default function SettimanaSmartMVP() {
     );
   }
 
-  // Tutorial steps: each step highlights a specific element in the real UI
+  // Tour interattivo: ogni step aspetta che l'utente compia l'azione
+  // waitFor: nome dell'azione che sblocca lo step successivo
   const TOUR_STEPS = [
     {
       tab: "planner",
       emoji: "👋",
       title: "Benvenuto in Settimana Smart!",
-      desc: "Ti guido in 6 passi veloci. Prima cosa: sei già nel Planner. Da qui configuri le tue preferenze — dieta, tempo, persone.",
+      body: "Questa app pianifica i tuoi pasti settimanali, crea la lista della spesa e ti guida in cucina — tutto in automatico.",
+      instruction: null,
+      waitFor: null, // step intro: ha solo il bottone Avanti
       highlight: null,
-      action: null,
     },
     {
       tab: "planner",
-      emoji: "✨",
-      title: "Genera il tuo piano",
-      desc: "Clicca il bottone 'Genera piano' qui sotto per creare la tua settimana personalizzata. L'app sceglie ricette bilanciate rispettando deperibilità e varietà.",
+      emoji: "🎛️",
+      title: "Il Planner",
+      body: "Qui imposti le tue preferenze: quante persone, che dieta segui, quanto tempo hai per cucinare. Puoi cambiarle quando vuoi.",
+      instruction: "👇 Premi 'Genera piano' per creare la tua prima settimana",
+      waitFor: "generate", // si sblocca quando l'utente clicca Genera
       highlight: "btn-genera",
-      action: null,
     },
     {
       tab: "week",
       emoji: "📅",
-      title: "Ecco il tuo piano!",
-      desc: "Ogni giorno ha pranzo e cena. Clicca su un piatto per vedere la ricetta. Usa ↺ per rigenerare un singolo pasto, e ⇅ per invertire pranzo con cena.",
-      highlight: null,
-      action: null,
+      title: "La tua settimana",
+      body: "Ecco il piano generato! Ogni giorno ha pranzo e cena bilanciati. Il sistema rispetta la deperibilità degli alimenti — il pesce fresco è sempre a inizio settimana.",
+      instruction: "👇 Tocca uno dei piatti per vedere la ricetta",
+      waitFor: "recipe_selected",
+      highlight: "meal-slot",
+    },
+    {
+      tab: "week",
+      emoji: "⇅",
+      title: "Personalizza i pasti",
+      body: "Puoi rigenerare un singolo piatto con ↺, oppure invertire pranzo e cena con il bottone ⇅ tra i due slot.",
+      instruction: "👇 Premi ↺ su uno dei piatti per rigenerarlo",
+      waitFor: "regenerated",
+      highlight: "rigenera",
     },
     {
       tab: "shopping",
       emoji: "🛒",
       title: "La lista della spesa",
-      desc: "Tutto il necessario, organizzato per categoria. Spunta ogni prodotto mentre fai la spesa. Puoi aggiungere altri articoli nel campo in fondo.",
-      highlight: null,
-      action: null,
+      body: "Tutto quello che ti serve per la settimana, organizzato per categoria — Verdure, Proteine, Latticini, Cereali, Dispensa. Già depurato da quello che hai in casa.",
+      instruction: "👇 Spunta un ingrediente come se fossi al supermercato",
+      waitFor: "item_checked",
+      highlight: "checkbox-spesa",
     },
     {
       tab: "recipes",
       emoji: "📖",
-      title: "Le ricette con istruzioni",
-      desc: "Seleziona una ricetta per vedere ingredienti e passaggi dettagliati. Premi 'Avvia procedimento guidato' per cucinare step by step.",
-      highlight: null,
-      action: null,
+      title: "Le ricette",
+      body: "Ogni ricetta ha dosi precise, ingredienti e passaggi dettagliati con tempi e tecniche. Niente più 'quanto basta'.",
+      instruction: "👇 Premi 'Avvia procedimento guidato' su una ricetta",
+      waitFor: "guided_started",
+      highlight: "btn-guida",
     },
     {
       tab: "planner",
       emoji: "🧊",
       title: "La dispensa",
-      desc: "Aggiungi qui quello che hai già in casa — il sistema lo escluderà dalla spesa. Scrivi 'olio', 'pasta', 'uova'... e risparmia sulla spesa settimanale.",
+      body: "Aggiungi gli ingredienti che hai già in casa — olio, pasta, uova. Il sistema li escluderà dalla lista della spesa e ti farà risparmiare ogni settimana.",
+      instruction: "👇 Aggiungi un ingrediente alla dispensa per finire",
+      waitFor: "pantry_added",
       highlight: "dispensa",
-      action: "done",
     },
   ];
 
@@ -2920,61 +2954,101 @@ export default function SettimanaSmartMVP() {
       {/* ── TOUR INTERATTIVO ── */}
       {isMounted && !tutorialDone && (() => {
         const step = TOUR_STEPS[tutorialStep];
-        const isLast = tutorialStep === TOUR_STEPS.length - 1;
-        const advance = () => {
-          if (isLast) { completeTutorial(); return; }
+        const isIntro = step.waitFor === null;
+        const advanceStep = () => {
+          if (tutorialStep >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
           const next = TOUR_STEPS[tutorialStep + 1];
           setActiveTab(next.tab);
           setTutorialStep((p) => p + 1);
         };
         return (
           <>
-            {/* Sfondo scuro semi-trasparente ma l'app rimane visibile e usabile */}
-            <div style={{ position: "fixed", inset: 0, zIndex: 90, pointerEvents: "none", background: "rgba(61,43,31,0.25)" }} />
-            {/* Tooltip fisso in basso */}
-            <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, padding: "0 12px 16px" }}>
-              <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--warm-white)", borderRadius: "20px 20px 16px 16px", boxShadow: "0 -4px 30px rgba(61,43,31,0.2)", overflow: "hidden" }}>
+            {/* Overlay semi-trasparente — l'app è usabile */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 90, pointerEvents: "none", background: "rgba(61,43,31,0.18)" }} />
+
+            {/* Pannello fisso in basso */}
+            <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, padding: "0 12px 12px" }}>
+              <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--warm-white)", borderRadius: "20px 20px 14px 14px", boxShadow: "0 -8px 40px rgba(61,43,31,0.22)", overflow: "hidden" }}>
+                
                 {/* Progress bar */}
-                <div style={{ height: 4, background: "var(--cream-dark)" }}>
-                  <div style={{ height: "100%", background: "var(--terra)", width: `${((tutorialStep + 1) / TOUR_STEPS.length) * 100}%`, transition: "width 0.3s ease" }} />
+                <div style={{ height: 3, background: "var(--cream-dark)" }}>
+                  <div style={{ height: "100%", background: "var(--terra)", width: `${((tutorialStep + 1) / TOUR_STEPS.length) * 100}%`, transition: "width 0.4s ease" }} />
                 </div>
-                <div style={{ padding: "16px 20px 18px" }}>
-                  {/* Step indicator + skip */}
+
+                <div style={{ padding: "14px 18px 16px" }}>
+                  {/* Header */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--terra)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Passo {tutorialStep + 1} di {TOUR_STEPS.length}</span>
-                    <button onClick={completeTutorial} style={{ background: "none", border: "none", fontSize: 12, color: "var(--sepia-light)", cursor: "pointer", fontWeight: 500 }}>Salta il tour</button>
-                  </div>
-                  {/* Content */}
-                  <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 16 }}>
-                    <span style={{ fontSize: 34, flexShrink: 0, lineHeight: 1 }}>{step.emoji}</span>
-                    <div>
-                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: 16, color: "var(--sepia)", fontFamily: "'Playfair Display', serif" }}>{step.title}</p>
-                      <p style={{ margin: 0, fontSize: 13, color: "var(--sepia-light)", lineHeight: 1.6 }}>{step.desc}</p>
-                    </div>
-                  </div>
-                  {/* Navigation */}
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {tutorialStep > 0 && (
-                      <button className="btn-ghost" onClick={() => { setActiveTab(TOUR_STEPS[tutorialStep - 1].tab); setTutorialStep((p) => p - 1); }} style={{ padding: "10px 14px" }}>←</button>
-                    )}
-                    <button className="btn-terra" style={{ flex: 1, justifyContent: "center", fontSize: 15 }} onClick={advance}>
-                      {isLast ? "Inizia a usare l'app ✓" : "Avanti →"}
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--terra)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      {tutorialStep + 1} / {TOUR_STEPS.length}
+                    </span>
+                    <button onClick={completeTutorial} style={{ background: "none", border: "none", fontSize: 12, color: "var(--sepia-light)", cursor: "pointer", fontWeight: 500, padding: "4px 8px" }}>
+                      Salta il tour ×
                     </button>
                   </div>
+
+                  {/* Contenuto step */}
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
+                    <span style={{ fontSize: 30, lineHeight: 1, flexShrink: 0 }}>{step.emoji}</span>
+                    <div>
+                      <p style={{ margin: "0 0 5px", fontWeight: 700, fontSize: 15, color: "var(--sepia)", fontFamily: "'Playfair Display', serif" }}>{step.title}</p>
+                      <p style={{ margin: 0, fontSize: 13, color: "var(--sepia-light)", lineHeight: 1.55 }}>{step.body}</p>
+                    </div>
+                  </div>
+
+                  {/* Istruzione azione — se c'è */}
+                  {step.instruction && (
+                    <div style={{ background: "rgba(196,103,58,0.08)", border: "1px solid rgba(196,103,58,0.2)", borderRadius: 10, padding: "8px 12px", marginBottom: 12 }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--terra)" }}>{step.instruction}</p>
+                    </div>
+                  )}
+
+                  {/* Bottone avanti — solo per step senza azione da compiere */}
+                  {isIntro && (
+                    <button className="btn-terra" style={{ width: "100%", justifyContent: "center" }} onClick={advanceStep}>
+                      Avanti →
+                    </button>
+                  )}
+
+                  {/* Messaggio attesa azione */}
+                  {!isIntro && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, opacity: 0.6 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--terra)", animation: "pulse 1.2s infinite" }} />
+                      <span style={{ fontSize: 12, color: "var(--sepia-light)" }}>In attesa che tu completi l'azione…</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Freccia indicatore per il bottone Genera piano */}
+
+            {/* Freccia rimbalzante per highlight */}
             {step.highlight === "btn-genera" && (
-              <div style={{ position: "fixed", bottom: 200, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 32, animation: "bounce 1s infinite" }}>👆</div>
-                <div style={{ background: "var(--terra)", color: "white", borderRadius: 100, padding: "6px 16px", fontSize: 12, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>Clicca qui!</div>
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
+              </div>
+            )}
+            {step.highlight === "meal-slot" && (
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
+              </div>
+            )}
+            {step.highlight === "rigenera" && (
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
+              </div>
+            )}
+            {step.highlight === "checkbox-spesa" && (
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
+              </div>
+            )}
+            {step.highlight === "btn-guida" && (
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
               </div>
             )}
             {step.highlight === "dispensa" && (
-              <div style={{ position: "fixed", bottom: 200, right: 24, zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ fontSize: 28, animation: "bounce 1s infinite" }}>👆</div>
-                <div style={{ background: "var(--olive)", color: "white", borderRadius: 100, padding: "6px 14px", fontSize: 12, fontWeight: 700, marginTop: 4 }}>Dispensa</div>
+              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
               </div>
             )}
           </>
@@ -3227,7 +3301,7 @@ export default function SettimanaSmartMVP() {
                       {(() => {
                         if (preferences.mealsPerDay !== "both") {
                           return (
-                            <div className="meal-slot" onClick={() => day.dinner && setSelectedRecipe(day.dinner)}>
+                            <div className="meal-slot" onClick={() => { if (day.dinner) { setSelectedRecipe(day.dinner); tourAdvance("recipe_selected"); } }}>
                               <p style={{ margin: "0 0 6px", fontWeight: 600, color: "var(--sepia)", fontSize: 15 }}>{day.dinner?.title || <span style={{ color: "var(--sepia-light)", fontStyle: "italic" }}>Pasto saltato</span>}</p>
                               {day.dinner && <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}><TimeTag minutes={day.dinner.time} />{day.dinner.tags.slice(0, 3).map((t) => <TagPill key={t}>{t}</TagPill>)}</div>}
                               {day.dinner && <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--sepia-light)" }}>{day.dinner.ingredients.slice(0, 4).map((i) => i.name).join(" · ")}</p>}
@@ -3255,7 +3329,7 @@ export default function SettimanaSmartMVP() {
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                             {slots.map((slotItem, idx) => (
                               <React.Fragment key={slotItem.label}>
-                                <div className="meal-slot" onClick={() => slotItem.recipe && setSelectedRecipe(slotItem.recipe)}>
+                                <div className="meal-slot" onClick={() => { if (slotItem.recipe) { setSelectedRecipe(slotItem.recipe); tourAdvance("recipe_selected"); } }}>
                                   <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--sepia-light)" }}>{slotItem.label}</p>
                                   <p style={{ margin: "0 0 8px", fontWeight: 600, color: "var(--sepia)", fontSize: 14, lineHeight: 1.3 }}>{slotItem.recipe?.title || <span style={{ color: "var(--sepia-light)", fontStyle: "italic" }}>Pasto saltato</span>}</p>
                                   {slotItem.recipe && <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}><TimeTag minutes={slotItem.recipe.time} />{slotItem.recipe.tags.slice(0, 2).map((t) => <TagPill key={t}>{t}</TagPill>)}</div>}
@@ -3316,7 +3390,7 @@ export default function SettimanaSmartMVP() {
                             return (
                               <div key={item.name} className="shopping-item" style={{ opacity: isChecked ? 0.45 : 1, transition: "opacity 0.2s" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                                  <input type="checkbox" checked={isChecked} onChange={() => setCheckedShoppingItems((p) => { const n = new Set(p); n.has(itemKey) ? n.delete(itemKey) : n.add(itemKey); return n; })} className="checkbox-warm" />
+                                  <input type="checkbox" checked={isChecked} onChange={() => { setCheckedShoppingItems((p) => { const n = new Set(p); n.has(itemKey) ? n.delete(itemKey) : n.add(itemKey); return n; }); tourAdvance("item_checked"); }} className="checkbox-warm" />
                                   <span style={{ fontSize: 14, color: "var(--sepia)", fontWeight: 500, textDecoration: isChecked ? "line-through" : "none" }}>{item.name}</span>
                                 </div>
                                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--terra)" }}>{Number.isInteger(item.qty) ? item.qty : item.qty.toFixed(1)} {item.unit}</span>
