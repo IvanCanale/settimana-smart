@@ -2562,7 +2562,6 @@ export default function SettimanaSmartMVP() {
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
-  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("ss_onboarding_done") === "1";
@@ -2573,6 +2572,7 @@ export default function SettimanaSmartMVP() {
     return localStorage.getItem("ss_tutorial_done") === "1";
   });
   const [tutorialStep, setTutorialStep] = useState(0);
+  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   const [manualOverrides, setManualOverrides] = useState<ManualOverrides>(() => {
     if (typeof window === "undefined") return {};
     try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
