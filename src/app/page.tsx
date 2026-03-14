@@ -2891,6 +2891,7 @@ export default function SettimanaSmartMVP() {
       instruction: null,
       waitFor: null, // step intro: ha solo il bottone Avanti
       highlight: null,
+      position: "bottom",
     },
     {
       tab: "planner",
@@ -2900,6 +2901,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Premi 'Genera piano' per creare la tua prima settimana",
       waitFor: "generate", // si sblocca quando l'utente clicca Genera
       highlight: "btn-genera",
+      position: "top",
     },
     {
       tab: "week",
@@ -2909,6 +2911,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Tocca uno dei piatti per vedere la ricetta",
       waitFor: "recipe_selected",
       highlight: "meal-slot",
+      position: "top",
     },
     {
       tab: "week",
@@ -2918,6 +2921,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Premi ↺ su uno dei piatti per rigenerarlo",
       waitFor: "regenerated",
       highlight: "rigenera",
+      position: "top",
     },
     {
       tab: "shopping",
@@ -2927,6 +2931,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Spunta un ingrediente come se fossi al supermercato",
       waitFor: "item_checked",
       highlight: "checkbox-spesa",
+      position: "top",
     },
     {
       tab: "recipes",
@@ -2936,6 +2941,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Premi 'Avvia procedimento guidato' su una ricetta",
       waitFor: "guided_started",
       highlight: "btn-guida",
+      position: "bottom",
     },
     {
       tab: "planner",
@@ -2945,6 +2951,7 @@ export default function SettimanaSmartMVP() {
       instruction: "👇 Aggiungi un ingrediente alla dispensa per finire",
       waitFor: "pantry_added",
       highlight: "dispensa",
+      position: "bottom",
     },
   ];
 
@@ -2966,9 +2973,9 @@ export default function SettimanaSmartMVP() {
             {/* Overlay semi-trasparente — l'app è usabile */}
             <div style={{ position: "fixed", inset: 0, zIndex: 90, pointerEvents: "none", background: "rgba(61,43,31,0.18)" }} />
 
-            {/* Pannello fisso in basso */}
-            <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, padding: "0 12px 12px" }}>
-              <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--warm-white)", borderRadius: "20px 20px 14px 14px", boxShadow: "0 -8px 40px rgba(61,43,31,0.22)", overflow: "hidden" }}>
+            {/* Pannello — in alto o in basso secondo lo step */}
+            <div style={{ position: "fixed", ...(step.position === "top" ? { top: 0, left: 0, right: 0, padding: "12px 12px 0" } : { bottom: 0, left: 0, right: 0, padding: "0 12px 12px" }), zIndex: 100 }}>
+              <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--warm-white)", borderRadius: step.position === "top" ? "14px 14px 20px 20px" : "20px 20px 14px 14px", boxShadow: step.position === "top" ? "0 8px 40px rgba(61,43,31,0.22)" : "0 -8px 40px rgba(61,43,31,0.22)", overflow: "hidden" }}>
                 
                 {/* Progress bar */}
                 <div style={{ height: 3, background: "var(--cream-dark)" }}>
@@ -3020,35 +3027,15 @@ export default function SettimanaSmartMVP() {
               </div>
             </div>
 
-            {/* Freccia rimbalzante per highlight */}
-            {step.highlight === "btn-genera" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+            {/* Freccia rimbalzante — punta verso dove agire */}
+            {step.highlight && step.position === "top" && (
+              <div style={{ position: "fixed", top: 170, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
                 <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
               </div>
             )}
-            {step.highlight === "meal-slot" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
-              </div>
-            )}
-            {step.highlight === "rigenera" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
-              </div>
-            )}
-            {step.highlight === "checkbox-spesa" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
-              </div>
-            )}
-            {step.highlight === "btn-guida" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
-              </div>
-            )}
-            {step.highlight === "dispensa" && (
-              <div style={{ position: "fixed", bottom: 195, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👇</div>
+            {step.highlight && step.position === "bottom" && (
+              <div style={{ position: "fixed", bottom: 170, left: "50%", transform: "translateX(-50%)", zIndex: 95, textAlign: "center", pointerEvents: "none" }}>
+                <div style={{ animation: "bounce 0.8s infinite", fontSize: 28 }}>👆</div>
               </div>
             )}
           </>
