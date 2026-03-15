@@ -78,11 +78,21 @@ type PlanStats = {
   categoryCounts: Record<string, number>;
 };
 
+type FreezeItem = {
+  name: string;
+  unit: string;
+  qtyToFreeze: number;        // quantità da congelare
+  useOnDay: string;           // giorno in cui serve (es. "Ven")
+  useOnDayIndex: number;      // indice giorno (0=Lun, 6=Dom)
+  recipe: string;             // ricetta in cui viene usato
+};
+
 type PlanResult = {
   days: DayPlan[];
   shopping: ShoppingItem[];
   stats: PlanStats;
   alerts: string[];
+  freezeItems: FreezeItem[];
 };
 
 type VoiceOption = { name: string; lang: string };
@@ -1863,6 +1873,7 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
       shopping: [],
       stats: { recipesCount: 0, uniqueIngredients: 0, reusedIngredients: 0, estimatedSavings: 0, estimatedTotal: 0, categoryCounts: {} },
       alerts: ["Nessuna ricetta compatibile con i filtri selezionati."],
+      freezeItems: [],
     };
   }
 
@@ -1941,7 +1952,16 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   ) => {
     let score = scoreRecipe(recipeItem, preferences, pantrySet, usedIngredientCounts, preferences.leftoversAllowed);
     const overlap = recipeItem.ingredients.filter((ingr) => coreIngredients.includes(normalize(ingr.name))).length;
-    score += overlap * 3;
+    // Se l'utente ha specificato ingredienti principali, li favoriamo molto fortemente
+    if (preferences.coreIngredients.length > 0) {
+      score += overlap * 20;
+      // Penalizza ricette senza nessun ingrediente principale (se ne abbiamo ancora da soddisfare)
+      const satisfiedCore = new Set(allMeals.flatMap((m) => m.ingredients.map((i) => normalize(i.name))).filter((n) => coreIngredients.includes(n)));
+      const unsatisfiedCore = coreIngredients.filter((c) => !satisfiedCore.has(c));
+      if (overlap === 0 && unsatisfiedCore.length > 0) score -= 15;
+    } else {
+      score += overlap * 3;
+    }
 
     // SEMPLICITÀ: premia ricette con pochi ingredienti
     const ingCount = recipeItem.ingredients.length;
@@ -2108,14 +2128,61 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   const shopping = aggregateShopping(allMeals, pantryItems, preferences.people);
   const stats = computeStats(allMeals, shopping);
   const alerts = [
-    `Ingredienti core della settimana: ${coreIngredients.join(", ")}`,
+    preferences.coreIngredients.length > 0 ? `Ingredienti principali richiesti: ${preferences.coreIngredients.join(", ")} — il piano li favorisce fortemente.` : `Ingredienti core automatici: ${coreIngredients.join(", ")}`,
     "Il planner evita i duplicati, bilancia meglio pranzi e cene e anticipa gli ingredienti più deperibili all'inizio della settimana.",
     `Bilanciamento settimana — pasta: ${stats.categoryCounts.pasta || 0}, cereali: ${stats.categoryCounts.cereali || 0}, pollo: ${stats.categoryCounts.pollo || 0}, pesce: ${stats.categoryCounts.pesce || 0}, legumi: ${stats.categoryCounts.legumi || 0}, uova: ${stats.categoryCounts.uova || 0}.`,
   ];
   if (preferences.sundaySpecial) alerts.push("Domenica con piatto speciale abilitata.");
   if (preferences.sundayDinnerLeftovers) alerts.push("Cena della domenica impostata su avanzi del pranzo quando possibile.");
   if (preferences.skippedMeals.length) alerts.push("I pasti saltati sono stati esclusi dalla spesa.");
-  return { days, shopping, stats, alerts };
+  // ── FREEZE LOGIC ──────────────────────────────────────────────────────────
+  // Ingredienti deperibili (peso 5) usati in più giorni: calcola cosa congelare
+  const FREEZE_CANDIDATES = [
+    "petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino",
+    "fesa di tacchino a fette","pollo intero o cosce e sovracosce","petto di pollo macinato",
+    "carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)",
+    "fettine di manzo (scamone o fesa)","filetti di salmone","filetti di salmone con pelle",
+    "filetti di merluzzo","gamberi freschi o decongelati","gamberi","orata intera o filetti",
+  ];
+
+  // Mappa ingrediente -> lista di {dayIndex, qty, recipe}
+  const ingredientDayMap: Record<string, {dayIndex: number; qty: number; unit: string; recipe: string}[]> = {};
+
+  days.forEach((day, dayIndex) => {
+    [day.lunch, day.dinner].filter(Boolean).forEach((meal) => {
+      (meal as Recipe).ingredients.forEach((ingr) => {
+        const key = normalize(ingr.name);
+        if (!FREEZE_CANDIDATES.includes(key)) return;
+        if (!ingredientDayMap[key]) ingredientDayMap[key] = [];
+        const scaledQty = scaleQty(ingr.qty, (meal as Recipe).servings, preferences.people);
+        ingredientDayMap[key].push({ dayIndex, qty: scaledQty, unit: ingr.unit, recipe: (meal as Recipe).title });
+      });
+    });
+  });
+
+  const freezeItems: FreezeItem[] = [];
+  Object.entries(ingredientDayMap).forEach(([key, uses]) => {
+    if (uses.length < 2) return; // usato solo una volta, nessun problema
+    // Ordina per giorno
+    uses.sort((a, b) => a.dayIndex - b.dayIndex);
+    const firstUse = uses[0];
+    // Se il primo utilizzo è nei primi 2 giorni (Lun/Mar) e ci sono utilizzi successivi
+    const lateUses = uses.filter((u) => u.dayIndex > 1);
+    if (firstUse.dayIndex <= 1 && lateUses.length > 0) {
+      lateUses.forEach((lateUse) => {
+        freezeItems.push({
+          name: key,
+          unit: lateUse.unit,
+          qtyToFreeze: Math.round(lateUse.qty * 10) / 10,
+          useOnDay: DAYS[lateUse.dayIndex],
+          useOnDayIndex: lateUse.dayIndex,
+          recipe: lateUse.recipe,
+        });
+      });
+    }
+  });
+
+  return { days, shopping, stats, alerts, freezeItems };
 }
 
 function runSanityChecks() {
@@ -2588,6 +2655,7 @@ export default function SettimanaSmartMVP() {
   const [extraShoppingItems, setExtraShoppingItems] = useState<string[]>([]);
   const [extraShoppingInput, setExtraShoppingInput] = useState("");
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
+  const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
@@ -2761,7 +2829,7 @@ export default function SettimanaSmartMVP() {
       if (slot === "dinner" && siblingCategory && getRecipeCategory(rec) === siblingCategory) return false;
       return true;
     });
-    const scored = seededShuffle(pool, seed + dayName.length + slot.length + Object.keys(manualOverrides).length).map((rec) => { let score = 0; if (slot === "dinner") { if (!rec.ingredients.some((i) => i.category === "Cereali")) score += 8; if (["pesce","legumi","uova","pollo","verdure"].includes(getRecipeCategory(rec))) score += 6; } if (computedPrefs.coreIngredients.length) score += rec.ingredients.filter((i) => computedPrefs.coreIngredients.includes(normalize(i.name))).length * 3; return { recipe: rec, score }; }).sort((a, b) => b.score - a.score);
+    const scored = seededShuffle(pool, seed + dayName.length + slot.length + Object.keys(manualOverrides).length).map((rec) => { let score = 0; if (slot === "dinner") { if (!rec.ingredients.some((i) => i.category === "Cereali")) score += 8; if (["pesce","legumi","uova","pollo","verdure"].includes(getRecipeCategory(rec))) score += 6; } if (computedPrefs.coreIngredients.length) score += rec.ingredients.filter((i) => computedPrefs.coreIngredients.includes(normalize(i.name))).length * 20; return { recipe: rec, score }; }).sort((a, b) => b.score - a.score);
     const nextRecipe = scored[0]?.recipe || null;
     if (!nextRecipe) { setLastMessage(`Nessuna alternativa per ${dayName}`); return; }
     setManualOverrides((prev) => ({ ...prev, [dayName]: { ...(prev[dayName] || {}), [slot]: nextRecipe } }));
@@ -2785,7 +2853,44 @@ export default function SettimanaSmartMVP() {
   const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(true); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const completeCurrentStep = (checked: boolean) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); };
   const meals = generated.days.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
-  const confirmWeek = () => { meals.forEach((m) => learnFromRecipe(m, "keep")); setLastMessage("Settimana confermata ✓"); setShowGeneratedBanner(true); };
+  const confirmWeek = () => {
+    meals.forEach((m) => learnFromRecipe(m, "keep"));
+    setLastMessage("Settimana confermata ✓");
+    setShowGeneratedBanner(true);
+    // Programma i promemoria scongelo per tutti gli items da congelare
+    if (generated.freezeItems.length > 0) scheduleFreezeReminders(generated.freezeItems);
+  };
+
+  const scheduleFreezeReminders = (items: FreezeItem[]) => {
+    // Cancella timer precedenti
+    freezeReminderTimers.forEach((t) => window.clearTimeout(t));
+    const newTimers: number[] = [];
+    items.forEach((item) => {
+      // La sera prima alle 20:00
+      const now = new Date();
+      const reminderDay = item.useOnDayIndex - 1; // giorno precedente
+      const target = new Date();
+      // Calcola quanti giorni mancano al giorno del promemoria
+      const todayJS = now.getDay(); // 0=Dom
+      const targetDayJS = reminderDay === 0 ? 1 : reminderDay === 6 ? 0 : reminderDay + 1; // converti Lun=0 a JS
+      let daysUntil = (targetDayJS - todayJS + 7) % 7;
+      if (daysUntil === 0 && now.getHours() >= 20) daysUntil = 7;
+      target.setDate(target.getDate() + daysUntil);
+      target.setHours(20, 0, 0, 0);
+      const delay = target.getTime() - now.getTime();
+      if (delay > 0) {
+        const msg = `⏰ Ricordati di mettere a scongelare ${item.name} (${item.qtyToFreeze}${item.unit}) per domani — serve per: ${item.recipe}`;
+        const t = window.setTimeout(() => {
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            new Notification("Settimana Smart — Scongela!", { body: msg });
+          }
+          window.alert(msg);
+        }, delay);
+        newTimers.push(t);
+      }
+    });
+    setFreezeReminderTimers(newTimers);
+  };
 
   const TABS = [
     { id: "planner", label: "Planner" },
@@ -3235,8 +3340,35 @@ export default function SettimanaSmartMVP() {
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
-                  <label>🧄 Ingredienti core (separati da virgola)</label>
-                  <input placeholder="es. pollo, zucchine, riso" value={preferences.coreIngredients.join(", ")} onChange={(e) => setPreferences((p) => ({ ...p, coreIngredients: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) }))} className="input-warm" style={{ marginTop: 6 }} />
+                  <label>🧄 Ingredienti principali</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                    {preferences.coreIngredients.map((ing, i) => (
+                      <span key={i} className="pantry-tag">{ing}<button onClick={() => setPreferences((p) => ({ ...p, coreIngredients: p.coreIngredients.filter((_, j) => j !== i) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--terra-light)", fontSize: 16, lineHeight: 1, padding: 0, marginLeft: 4 }}>×</button></span>
+                    ))}
+                    <input
+                      placeholder="Aggiungi ingrediente..."
+                      className="input-warm"
+                      style={{ flex: 1, minWidth: 140 }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === ",") {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value.trim().replace(/,$/, "");
+                          if (val) {
+                            setPreferences((p) => ({ ...p, coreIngredients: [...p.coreIngredients, val] }));
+                            (e.target as HTMLInputElement).value = "";
+                          }
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim().replace(/,$/, "");
+                        if (val) {
+                          setPreferences((p) => ({ ...p, coreIngredients: [...p.coreIngredients, val] }));
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                  </div>
+                  <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--sepia-light)" }}>Premi Invio o virgola per aggiungere. Questi ingredienti verranno favoriti nel piano.</p>
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
@@ -3430,6 +3562,35 @@ export default function SettimanaSmartMVP() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {/* ── BANNER CONGELATORE ── */}
+              {generated.freezeItems.length > 0 && (
+                <div style={{ background: "linear-gradient(135deg, rgba(92,107,58,0.1), rgba(92,107,58,0.05))", border: "1.5px solid rgba(92,107,58,0.3)", borderRadius: 18, padding: "18px 20px", marginTop: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    <span style={{ fontSize: 24 }}>🧊</span>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color: "var(--sepia)" }}>Da congelare subito</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--sepia-light)" }}>Questi ingredienti servono in giorni diversi — congela la parte indicata e riceverai un alert la sera prima di scongelarla.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {generated.freezeItems.map((item, i) => (
+                      <div key={i} style={{ background: "var(--warm-white)", borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 18 }}>❄️</span>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "var(--sepia)" }}>{item.name}</p>
+                            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--sepia-light)" }}>Congela <strong style={{ color: "var(--olive)" }}>{item.qtyToFreeze} {item.unit}</strong> · scongela {item.useOnDayIndex > 0 ? `la sera di ${DAYS[item.useOnDayIndex - 1]}` : "domenica sera"} per {item.useOnDay}</p>
+                            <p style={{ margin: "1px 0 0", fontSize: 11, color: "var(--sepia-light)", fontStyle: "italic" }}>Serve per: {item.recipe}</p>
+                          </div>
+                        </div>
+                        <span style={{ background: "rgba(92,107,58,0.12)", color: "var(--olive)", borderRadius: 100, padding: "4px 12px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>Alert sera prima ✓</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--olive)", fontWeight: 500 }}>💡 Premi "Conferma settimana" nel Planner per attivare i promemoria scongelo automatici.</p>
                 </div>
               )}
 
