@@ -1107,7 +1107,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("wrap-hummus", "Wrap con hummus, verdure grigliate e rucola",
-    ["vegana", "vegetariana"], ["veloce", "light"],
+    ["mediterranea", "vegana", "vegetariana"], ["veloce", "light"],
     15, "beginner", 2,
     [
       ing("piadina o wrap integrali", 2, "pz", "Cereali"),
@@ -1127,7 +1127,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("burger-vegetali", "Burger vegetale con insalata di cavolo e senape",
-    ["vegana", "vegetariana"], ["meal prep", "completo"],
+    ["mediterranea", "vegana", "vegetariana"], ["meal prep", "completo"],
     18, "beginner", 2,
     [
       ing("burger vegetali", 2, "pz", "Proteine"),
@@ -1208,7 +1208,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("riso-tofu-verdure", "Riso saltato con tofu, edamame e salsa di soia",
-    ["vegana", "vegetariana"], ["proteico", "veloce"],
+    ["mediterranea", "vegana", "vegetariana"], ["proteico", "veloce"],
     22, "beginner", 2,
     [
       ing("riso basmati cotto (anche avanzato)", 300, "g", "Cereali"),
@@ -2660,7 +2660,7 @@ const RECIPE_LIBRARY: Recipe[] = [
     ]
   ),
 
-  r("gnocchi-ragù-napoli", "Gnocchi al ragù napoletano",
+  r("gnocchi-ragu-napoli", "Gnocchi al ragù napoletano",
     ["mediterranea", "onnivora"], ["domenica", "regionale", "comfort"],
     50, "intermediate", 4,
     [
@@ -3760,7 +3760,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("dahl-lenticchie-cocco", "Dahl di lenticchie rosse con latte di cocco",
-    ["vegana", "vegetariana"], ["speziato", "comfort", "economica"],
+    ["mediterranea", "vegana", "vegetariana"], ["speziato", "comfort", "economica"],
     25, "beginner", 2,
     [
       ing("lenticchie rosse decorticate", 200, "g", "Proteine"),
@@ -3782,7 +3782,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("burger-lenticchie-barbabietola", "Burger di lenticchie e barbabietola",
-    ["vegana", "vegetariana"], ["meal prep", "saporita"],
+    ["mediterranea", "vegana", "vegetariana"], ["meal prep", "saporita"],
     30, "beginner", 2,
     [
       ing("lenticchie verdi o marroni", 200, "g", "Proteine"),
@@ -3822,7 +3822,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("tempeh-verdure-saltate", "Tempeh saltato con verdure e salsa teriyaki",
-    ["vegana", "vegetariana"], ["proteico", "veloce"],
+    ["mediterranea", "vegana", "vegetariana"], ["proteico", "veloce"],
     20, "beginner", 2,
     [
       ing("tempeh", 200, "g", "Proteine"),
@@ -3843,7 +3843,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("zuppa-miso-tofu", "Zuppa di miso con tofu e alghe",
-    ["vegana", "vegetariana"], ["veloce", "light", "giapponese"],
+    ["mediterranea", "vegana", "vegetariana"], ["veloce", "light", "giapponese"],
     12, "beginner", 2,
     [
       ing("pasta di miso bianco", 3, "cucchiai", "Dispensa"),
@@ -4105,8 +4105,7 @@ function pantryMatches(pantryName: string, ingredientName: string): boolean {
     "salmone": ["filetti di salmone", "filetti di salmone con pelle", "salmone affumicato"],
     "merluzzo": ["filetti di merluzzo"],
     "gamberi": ["gamberi freschi o decongelati"],
-    "tonno": ["tonno sott olio di qualita", "tonno sott'olio di qualità", "tonno sott'olio"],
-    "spinaci": ["spinaci freschi"],
+        "spinaci": ["spinaci freschi"],
     "lattuga": ["lattuga o misticanza"],
     "pomodori": ["pomodori ciliegia", "pomodori ciliegia misti (anche gialli)", "pomodori maturi", "pomodorini"],
     "funghi": ["funghi champignon"],
@@ -4131,6 +4130,47 @@ function pantryMatches(pantryName: string, ingredientName: string): boolean {
     "burro": ["burro"],
     "aglio": ["aglio"],
     "limone": ["limone"],
+    "vitello": ["fettine di vitello sottili","fesa di vitello","ossobuco di vitello","scaloppine di vitello","carne di vitello"],
+    "maiale": ["lonza di maiale","lonza di maiale con cotenna","salsiccia fresca","braciole di maiale","costine di maiale"],
+    "salsiccia": ["salsiccia fresca","salsiccia di maiale"],
+    "agnello": ["agnello a pezzi","cosciotto di agnello","costolette di agnello"],
+    "coniglio": ["coniglio a pezzi"],
+    "polpo": ["polpo fresco o surgelato"],
+    "spada": ["tranci di pesce spada"],
+    "pesce spada": ["tranci di pesce spada"],
+    "tonno fresco": ["tranci di tonno fresco"],
+    "trippa": ["trippa precotta"],
+    "lonza": ["lonza di maiale","lonza di maiale con cotenna"],
+    "avocado": ["avocado maturo","avocado"],
+    "bulgur": ["bulgur fine","bulgur"],
+    "farro": ["farro perlato","farro"],
+    "orzo": ["orzo perlato","orzo"],
+    "quinoa": ["quinoa","quinoa cotta"],
+    "tempeh": ["tempeh"],
+    "tahini": ["tahini","crema di sesamo"],
+    "miso": ["pasta di miso bianco","miso"],
+    "barbabietola": ["barbabietola cotta","barbabietola"],
+    "edamame": ["edamame surgelati","edamame"],
+    "mango": ["mango maturo","mango"],
+    "erba cipollina": ["erba cipollina","erba cipollina o aneto"],
+    "aneto": ["aneto","erba cipollina o aneto"],
+    "wurstel": ["wurstel o prosciutto cotto"],
+    "prosciutto cotto": ["prosciutto cotto","prosciutto cotto a fette","wurstel o prosciutto cotto"],
+    "bistecca": ["bistecca di manzo (controfiletto o entrecôte)"],
+    "branzino": ["branzino intero o filetti"],
+    "ossobuco": ["ossobuco di vitello"],
+    "coda": ["coda di bue a pezzi"],
+    "pancetta": ["pancetta tesa a cubetti"],
+    "speck": ["speck a fette","speck a listarelle"],
+    "cozze": ["cozze fresche","cozze sgusciate cotte"],
+    "vongole": ["vongole fresche"],
+    "seppie": ["seppie pulite"],
+    "tonno": ["tonno sott'olio di qualità","tonno sott'olio","tonno sott'olio buono","tranci di tonno fresco"],
+    "orata": ["orata intera o filetti"],
+    "pollo macinato": ["petto di pollo macinato"],
+    "carne macinata": ["carne macinata mista (manzo e maiale)"],
+    "fettine di manzo": ["fettine di manzo (scamone o fesa)"],
+    "manzo": ["manzo da brasato (cappello del prete)","manzo da spezzatino","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)"],
   };
   for (const [key, variants] of Object.entries(aliases)) {
     if ((p === key || p.includes(key)) && variants.some((v) => i.includes(v) || v.includes(i))) return true;
@@ -4155,8 +4195,8 @@ function getRecipeCategory(recipeItem: Recipe): MainCategory {
   const title = normalize(recipeItem.title);
   if (title.includes("pasta") || title.includes("spaghetti") || title.includes("bucatini") || title.includes("carbonara") || title.includes("amatriciana") || title.includes("cacio") || title.includes("trofie") || title.includes("linguine") || title.includes("tagliatelle") || title.includes("maltagliati") || names.some((n) => ["rigatoni o paccheri","spaghetti","penne rigate","trofie o linguine","trofie o fusilli","pasta (conchiglie o penne)","orecchiette o pasta corta","pasta (tagliatelle o pappardelle)","pasta (rigatoni o sedanini)","pasta mista o ditaloni","pasta (farfalle o penne)","pasta (spaghetti o linguine)","sfoglie lasagna secche","cannelloni secchi","bucatini","pasta corta (rigatoni o penne)","pasta mista o ditaloni","pasta avanzata condita","pasta corta mista o maltagliati","pasta (mezze maniche o rigatoni)","pasta (rigatoni o fusilli)","pasta (tagliatelle o penne)"].includes(n))) return "pasta";
   if (title.includes("gnocchi") || title.includes("risotto") || title.includes("focaccia") || title.includes("pizza") || names.some((n) => ["riso basmati","riso carnaroli","riso carnaroli o arborio","riso integrale o semintegrale","riso basmati cotto (anche avanzato)","farro perlato","orzo perlato","bulgur","cous cous","quinoa","sfoglie lasagna","piadina o wrap integrali","gnocchi di patate freschi","bulgur fine","pasta brisée o sfoglia pronta","pasta brisée pronta","farina di polenta istantanea","farina 00 o manitoba","cous cous","piadine romagnole","piadine o wrap","pane a cassetta","pane a cassetta o brioche tostate"].includes(n))) return "cereali";
-  if (names.some((n) => ["filetti di salmone con pelle","filetti di salmone","salmone affumicato","filetti di merluzzo","orata intera o filetti","gamberi freschi o decongelati","gamberi","cozze fresche","tonno sott'olio di qualità","tonno sott'olio","branzino intero o filetti","polpo fresco o surgelato","acciughe sott'olio","vongole fresche","sarde fresche o sott'olio","tranci di tonno fresco","sogliole intere o filetti","baccalà dissalato","gamberetti cotti","seppie pulite","cozze sgusciate cotte"].includes(n)) || recipeItem.tags.includes("pesce")) return "pesce";
-  if (names.some((n) => ["ceci in lattina","lenticchie verdi o marroni","lenticchie rosse decorticate","lenticchie in lattina o già cotte","fagioli borlotti in lattina","fagioli cannellini in lattina","hummus","burger di ceci già pronti","tofu compatto","burger vegetali","falafel surgelati o pronti"].includes(n))) return "legumi";
+  if (names.some((n) => ["filetti di salmone con pelle","filetti di salmone","salmone affumicato","filetti di merluzzo","orata intera o filetti","gamberi freschi o decongelati","gamberi","cozze fresche","tonno sott'olio di qualità","tonno sott'olio","branzino intero o filetti","polpo fresco o surgelato","acciughe sott'olio","vongole fresche","sarde fresche o sott'olio","tranci di tonno fresco","sogliole intere o filetti","baccalà dissalato","gamberetti cotti","seppie pulite","cozze sgusciate cotte","tonno sott'olio buono","tranci di pesce spada"].includes(n)) || recipeItem.tags.includes("pesce")) return "pesce";
+  if (names.some((n) => ["ceci in lattina","lenticchie verdi o marroni","lenticchie rosse decorticate","lenticchie in lattina o già cotte","fagioli borlotti in lattina","fagioli cannellini in lattina","hummus","burger di ceci già pronti","tofu compatto","burger vegetali","falafel surgelati o pronti","tempeh","edamame","lenticchie verdi","lenticchie verdi o marroni cotte","fagiolini","edamame (fagioli di soia sgusciati)"].includes(n))) return "legumi";
   if (names.includes("uova fresche") || names.includes("uova")) return "uova";
   if (names.some((n) => ["petti di pollo","petto di pollo","cosce di pollo disossate","pollo intero o cosce e sovracosce","fesa di tacchino","fesa di tacchino a fette","petto di pollo macinato"].includes(n))) return "pollo";
   if (names.some((n) => ["carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)","manzo da brasato (cappello del prete)","ossobuco di vitello","fettine di vitello sottili","fesa di vitello","coda di bue a pezzi","coniglio a pezzi","lonza di maiale","manzo da spezzatino","cosciotto di agnello","agnello a pezzi","trippa precotta","salsiccia fresca","lonza di maiale con cotenna"].includes(n))) return "carne";
@@ -4291,25 +4331,37 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   // seed % 3: 0=escludi carne, 1=escludi pesce, 2=escludi pollo
   const proteinRotation = seed % 3;
   const MEAT_INGREDIENTS = [
-    // Manzo
-    "carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)","manzo","controfiletto","scamone","fesa di manzo",
-    // Maiale
-    "maiale","lonza di maiale","braciole di maiale","costine di maiale","salsiccia","pancetta","guanciale","speck","prosciutto crudo",
-    // Vitello
-    "vitello","fettine di vitello","scaloppine di vitello","ossobuco","macinato di vitello",
-    // Agnello
-    "agnello","costolette di agnello",
+    "carne macinata mista (manzo e maiale)",    "bistecca di manzo (controfiletto o entrecôte)",    "fettine di manzo (scamone o fesa)",    "manzo",
+    "controfiletto",    "scamone",    "fesa di manzo",    "manzo da spezzatino",
+    "manzo da brasato (cappello del prete)",    "maiale",    "lonza di maiale",    "lonza di maiale con cotenna",
+    "braciole di maiale",    "costine di maiale",    "salsiccia",    "salsiccia fresca",
+    "pancetta",    "pancetta tesa a cubetti",    "guanciale",    "speck",
+    "speck a fette",    "prosciutto crudo",    "prosciutto cotto",    "wurstel o prosciutto cotto",
+    "vitello",    "fettine di vitello",    "fettine di vitello sottili",    "scaloppine di vitello",
+    "ossobuco",    "ossobuco di vitello",    "macinato di vitello",    "fesa di vitello",
+    "agnello",    "agnello a pezzi",    "cosciotto di agnello",    "costolette di agnello",
+    "coniglio",    "coniglio a pezzi",    "trippa",    "trippa precotta",
+    "coda di bue a pezzi",    "prosciutto cotto a fette",    "speck a listarelle"
   ];
+
   const FISH_INGREDIENTS = [
-    "filetti di salmone","filetti di salmone con pelle","filetti di merluzzo","gamberi freschi o decongelati","gamberi","cozze fresche",
-    "tonno sott\'olio di qualità","tonno sott\'olio","salmone affumicato","orata intera o filetti","branzino","spigola",
-    "filetti di sogliola","filetti di trota","acciughe","sardine","polpo","seppie","calamari","vongole",
+    "filetti di salmone","filetti di salmone con pelle","filetti di merluzzo","gamberi freschi o decongelati","gamberi",
+    "cozze fresche","cozze sgusciate cotte","vongole fresche","tonno sott\'olio di qualità","tonno sott\'olio",
+    "salmone affumicato","orata intera o filetti","branzino intero o filetti","branzino","spigola",
+    "filetti di sogliola","sogliole intere o filetti","filetti di trota","acciughe","acciughe sott\'olio",
+    "sardine","sarde fresche o sott\'olio","polpo","polpo fresco o surgelato","seppie","seppie pulite",
+    "calamari","tranci di tonno fresco","tranci di pesce spada","baccalà dissalato","gamberetti cotti",
+    "acciughe sott'olio","sarde fresche o sott'olio","tonno sott'olio buono",
+    "tonno sott'olio","tonno sott'olio di qualità",
   ];
   const POULTRY_INGREDIENTS = [
-    "petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino","fesa di tacchino a fette",
-    "pollo intero o cosce e sovracosce","petto di pollo macinato","tacchino","ali di pollo","sovracosce di pollo",
-    "petto di tacchino","fesa di tacchino","anatra","coniglio",
+    "petti di pollo",    "petto di pollo",    "cosce di pollo disossate",
+    "fesa di tacchino",    "fesa di tacchino a fette",    "pollo intero o cosce e sovracosce",
+    "petto di pollo macinato",    "tacchino",    "ali di pollo",
+    "sovracosce di pollo",    "petto di tacchino",    "anatra",
+    "coniglio"
   ];
+
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
 
   const eligible = RECIPE_LIBRARY.filter((recipeItem) => {
@@ -4369,12 +4421,28 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
         : { pasta: 1, cereali: 1, pollo: 1, pesce: 1, legumi: 1, uova: 1, carne: 1, verdure: 1 });
 
   const maxPerCategory = isRestrictedDiet
-    ? { pasta: 3, cereali: 3, pollo: 0, pesce: 0, legumi: 3, uova: 2, carne: 0, verdure: 3 }
+    ? { pasta: 4, cereali: 4, pollo: 0, pesce: 0, legumi: 4, uova: 2, carne: 0, verdure: 4 }
     : { pasta: 2, cereali: 2, pollo: 2, pesce: 2, legumi: 2, uova: 2, carne: 2, verdure: 2 };
 
   const freshnessWeight = (name: string) => {
     const key = normalize(name);
-    if (["spinaci freschi","lattuga o misticanza","lattuga","rucola","filetti di salmone con pelle","filetti di salmone","filetti di merluzzo","gamberi freschi o decongelati","gamberi","petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino","fesa di tacchino a fette","pollo intero o cosce e sovracosce","petto di pollo macinato","carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)","fettine di manzo (scamone o fesa)"].includes(key)) return 5;
+    if (["spinaci freschi","lattuga o misticanza","lattuga","rucola",
+      "filetti di salmone con pelle","filetti di salmone","filetti di merluzzo",
+      "gamberi freschi o decongelati","gamberi","orata intera o filetti",
+      "tranci di tonno fresco","tranci di pesce spada","sogliole intere o filetti",
+      "polpo fresco o surgelato","sarde fresche o sott'olio",
+      "petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino",
+      "fesa di tacchino a fette","pollo intero o cosce e sovracosce","petto di pollo macinato",
+      "carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)",
+      "fettine di manzo (scamone o fesa)","fettine di vitello sottili","fesa di vitello",
+      "salsiccia fresca","lonza di maiale","lonza di maiale con cotenna",
+      "coniglio a pezzi","agnello a pezzi","cosciotto di agnello","manzo da spezzatino",
+      "bistecca di manzo (controfiletto o entrecôte)","coda di bue a pezzi",
+      "manzo da brasato (cappello del prete)","ossobuco di vitello",
+      "branzino intero o filetti","cozze fresche","cozze sgusciate cotte",
+      "vongole fresche","seppie pulite","tacchino","ali di pollo",
+      "sovracosce di pollo","petto di tacchino","anatra"
+    ].includes(key)) return 5;
     if (["zucchine","funghi champignon","pomodori ciliegia","pomodori ciliegia misti (anche gialli)","pomodorini","cetriolo","tofu compatto","burrata"].includes(key)) return 4;
     if (["broccoli","peperoni","peperoni misti (rosso e giallo)","melanzane","ricotta fresca","mozzarella fiordilatte","mozzarella","feta greca","feta","yogurt greco","avocado"].includes(key)) return 3;
     if (["carote","patate","cipolla","ceci in lattina","lenticchie verdi o marroni","lenticchie rosse decorticate","fagioli borlotti in lattina","fagioli cannellini in lattina","riso basmati","farro perlato","orzo perlato","bulgur","cous cous","quinoa"].includes(key)) return 1;
@@ -4612,11 +4680,21 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   // ── FREEZE LOGIC ──────────────────────────────────────────────────────────
   // Ingredienti deperibili (peso 5) usati in più giorni: calcola cosa congelare
   const FREEZE_CANDIDATES = [
-    "petti di pollo","petto di pollo","cosce di pollo disossate","fesa di tacchino",
-    "fesa di tacchino a fette","pollo intero o cosce e sovracosce","petto di pollo macinato",
-    "carne macinata mista (manzo e maiale)","bistecca di manzo (controfiletto o entrecôte)",
-    "fettine di manzo (scamone o fesa)","filetti di salmone","filetti di salmone con pelle",
-    "filetti di merluzzo","gamberi freschi o decongelati","gamberi","orata intera o filetti",
+    "petti di pollo",    "petto di pollo",    "cosce di pollo disossate",
+    "fesa di tacchino",    "fesa di tacchino a fette",    "pollo intero o cosce e sovracosce",
+    "petto di pollo macinato",    "carne macinata mista (manzo e maiale)",    "bistecca di manzo (controfiletto o entrecôte)",
+    "fettine di manzo (scamone o fesa)",    "fettine di vitello sottili",    "fesa di vitello",
+    "salsiccia fresca",    "lonza di maiale",    "lonza di maiale con cotenna",
+    "coniglio a pezzi",    "agnello a pezzi",    "cosciotto di agnello",
+    "manzo da spezzatino",    "filetti di salmone",    "filetti di salmone con pelle",
+    "filetti di merluzzo",    "gamberi freschi o decongelati",    "gamberi",
+    "orata intera o filetti",    "tranci di tonno fresco",    "tranci di pesce spada",
+    "sogliole intere o filetti",    "polpo fresco o surgelato",    "sarde fresche o sott'olio",
+    "cozze fresche",    "cozze sgusciate cotte",    "vongole fresche",
+    "seppie pulite",    "branzino intero o filetti",    "coda di bue a pezzi",
+    "manzo da brasato (cappello del prete)",    "ossobuco di vitello",    "tacchino",
+    "ali di pollo",    "sovracosce di pollo",    "petto di tacchino",
+    "anatra"
   ];
 
   // Mappa ingrediente -> lista di {dayIndex, qty, recipe}
@@ -5212,7 +5290,7 @@ export default function SettimanaSmartMVP() {
     return () => { if (reminderTimerRef.current) window.clearTimeout(reminderTimerRef.current); if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = null; };
   }, [selectedVoiceName]);
 
-  const addPantryItem = () => { if (!pantryInput.name.trim()) return; setPantryItems((prev) => [...prev, { name: pantryInput.name.trim(), quantity: Number(pantryInput.quantity || 0), unit: pantryInput.unit }]); setPantryInput({ name: "", quantity: "", unit: "g" }); tourAdvance("pantry_added"); };
+  const addPantryItem = () => { if (!pantryInput.name.trim()) return; setPantryItems((prev) => [...prev, { name: pantryInput.name.trim(), quantity: Number(pantryInput.quantity || 0), unit: pantryInput.unit }]); setPantryInput({ name: "", quantity: "", unit: "g" }); };
   const removePantryItem = (index: number) => setPantryItems((prev) => prev.filter((_, i) => i !== index));
   const toggleSkippedMeal = (value: string) => setPreferences((p) => ({ ...p, skippedMeals: p.skippedMeals.includes(value) ? p.skippedMeals.filter((x) => x !== value) : [...p.skippedMeals, value] }));
 
@@ -5237,6 +5315,7 @@ export default function SettimanaSmartMVP() {
       setManualOverrides({});
       setSwappedDays(new Set());
       setCheckedShoppingItems(new Set());
+      setExtraShoppingItems([]);
       setSeed((prev) => prev + 1);
       setIsGenerating(false);
       setShowGeneratedBanner(true);
