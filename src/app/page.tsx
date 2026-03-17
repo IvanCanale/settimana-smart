@@ -4323,6 +4323,23 @@ function pickCoreIngredients(recipes: Recipe[], count = 8) {
   return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, count).map((x) => x[0]);
 }
 
+const FREEZE_CANDIDATES = [
+    "petti di pollo",    "petto di pollo",    "cosce di pollo disossate",
+    "fesa di tacchino",    "fesa di tacchino a fette",    "pollo intero o cosce e sovracosce",
+    "petto di pollo macinato",    "carne macinata mista (manzo e maiale)",    "bistecca di manzo (controfiletto o entrecôte)",
+    "fettine di manzo (scamone o fesa)",    "fettine di vitello sottili",    "fesa di vitello",
+    "salsiccia fresca",    "lonza di maiale",    "lonza di maiale con cotenna",
+    "coniglio a pezzi",    "agnello a pezzi",    "cosciotto di agnello",
+    "manzo da spezzatino",    "filetti di salmone",    "filetti di salmone con pelle",
+    "filetti di merluzzo",    "gamberi freschi o decongelati",    "gamberi",
+    "orata intera o filetti",    "tranci di tonno fresco",    "tranci di pesce spada",
+    "sogliole intere o filetti",    "polpo fresco o surgelato",    "sarde fresche o sott'olio",
+    "cozze fresche",    "cozze sgusciate cotte",    "vongole fresche",
+    "seppie pulite",    "branzino intero o filetti",    "coda di bue a pezzi",
+    "manzo da brasato (cappello del prete)",    "ossobuco di vitello",    "tacchino",
+    "ali di pollo",    "sovracosce di pollo",    "petto di tacchino",
+    "anatra"
+  ];
 function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: number, learning?: PreferenceLearning): PlanResult {
   const pantrySet = new Set(pantryItems.map((x) => normalize(x.name)));
   const exclusions = preferences.exclusions || [];
@@ -4681,29 +4698,16 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   if (preferences.skippedMeals.length) alerts.push("I pasti saltati sono stati esclusi dalla spesa.");
   // ── FREEZE LOGIC ──────────────────────────────────────────────────────────
   // Ingredienti deperibili (peso 5) usati in più giorni: calcola cosa congelare
-  const FREEZE_CANDIDATES = [
-    "petti di pollo",    "petto di pollo",    "cosce di pollo disossate",
-    "fesa di tacchino",    "fesa di tacchino a fette",    "pollo intero o cosce e sovracosce",
-    "petto di pollo macinato",    "carne macinata mista (manzo e maiale)",    "bistecca di manzo (controfiletto o entrecôte)",
-    "fettine di manzo (scamone o fesa)",    "fettine di vitello sottili",    "fesa di vitello",
-    "salsiccia fresca",    "lonza di maiale",    "lonza di maiale con cotenna",
-    "coniglio a pezzi",    "agnello a pezzi",    "cosciotto di agnello",
-    "manzo da spezzatino",    "filetti di salmone",    "filetti di salmone con pelle",
-    "filetti di merluzzo",    "gamberi freschi o decongelati",    "gamberi",
-    "orata intera o filetti",    "tranci di tonno fresco",    "tranci di pesce spada",
-    "sogliole intere o filetti",    "polpo fresco o surgelato",    "sarde fresche o sott'olio",
-    "cozze fresche",    "cozze sgusciate cotte",    "vongole fresche",
-    "seppie pulite",    "branzino intero o filetti",    "coda di bue a pezzi",
-    "manzo da brasato (cappello del prete)",    "ossobuco di vitello",    "tacchino",
-    "ali di pollo",    "sovracosce di pollo",    "petto di tacchino",
-    "anatra"
-  ];
+  // FREEZE_CANDIDATES definita come costante globale
+
 
   // Mappa ingrediente -> lista di {dayIndex, qty, recipe}
   const ingredientDayMap: Record<string, {dayIndex: number; qty: number; unit: string; recipe: string}[]> = {};
 
   days.forEach((day, dayIndex) => {
     [day.lunch, day.dinner].filter(Boolean).forEach((meal) => {
+      // Salta i pasti "avanzi" - usano ingredienti già contati nel pasto originale
+      if ((meal as Recipe).tags?.includes('avanzi')) return;
       (meal as Recipe).ingredients.forEach((ingr) => {
         const key = normalize(ingr.name);
         if (!FREEZE_CANDIDATES.includes(key)) return;
@@ -5266,7 +5270,37 @@ export default function SettimanaSmartMVP() {
     const meals = dedupedDays.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
     const shopping = aggregateShopping(meals, pantryItems, computedPrefs.people);
     const stats = computeStats(meals, shopping);
-    return { ...basePlan, days: dedupedDays, shopping, stats, freezeItems: basePlan.freezeItems };
+    // Ricalcola freezeItems sui giorni aggiornati (include le sostituzioni manuali)
+    const computeFreeze = (planDays: DayPlan[], pref: Preferences): FreezeItem[] => {
+      const dayMap2: Record<string, {dayIndex: number; qty: number; unit: string; recipe: string}[]> = {};
+      planDays.forEach((day, dayIndex) => {
+        [day.lunch, day.dinner].filter(Boolean).forEach((meal) => {
+          if ((meal as Recipe).tags?.includes('avanzi')) return;
+          (meal as Recipe).ingredients.forEach((ingr) => {
+            const k = normalize(ingr.name);
+            if (!FREEZE_CANDIDATES.includes(k)) return;
+            if (!dayMap2[k]) dayMap2[k] = [];
+            const sq = scaleQty(ingr.qty, (meal as Recipe).servings, pref.people);
+            dayMap2[k].push({ dayIndex, qty: sq, unit: ingr.unit, recipe: (meal as Recipe).title });
+          });
+        });
+      });
+      const items: FreezeItem[] = [];
+      Object.entries(dayMap2).forEach(([k, uses]) => {
+        uses.sort((a, b) => a.dayIndex - b.dayIndex);
+        uses.filter((u) => u.dayIndex > 1).forEach((lateUse) => {
+          items.push({
+            name: k, unit: lateUse.unit,
+            qtyToFreeze: Math.round(lateUse.qty * 10) / 10,
+            useOnDay: DAYS[lateUse.dayIndex],
+            useOnDayIndex: lateUse.dayIndex,
+            recipe: lateUse.recipe,
+          });
+        });
+      });
+      return items;
+    };
+    return { ...basePlan, days: dedupedDays, shopping, stats, freezeItems: computeFreeze(dedupedDays, computedPrefs) };
   }, [basePlan, manualOverrides, pantryItems, computedPrefs.people, computedPrefs.diet, computedPrefs.maxTime, computedPrefs.exclusions, seed]);
 
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);
