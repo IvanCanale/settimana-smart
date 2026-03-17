@@ -2324,7 +2324,7 @@ const RECIPE_LIBRARY: Recipe[] = [
 
   r("gratin-patate", "Gratin di patate con panna e parmigiano",
     ["mediterranea", "vegetariana"], ["forno", "comfort", "invernale", "francese"],
-    55, "beginner", 4,
+    45, "beginner", 4,
     [
       ing("patate a pasta gialla", 800, "g", "Verdure"),
       ing("panna fresca", 250, "ml", "Latticini"),
@@ -2815,7 +2815,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("spezzatino-patate", "Spezzatino di manzo con patate",
-    ["mediterranea", "onnivora"], ["comfort", "invernale", "economica"],
+    ["mediterranea", "onnivora"], ["domenica", "comfort", "invernale", "economica"],
     55, "beginner", 4,
     [
       ing("manzo da spezzatino", 600, "g", "Proteine"),
@@ -3986,7 +3986,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("manzo-stracotto-polenta", "Stracotto di manzo con polenta morbida",
-    ["mediterranea", "onnivora"], ["invernale", "comfort", "regionale"],
+    ["mediterranea", "onnivora"], ["domenica", "invernale", "comfort", "regionale"],
     75, "intermediate", 4,
     [
       ing("manzo da brasato (cappello del prete)", 700, "g", "Proteine"),
@@ -4221,7 +4221,7 @@ function aggregateShopping(meals: Recipe[], pantryItems: PantryItem[], people: n
       shoppingMap.set(key, existing);
     });
   });
-  const FRESH_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto"];
+  const FRESH_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto","erba cipollina o aneto"];
 
   return Array.from(shoppingMap.values())
     .map((item) => {
@@ -5182,7 +5182,7 @@ export default function SettimanaSmartMVP() {
     const meals = dedupedDays.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
     const shopping = aggregateShopping(meals, pantryItems, computedPrefs.people);
     const stats = computeStats(meals, shopping);
-    return { ...basePlan, days: dedupedDays, shopping, stats };
+    return { ...basePlan, days: dedupedDays, shopping, stats, freezeItems: basePlan.freezeItems };
   }, [basePlan, manualOverrides, pantryItems, computedPrefs.people, computedPrefs.diet, computedPrefs.maxTime, computedPrefs.exclusions, seed]);
 
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);
@@ -5208,7 +5208,7 @@ export default function SettimanaSmartMVP() {
   const removePantryItem = (index: number) => setPantryItems((prev) => prev.filter((_, i) => i !== index));
   const toggleSkippedMeal = (value: string) => setPreferences((p) => ({ ...p, skippedMeals: p.skippedMeals.includes(value) ? p.skippedMeals.filter((x) => x !== value) : [...p.skippedMeals, value] }));
 
-  const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto"];
+  const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto","erba cipollina o aneto"];
 
   const regenerate = () => {
     tourAdvance("generate");
@@ -5226,7 +5226,13 @@ export default function SettimanaSmartMVP() {
         setHerbAnswers({});
         setShowHerbBanner(true);
       }
-      setManualOverrides({}); setSeed((prev) => prev + 1); setIsGenerating(false); setShowGeneratedBanner(true); setLastMessage(`Piano generato alle ${new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`);
+      setManualOverrides({});
+      setSwappedDays(new Set());
+      setCheckedShoppingItems(new Set());
+      setSeed((prev) => prev + 1);
+      setIsGenerating(false);
+      setShowGeneratedBanner(true);
+      setLastMessage(`Piano generato alle ${new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`);
     }, 500);
   };
 
