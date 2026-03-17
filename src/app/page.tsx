@@ -1133,7 +1133,7 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("burger vegetali", 2, "pz", "Proteine"),
       ing("cavolo cappuccio", 150, "g", "Verdure"),
       ing("carote", 1, "pz", "Verdure"),
-      ing("maionese vegana o yogurt greco", 2, "cucchiai", "Latticini"),
+      ing("maionese vegana o yogurt greco", 2, "cucchiai", "Dispensa"),
       ing("senape di Digione", 1, "cucchiaino", "Dispensa"),
       ing("limone", 0.25, "pz", "Verdure"),
       ing("olio extravergine", 1, "cucchiaio", "Dispensa"),
@@ -1403,7 +1403,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("zucchine-ripiene", "Zucchine ripiene di riso, pomodori e erbe",
-    ["mediterranea", "vegetariana", "vegana"], ["estivo", "speciale"],
+    ["mediterranea", "vegetariana"], ["estivo", "speciale"],
     40, "beginner", 2,
     [
       ing("zucchine grandi", 2, "pz", "Verdure"),
@@ -1462,7 +1462,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("soup-minestrone", "Minestrone ricco di verdure di stagione",
-    ["mediterranea", "vegetariana", "vegana"], ["comfort", "invernale", "nutriente"],
+    ["mediterranea", "vegetariana"], ["comfort", "invernale", "nutriente"],
     35, "beginner", 4,
     [
       ing("patate", 2, "pz", "Verdure"),
@@ -1474,7 +1474,6 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("fagioli borlotti in lattina", 240, "g", "Proteine"),
       ing("pasta mista piccola o riso", 120, "g", "Cereali"),
       ing("olio extravergine", 3, "cucchiai", "Dispensa"),
-      ing("parmigiano (crosta)", 1, "pz", "Latticini"),
     ],
     [
       "Taglia tutte le verdure a cubetti irregolari di 1-2cm.",
@@ -3904,7 +3903,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("parmigiana-melanzane-bianca", "Parmigiana bianca di melanzane con besciamella",
-    ["mediterranea", "vegetariana"], ["forno", "regionale", "domenica"],
+    ["mediterranea", "onnivora"], ["forno", "regionale", "domenica"],
     50, "intermediate", 4,
     [
       ing("melanzane", 3, "pz", "Verdure"),
