@@ -4461,14 +4461,16 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
     recipeItem.ingredients.forEach((ingr) => {
       const weight = freshnessWeight(ingr.name);
       const key = normalize(ingr.name);
-      // Ingredienti ultra deperibili (peso 5): fortissimo bonus nei primi 2 giorni, forte penalità dopo
+      // Ingredienti congelabili (peso 5: carne, pesce, pollame):
+      // Bonus lieve nei primi giorni (meglio freschi), ma NO penalità forti dopo
+      // Il sistema di congelamento gestisce automaticamente i casi tardivi
       if (weight === 5) {
-        if (dayIndex <= 1) score += 30;
-        else if (dayIndex <= 2) score += 10;
-        else if (dayIndex >= 4) score -= 25;
-        else if (dayIndex >= 5) score -= 45;
+        if (dayIndex <= 1) score += 15;       // lieve preferenza inizio settimana
+        else if (dayIndex <= 3) score += 5;   // ancora ok fino a giovedì
+        else if (dayIndex >= 6) score -= 10;  // solo domenica lieve penalità
       }
-      // Molto deperibili (peso 4): bonus entro mercoledì (dayIndex <=2), penalità da giovedì
+      // Molto deperibili NON congelabili (peso 4: zucchine, funghi, burrata):
+      // Questi vanno usati presto perché non si congelano
       else if (weight === 4) {
         if (dayIndex <= 2) score += 18;
         else if (dayIndex === 3) score += 4;
@@ -4714,24 +4716,20 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
 
   const freezeItems: FreezeItem[] = [];
   Object.entries(ingredientDayMap).forEach(([key, uses]) => {
-    if (uses.length < 2) return; // usato solo una volta, nessun problema
-    // Ordina per giorno
     uses.sort((a, b) => a.dayIndex - b.dayIndex);
-    const firstUse = uses[0];
-    // Se il primo utilizzo è nei primi 2 giorni (Lun/Mar) e ci sono utilizzi successivi
-    const lateUses = uses.filter((u) => u.dayIndex > 1);
-    if (firstUse.dayIndex <= 1 && lateUses.length > 0) {
-      lateUses.forEach((lateUse) => {
-        freezeItems.push({
-          name: key,
-          unit: lateUse.unit,
-          qtyToFreeze: Math.round(lateUse.qty * 10) / 10,
-          useOnDay: DAYS[lateUse.dayIndex],
-          useOnDayIndex: lateUse.dayIndex,
-          recipe: lateUse.recipe,
-        });
+    // Congela tutto ciò che viene usato dopo martedì (dayIndex > 1)
+    // indipendentemente da quante volte appare o quando è il primo uso
+    const toFreeze = uses.filter((u) => u.dayIndex > 1);
+    toFreeze.forEach((lateUse) => {
+      freezeItems.push({
+        name: key,
+        unit: lateUse.unit,
+        qtyToFreeze: Math.round(lateUse.qty * 10) / 10,
+        useOnDay: DAYS[lateUse.dayIndex],
+        useOnDayIndex: lateUse.dayIndex,
+        recipe: lateUse.recipe,
       });
-    }
+    });
   });
 
   return { days, shopping, stats, alerts, freezeItems };
