@@ -1133,13 +1133,13 @@ const RECIPE_LIBRARY: Recipe[] = [
       ing("burger vegetali", 2, "pz", "Proteine"),
       ing("cavolo cappuccio", 150, "g", "Verdure"),
       ing("carote", 1, "pz", "Verdure"),
-      ing("maionese vegana o yogurt greco", 2, "cucchiai", "Dispensa"),
+      ing("maionese vegana", 2, "cucchiai", "Dispensa"),
       ing("senape di Digione", 1, "cucchiaino", "Dispensa"),
       ing("limone", 0.25, "pz", "Verdure"),
       ing("olio extravergine", 1, "cucchiaio", "Dispensa"),
     ],
     [
-      "Prepara la coleslaw: affetta finissimo il cavolo, grattugia la carota. Condisci con maionese (o yogurt), senape, succo di limone, sale e pepe. Metti in frigo.",
+      "Prepara la coleslaw: affetta finissimo il cavolo, grattugia la carota. Condisci con maionese vegana, senape, succo di limone, sale e pepe. Metti in frigo.",
       "Scalda una padella con l'olio a fuoco medio. Cuoci i burger 4-5 minuti per lato finché dorati e caldi.",
       "Servi i burger affiancati dalla coleslaw. L'acidità del cavolo bilancia perfettamente la sapidità del burger.",
     ]
@@ -3882,7 +3882,7 @@ const RECIPE_LIBRARY: Recipe[] = [
   ),
 
   r("bagna-cauda-piemontese", "Bagna cauda piemontese con verdure crude",
-    ["mediterranea", "onnivora"], ["regionale", "piemontese", "domenica", "invernale"],
+    ["mediterranea", "onnivora"], ["regionale", "piemontese", "invernale"],
     25, "beginner", 4,
     [
       ing("acciughe sott'olio", 8, "pz", "Proteine"),
@@ -4357,11 +4357,20 @@ function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: nu
   let lastPickedId: string | null = null;
   let lastDinnerCategory: MainCategory | null = null;
 
-  const targets = preferences.mealsPerDay === "both"
-    ? { pasta: 1, cereali: 1, pollo: 1, pesce: 1, legumi: 1, uova: 1, carne: 1, verdure: 1 }
-    : { pasta: 1, cereali: 1, pollo: 1, pesce: 1, legumi: 1, uova: 1, carne: 1, verdure: 1 };
+  // Per vegani e vegetariani, aumenta i limiti per categoria
+  const isRestrictedDiet = preferences.diet === "vegana" || preferences.diet === "vegetariana";
 
-  const maxPerCategory = { pasta: 2, cereali: 2, pollo: 2, pesce: 2, legumi: 2, uova: 2, carne: 2, verdure: 2 };
+  const targets = preferences.mealsPerDay === "both"
+    ? (isRestrictedDiet
+        ? { pasta: 2, cereali: 2, pollo: 0, pesce: 0, legumi: 3, uova: 2, carne: 0, verdure: 3 }
+        : { pasta: 1, cereali: 1, pollo: 1, pesce: 1, legumi: 1, uova: 1, carne: 1, verdure: 1 })
+    : (isRestrictedDiet
+        ? { pasta: 1, cereali: 1, pollo: 0, pesce: 0, legumi: 2, uova: 1, carne: 0, verdure: 2 }
+        : { pasta: 1, cereali: 1, pollo: 1, pesce: 1, legumi: 1, uova: 1, carne: 1, verdure: 1 });
+
+  const maxPerCategory = isRestrictedDiet
+    ? { pasta: 3, cereali: 3, pollo: 0, pesce: 0, legumi: 3, uova: 2, carne: 0, verdure: 3 }
+    : { pasta: 2, cereali: 2, pollo: 2, pesce: 2, legumi: 2, uova: 2, carne: 2, verdure: 2 };
 
   const freshnessWeight = (name: string) => {
     const key = normalize(name);
