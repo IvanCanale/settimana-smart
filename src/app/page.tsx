@@ -5219,9 +5219,43 @@ export default function SettimanaSmartMVP() {
 
 
   // Carica dati dal cloud
+  const _applyCloudData_disabled = (data: Awaited<ReturnType<typeof loadUserData>>) => {
+    if (data.preferences && Object.keys(data.preferences).length > 0) {
+      setPreferences(data.preferences as typeof preferences);
+    }
+    if (data.pantry && (data.pantry as typeof pantryItems).length > 0) {
+      setPantryItems(data.pantry as typeof pantryItems);
+    }
+    if (data.seed) setSeed(data.seed as number);
+    if (data.manualOverrides) setManualOverrides(data.manualOverrides as typeof manualOverrides);
+    if (data.learning) setLearning(data.learning as typeof learning);
+  };
 
+  const _loadCloudData_disabled = async (userId: string) => {
+    if (!sbClient) return;
+    try {
+      const data = await loadUserData(sbClient, userId);
+      // Se non ci sono dati cloud, migra da localStorage
+      const hasCloudData = Object.keys(data.preferences || {}).length > 0 ||
+                           (data.pantry || []).length > 0;
+      if (!hasCloudData) {
+        await migrateFromLocalStorage(sbClient, userId);
+        // Ricarica dopo migrazione
+        const migrated = await loadUserData(sbClient, userId);
+        applyCloudData(migrated);
+      } else {
+        applyCloudData(data);
+      }
+    } catch (err) {
+      console.error("Errore caricamento dati cloud:", err);
+    }
+  };
 
-
+  // Carica dati cloud quando sbClient e user sono disponibili
+  // (deve stare dopo la dichiarazione di loadCloudData)
+  useEffect(() => {
+    if (sbClient && user) (() => {})();
+  }, [sbClient, user]);
 
 
   const [onboardingDone, setOnboardingDone] = useState(() => {
@@ -5245,7 +5279,46 @@ export default function SettimanaSmartMVP() {
   });
   const [learning, setLearning] = useState<PreferenceLearning>(() => {
 
+  // Salva su cloud con debounce
+  const _syncToCloud_disabled = useCallback(async (type: "preferences" | "pantry" | "plan") => {
+    if (!user) return;
+    setSyncStatus("saving");
+    try {
+      if (type === "preferences") await savePreferences(sbClient!, user.id, preferences as Record<string, unknown>);
+      if (type === "pantry") await savePantry(sbClient!, user.id, pantryItems);
+      if (type === "plan") await saveWeeklyPlan(sbClient!, user.id, {
+        seed,
+        manualOverrides: manualOverrides as Record<string, unknown>,
+        learning: learning as Record<string, unknown>,
+      });
+      setSyncStatus("saved");
+      setTimeout(() => setSyncStatus("idle"), 2000);
+    } catch {
+      setSyncStatus("error");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    }
+  }, [sbClient, user, preferences, pantryItems, seed, manualOverrides, learning]);
 
+  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
+  useEffect(() => { if (false); }, [preferences, user]);
+  useEffect(() => { if (false); }, [pantryItems, user]);
+  useEffect(() => { if (false); }, [seed, manualOverrides, learning, user]);
+    const fallback: PreferenceLearning = { keptRecipeIds: {}, regeneratedRecipeIds: {}, likedCategories: {}, dislikedCategories: {}, likedIngredients: {}, dislikedIngredients: {} };
+    if (typeof window === "undefined") return fallback;
+    try { const saved = localStorage.getItem("ss_learning_v1"); return saved ? { ...fallback, ...JSON.parse(saved) } : fallback; } catch { return fallback; }
+  });
+  const [activeTab, setActiveTab] = useState("planner");
+  const [prepTime, setPrepTime] = useState("18:30");
+  const [prepReminderMessage, setPrepReminderMessage] = useState("È ora di iniziare a cucinare");
+  const [scheduledReminderText, setScheduledReminderText] = useState("");
+  const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState("");
+  const [runningRecipe, setRunningRecipe] = useState<Recipe | null>(null);
+  const [runningStepIndex, setRunningStepIndex] = useState(0);
+  const [currentStepChecked, setCurrentStepChecked] = useState(false);
+  const reminderTimerRef = useRef<number | null>(null);
+  const tutorialStepRef = useRef(0);
+  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
 
   const computedPrefs = useMemo(() => ({
     ...preferences,
@@ -5701,7 +5774,7 @@ export default function SettimanaSmartMVP() {
     <>
       <style>{designTokens}</style>
       {/* ── AUTH MODAL ── */}
-
+      {/* auth modal rimosso */}
 
       {/* ── TOUR INTERATTIVO ── */}
       {isMounted && !tutorialDone && (() => {
