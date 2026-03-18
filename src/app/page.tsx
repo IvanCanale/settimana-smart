@@ -474,8 +474,8 @@ export default function SettimanaSmartMVP() {
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   // ── AUTH STATE ──────────────────────────────────────────────────────────
-  const sbClient = null;
-  const user: null = null;
+  const sbClient: SupabaseClient | null = null;
+  const user: User | null = null;
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [syncStatus, setSyncStatus] = React.useState<"idle"|"saving"|"saved"|"error">("idle");
 
