@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Settimana Smart",
@@ -32,7 +33,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
+        <AuthProvider>
         {children}
+        </AuthProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { useAuth } from "@/lib/AuthProvider";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
@@ -475,10 +476,7 @@ export default function SettimanaSmartMVP() {
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   // ── AUTH STATE ──────────────────────────────────────────────────────────
-  const sbClient: SupabaseClient | null = null;
-  const user: User | null = null;
-  const [showAuthModal, setShowAuthModal] = React.useState(false);
-  const [syncStatus, setSyncStatus] = React.useState<"idle"|"saving"|"saved"|"error">("idle");
+  const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
 
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
@@ -1111,10 +1109,10 @@ export default function SettimanaSmartMVP() {
                   {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
                   {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
                   <button
-                    onClick={() => (sbClient as SupabaseClient | null)?.auth.signOut()}
+                    onClick={() => sbClient?.auth.signOut()}
                     style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
                   >
-                    {(user as User | null)?.email?.split("@")[0] ?? "Account"} · Esci
+                    {user?.email?.split("@")[0] ?? "Account"} · Esci
                   </button>
                 </div>
               ) : (
