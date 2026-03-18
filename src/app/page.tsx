@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage, signOut } from "@/lib/supabase";
 import type { User, Session } from "@supabase/supabase-js";
