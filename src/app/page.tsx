@@ -5353,6 +5353,19 @@ export default function SettimanaSmartMVP() {
     if (data.learning) setLearning(data.learning as typeof learning);
   };
 
+  // syncToCloud definita sotto dopo tutti gli useState
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ss_onboarding_done") === "1";
+  });
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [tutorialDone, setTutorialDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ss_tutorial_done") === "1";
+  });
+  const [tutorialStep, setTutorialStep] = useState(0);
+  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
+
   // Salva su cloud con debounce
   const syncToCloud = useCallback(async (type: "preferences" | "pantry" | "plan") => {
     if (!user) return;
@@ -5372,17 +5385,6 @@ export default function SettimanaSmartMVP() {
       setTimeout(() => setSyncStatus("idle"), 3000);
     }
   }, [user, preferences, pantryItems, seed, manualOverrides, learning]);
-  const [onboardingDone, setOnboardingDone] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem("ss_onboarding_done") === "1";
-  });
-  const [onboardingStep, setOnboardingStep] = useState(0);
-  const [tutorialDone, setTutorialDone] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem("ss_tutorial_done") === "1";
-  });
-  const [tutorialStep, setTutorialStep] = useState(0);
-  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
 
   // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
   useEffect(() => { if (user) syncToCloud("preferences"); }, [preferences, user]);
