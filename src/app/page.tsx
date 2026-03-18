@@ -5181,7 +5181,6 @@ function TimeTag({ minutes }: { minutes: number }) {
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
-
 export default function SettimanaSmartMVP() {
   const [preferences, setPreferences] = useState<Preferences>(() => {
     const fallback: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
@@ -5209,7 +5208,7 @@ export default function SettimanaSmartMVP() {
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   // ── AUTH STATE ──────────────────────────────────────────────────────────
   const sbClient = null;
-  const user = null;
+  const user: null = null;
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [syncStatus, setSyncStatus] = React.useState<"idle"|"saving"|"saved"|"error">("idle");
 
@@ -5224,7 +5223,29 @@ export default function SettimanaSmartMVP() {
 
 
 
-  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
+
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ss_onboarding_done") === "1";
+  });
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [tutorialDone, setTutorialDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ss_tutorial_done") === "1";
+  });
+  const [tutorialStep, setTutorialStep] = useState(0);
+
+
+
+
+
+  const [manualOverrides, setManualOverrides] = useState<ManualOverrides>(() => {
+    if (typeof window === "undefined") return {};
+    try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
+  });
+  const [learning, setLearning] = useState<PreferenceLearning>(() => {
+
+
 
   const computedPrefs = useMemo(() => ({
     ...preferences,
@@ -5679,6 +5700,7 @@ export default function SettimanaSmartMVP() {
   return (
     <>
       <style>{designTokens}</style>
+      {/* ── AUTH MODAL ── */}
 
 
       {/* ── TOUR INTERATTIVO ── */}
@@ -5787,7 +5809,34 @@ export default function SettimanaSmartMVP() {
                 <div><div style={{ fontSize: 11, fontWeight: 600, color: "var(--sepia-light)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Risparmio</div><div className="font-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--olive)", lineHeight: 1.1 }}>{isMounted ? `€${generated.stats.estimatedSavings.toFixed(0)}` : "—"}</div></div>
                 <span style={{ fontSize: 22 }}>💶</span>
               </div>
-            </div>{/* ── ORA CUCINO ── */}
+            </div>
+            {/* Pulsante account */}
+            <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", marginTop: -8 }}>
+              {isMounted && (user ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {syncStatus === "saving" && <span style={{ fontSize: 11, color: "var(--sepia-light)" }}>↑ salvataggio...</span>}
+                  {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
+                  {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
+                  <button
+                    onClick={() => sbClient?.auth.signOut()}
+                    style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
+                  >
+                    {user.email?.split("@")[0] ?? "Account"} · Esci
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="btn-terra"
+                  style={{ padding: "7px 16px", fontSize: 13 }}
+                >
+                  Accedi · Salva i tuoi dati ☁️
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── ORA CUCINO ── */}
           {isMounted && (() => {
             const today = new Date().getDay();
             const dayMap: Record<number, string> = { 1: "Lun", 2: "Mar", 3: "Mer", 4: "Gio", 5: "Ven", 6: "Sab", 0: "Dom" };
