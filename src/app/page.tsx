@@ -5304,12 +5304,21 @@ export default function SettimanaSmartMVP() {
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
 
-  // Carica dati cloud quando sbClient e user sono disponibili
-  useEffect(() => {
-    if (sbClient && user) loadCloudData(user.id);
-  }, [sbClient, user]);
+
 
   // Carica dati dal cloud
+  const applyCloudData = (data: Awaited<ReturnType<typeof loadUserData>>) => {
+    if (data.preferences && Object.keys(data.preferences).length > 0) {
+      setPreferences(data.preferences as typeof preferences);
+    }
+    if (data.pantry && (data.pantry as typeof pantryItems).length > 0) {
+      setPantryItems(data.pantry as typeof pantryItems);
+    }
+    if (data.seed) setSeed(data.seed as number);
+    if (data.manualOverrides) setManualOverrides(data.manualOverrides as typeof manualOverrides);
+    if (data.learning) setLearning(data.learning as typeof learning);
+  };
+
   const loadCloudData = async (userId: string) => {
     if (!sbClient) return;
     try {
@@ -5330,17 +5339,12 @@ export default function SettimanaSmartMVP() {
     }
   };
 
-  const applyCloudData = (data: Awaited<ReturnType<typeof loadUserData>>) => {
-    if (data.preferences && Object.keys(data.preferences).length > 0) {
-      setPreferences(data.preferences as typeof preferences);
-    }
-    if (data.pantry && (data.pantry as typeof pantryItems).length > 0) {
-      setPantryItems(data.pantry as typeof pantryItems);
-    }
-    if (data.seed) setSeed(data.seed as number);
-    if (data.manualOverrides) setManualOverrides(data.manualOverrides as typeof manualOverrides);
-    if (data.learning) setLearning(data.learning as typeof learning);
-  };
+  // Carica dati cloud quando sbClient e user sono disponibili
+  // (deve stare dopo la dichiarazione di loadCloudData)
+  useEffect(() => {
+    if (sbClient && user) loadCloudData(user.id);
+  }, [sbClient, user]);
+
 
   // syncToCloud definita sotto dopo tutti gli useState
   const [onboardingDone, setOnboardingDone] = useState(() => {
@@ -5353,7 +5357,7 @@ export default function SettimanaSmartMVP() {
     return localStorage.getItem("ss_tutorial_done") === "1";
   });
   const [tutorialStep, setTutorialStep] = useState(0);
-  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
+
 
 
 
@@ -5403,6 +5407,7 @@ export default function SettimanaSmartMVP() {
   const [currentStepChecked, setCurrentStepChecked] = useState(false);
   const reminderTimerRef = useRef<number | null>(null);
   const tutorialStepRef = useRef(0);
+  useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
 
   const computedPrefs = useMemo(() => ({
     ...preferences,
@@ -5487,6 +5492,100 @@ export default function SettimanaSmartMVP() {
 
   const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto","erba cipollina o aneto"];
 
+  const completeTutorial = () => {
+    localStorage.setItem("ss_tutorial_done", "1");
+    setTutorialDone(true);
+  };
+
+  const TOUR_STEPS = [
+    {
+      tab: "planner",
+      emoji: "👋",
+      title: "Benvenuto in Settimana Smart!",
+      body: "Questa app pianifica i tuoi pasti settimanali, crea la lista della spesa e ti guida in cucina — tutto in automatico.",
+      instruction: null,
+      waitFor: null, // step intro: ha solo il bottone Avanti
+      highlight: null,
+      position: "bottom",
+    },
+    {
+      tab: "planner",
+      emoji: "🎛️",
+      title: "Il Planner",
+      body: "Qui imposti le tue preferenze: quante persone, che dieta segui, quanto tempo hai per cucinare. Puoi cambiarle quando vuoi.",
+      instruction: "👇 Premi 'Genera piano' per creare la tua prima settimana",
+      waitFor: "generate", // si sblocca quando l'utente clicca Genera
+      highlight: "btn-genera",
+      position: "top",
+    },
+    {
+      tab: "week",
+      emoji: "📅",
+      title: "La tua settimana",
+      body: "Ecco il piano generato! Ogni giorno ha pranzo e cena bilanciati. Il sistema rispetta la deperibilità degli alimenti — il pesce fresco è sempre a inizio settimana.",
+      instruction: "👇 Tocca uno dei piatti per vedere la ricetta",
+      waitFor: "recipe_selected",
+      highlight: "meal-slot",
+      position: "top",
+    },
+    {
+      tab: "week",
+      emoji: "⇅",
+      title: "Personalizza i pasti",
+      body: "Puoi rigenerare un singolo piatto con ↺, oppure invertire pranzo e cena con il bottone ⇅ tra i due slot.",
+      instruction: "👇 Premi ↺ su uno dei piatti per rigenerarlo",
+      waitFor: "regenerated",
+      highlight: "rigenera",
+      position: "top",
+    },
+    {
+      tab: "shopping",
+      emoji: "🛒",
+      title: "La lista della spesa",
+      body: "Tutto quello che ti serve per la settimana, organizzato per categoria — Verdure, Proteine, Latticini, Cereali, Dispensa. Già depurato da quello che hai in casa.",
+      instruction: "👇 Spunta un ingrediente come se fossi al supermercato",
+      waitFor: "item_checked",
+      highlight: "checkbox-spesa",
+      position: "top",
+    },
+    {
+      tab: "recipes",
+      emoji: "📖",
+      title: "Il procedimento guidato",
+      body: "Ogni ricetta ha dosi precise e passaggi dettagliati. Avvia il procedimento guidato e spunta ogni step con il quadratino fino alla fine.",
+      instruction: "👆 Seleziona una ricetta, premi 'Avvia procedimento guidato' e completala fino a Fine!",
+      waitFor: "guided_completed",
+      highlight: "btn-guida",
+      position: "top",
+    },
+    {
+      tab: "planner",
+      emoji: "🧊",
+      title: "La dispensa",
+      body: "Nell'ultima sezione del Planner trovi la Dispensa. Aggiungi gli ingredienti che hai già in casa — olio, pasta, uova — e il sistema li escluderà automaticamente dalla lista della spesa ogni settimana. Sei pronto!",
+      instruction: null,
+      waitFor: null,
+      highlight: null,
+      position: "bottom",
+    },
+  ];
+
+  const tourAdvance = (action: string) => {
+    if (tutorialDone) return;
+    const currentStep = tutorialStepRef.current;
+    const step = TOUR_STEPS[currentStep];
+    if (!step || step.waitFor !== action) return;
+    const delay = ["regenerated", "item_checked"].includes(action) ? 1500 : 0;
+    setTimeout(() => {
+      const idx = tutorialStepRef.current;
+      if (idx >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
+      const next = TOUR_STEPS[idx + 1];
+      setActiveTab(next.tab);
+      setTutorialStep(idx + 1);
+      tutorialStepRef.current = idx + 1;
+    }, delay);
+  };
+
   const regenerate = () => {
     tourAdvance("generate");
     setIsGenerating(true); setShowGeneratedBanner(false); setShowHerbBanner(false); setLastMessage("Generazione in corso...");
@@ -5534,21 +5633,6 @@ export default function SettimanaSmartMVP() {
   };
 
   // Avanza il tour quando l'utente compie l'azione richiesta
-  const tourAdvance = (action: string) => {
-    if (tutorialDone) return;
-    const currentStep = tutorialStepRef.current;
-    const step = TOUR_STEPS[currentStep];
-    if (!step || step.waitFor !== action) return;
-    const delay = ["regenerated", "item_checked"].includes(action) ? 1500 : 0;
-    setTimeout(() => {
-      const idx = tutorialStepRef.current;
-      if (idx >= TOUR_STEPS.length - 1) { completeTutorial(); return; }
-      const next = TOUR_STEPS[idx + 1];
-      setActiveTab(next.tab);
-      setTutorialStep(idx + 1);
-      tutorialStepRef.current = idx + 1;
-    }, delay);
-  };
 
   const swapMeals = (dayName: string) => {
     setSwappedDays((prev) => {
@@ -5603,14 +5687,6 @@ export default function SettimanaSmartMVP() {
   const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(true); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const completeCurrentStep = (checked: boolean) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); };
   const meals = generated.days.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
-  const confirmWeek = () => {
-    meals.forEach((m) => learnFromRecipe(m, "keep"));
-    setLastMessage("Settimana confermata ✓");
-    setShowGeneratedBanner(true);
-    // Programma i promemoria scongelo per tutti gli items da congelare
-    if (generated.freezeItems.length > 0) scheduleFreezeReminders(generated.freezeItems);
-  };
-
   const scheduleFreezeReminders = (items: FreezeItem[]) => {
     // Cancella timer precedenti
     freezeReminderTimers.forEach((t) => window.clearTimeout(t));
@@ -5642,6 +5718,15 @@ export default function SettimanaSmartMVP() {
     setFreezeReminderTimers(newTimers);
   };
 
+  const confirmWeek = () => {
+    meals.forEach((m) => learnFromRecipe(m, "keep"));
+    setLastMessage("Settimana confermata ✓");
+    setShowGeneratedBanner(true);
+    // Programma i promemoria scongelo per tutti gli items da congelare
+    if (generated.freezeItems.length > 0) scheduleFreezeReminders(generated.freezeItems);
+  };
+
+
   const TABS = [
     { id: "planner", label: "Planner" },
     { id: "week", label: "Settimana" },
@@ -5664,10 +5749,6 @@ export default function SettimanaSmartMVP() {
     setTutorialStep(0);
   };
 
-  const completeTutorial = () => {
-    localStorage.setItem("ss_tutorial_done", "1");
-    setTutorialDone(true);
-  };
 
   // ── ONBOARDING ──
   if (isMounted && !onboardingDone) {
@@ -5777,80 +5858,6 @@ export default function SettimanaSmartMVP() {
     );
   }
 
-  // Tour interattivo: ogni step aspetta che l'utente compia l'azione
-  // waitFor: nome dell'azione che sblocca lo step successivo
-  const TOUR_STEPS = [
-    {
-      tab: "planner",
-      emoji: "👋",
-      title: "Benvenuto in Settimana Smart!",
-      body: "Questa app pianifica i tuoi pasti settimanali, crea la lista della spesa e ti guida in cucina — tutto in automatico.",
-      instruction: null,
-      waitFor: null, // step intro: ha solo il bottone Avanti
-      highlight: null,
-      position: "bottom",
-    },
-    {
-      tab: "planner",
-      emoji: "🎛️",
-      title: "Il Planner",
-      body: "Qui imposti le tue preferenze: quante persone, che dieta segui, quanto tempo hai per cucinare. Puoi cambiarle quando vuoi.",
-      instruction: "👇 Premi 'Genera piano' per creare la tua prima settimana",
-      waitFor: "generate", // si sblocca quando l'utente clicca Genera
-      highlight: "btn-genera",
-      position: "top",
-    },
-    {
-      tab: "week",
-      emoji: "📅",
-      title: "La tua settimana",
-      body: "Ecco il piano generato! Ogni giorno ha pranzo e cena bilanciati. Il sistema rispetta la deperibilità degli alimenti — il pesce fresco è sempre a inizio settimana.",
-      instruction: "👇 Tocca uno dei piatti per vedere la ricetta",
-      waitFor: "recipe_selected",
-      highlight: "meal-slot",
-      position: "top",
-    },
-    {
-      tab: "week",
-      emoji: "⇅",
-      title: "Personalizza i pasti",
-      body: "Puoi rigenerare un singolo piatto con ↺, oppure invertire pranzo e cena con il bottone ⇅ tra i due slot.",
-      instruction: "👇 Premi ↺ su uno dei piatti per rigenerarlo",
-      waitFor: "regenerated",
-      highlight: "rigenera",
-      position: "top",
-    },
-    {
-      tab: "shopping",
-      emoji: "🛒",
-      title: "La lista della spesa",
-      body: "Tutto quello che ti serve per la settimana, organizzato per categoria — Verdure, Proteine, Latticini, Cereali, Dispensa. Già depurato da quello che hai in casa.",
-      instruction: "👇 Spunta un ingrediente come se fossi al supermercato",
-      waitFor: "item_checked",
-      highlight: "checkbox-spesa",
-      position: "top",
-    },
-    {
-      tab: "recipes",
-      emoji: "📖",
-      title: "Il procedimento guidato",
-      body: "Ogni ricetta ha dosi precise e passaggi dettagliati. Avvia il procedimento guidato e spunta ogni step con il quadratino fino alla fine.",
-      instruction: "👆 Seleziona una ricetta, premi 'Avvia procedimento guidato' e completala fino a Fine!",
-      waitFor: "guided_completed",
-      highlight: "btn-guida",
-      position: "top",
-    },
-    {
-      tab: "planner",
-      emoji: "🧊",
-      title: "La dispensa",
-      body: "Nell'ultima sezione del Planner trovi la Dispensa. Aggiungi gli ingredienti che hai già in casa — olio, pasta, uova — e il sistema li escluderà automaticamente dalla lista della spesa ogni settimana. Sei pronto!",
-      instruction: null,
-      waitFor: null,
-      highlight: null,
-      position: "bottom",
-    },
-  ];
 
   return (
     <AuthProvider>
