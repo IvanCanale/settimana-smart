@@ -5219,7 +5219,7 @@ export default function SettimanaSmartMVP() {
 
 
   // Carica dati dal cloud
-  const _applyCloudData_disabled = (data: Awaited<ReturnType<typeof loadUserData>>) => {
+  const _applyCloudData_disabled = (data: Record<string, unknown>) => {
     if (data.preferences && Object.keys(data.preferences).length > 0) {
       setPreferences(data.preferences as typeof preferences);
     }
@@ -5234,14 +5234,14 @@ export default function SettimanaSmartMVP() {
   const _loadCloudData_disabled = async (userId: string) => {
     if (!sbClient) return;
     try {
-      const data = await loadUserData(sbClient, userId);
+      const data: Record<string, unknown> = {};
       // Se non ci sono dati cloud, migra da localStorage
       const hasCloudData = Object.keys(data.preferences || {}).length > 0 ||
                            (data.pantry || []).length > 0;
       if (!hasCloudData) {
         await migrateFromLocalStorage(sbClient, userId);
         // Ricarica dopo migrazione
-        const migrated = await loadUserData(sbClient, userId);
+        const migrated: Record<string, unknown> = {};
         applyCloudData(migrated);
       } else {
         applyCloudData(data);
