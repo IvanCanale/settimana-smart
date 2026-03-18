@@ -522,9 +522,9 @@ export default function SettimanaSmartMVP() {
   const _syncToCloud_disabled = async (_type: string) => { /* disabled */ };
 
   // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
-  useEffect(() => { if (false); }, [preferences, user]);
-  useEffect(() => { if (false); }, [pantryItems, user]);
-  useEffect(() => { if (false); }, [seed, manualOverrides, learning, user]);
+  useEffect(() => { /* sync disabilitato */ }, [preferences, user]);
+  useEffect(() => { /* sync disabilitato */ }, [pantryItems, user]);
+  useEffect(() => { /* sync disabilitato */ }, [seed, manualOverrides, learning, user]);
     const fallback: PreferenceLearning = { keptRecipeIds: {}, regeneratedRecipeIds: {}, likedCategories: {}, dislikedCategories: {}, likedIngredients: {}, dislikedIngredients: {} };
     if (typeof window === "undefined") return fallback;
     try { const saved = localStorage.getItem("ss_learning_v1"); return saved ? { ...fallback, ...JSON.parse(saved) } : fallback; } catch { return fallback; }
