@@ -1,0 +1,21 @@
+
+> settimana-smart@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.4s
+  Running TypeScript ...
+  Collecting page data using 17 workers ...
+  Generating static pages using 17 workers (0/2) ...
+✓ Generating static pages using 17 workers (2/2) in 392.3ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+└ ƒ /_not-found
+
+
+ƒ  (Dynamic)  server-rendered on demand
+
