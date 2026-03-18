@@ -1,5 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
