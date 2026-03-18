@@ -28,10 +28,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [syncStatus, setSyncStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
 
   useEffect(() => {
-    const client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // Se le credenziali non sono configurate, auth rimane disabilitata
+    if (!url || !key) return;
+
+    const client = createClient(url, key);
     setSbClient(client);
 
     client.auth.getSession().then(({ data: { session } }: {data: {session: Session|null}}) => {
