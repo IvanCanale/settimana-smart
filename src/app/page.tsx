@@ -518,18 +518,15 @@ export default function SettimanaSmartMVP() {
     try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
   });
   const [learning, setLearning] = useState<PreferenceLearning>(() => {
-
-  // Salva su cloud con debounce
-  const _syncToCloud_disabled = async (_type: string) => { /* disabled */ };
-
-  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
-  useEffect(() => { /* sync disabilitato */ }, [preferences, user]);
-  useEffect(() => { /* sync disabilitato */ }, [pantryItems, user]);
-  useEffect(() => { /* sync disabilitato */ }, [seed, manualOverrides, learning, user]);
     const fallback: PreferenceLearning = { keptRecipeIds: {}, regeneratedRecipeIds: {}, likedCategories: {}, dislikedCategories: {}, likedIngredients: {}, dislikedIngredients: {} };
     if (typeof window === "undefined") return fallback;
     try { const saved = localStorage.getItem("ss_learning_v1"); return saved ? { ...fallback, ...JSON.parse(saved) } : fallback; } catch { return fallback; }
   });
+
+  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed (disabilitato)
+  useEffect(() => { /* sync disabilitato */ }, [preferences, user]);
+  useEffect(() => { /* sync disabilitato */ }, [pantryItems, user]);
+  useEffect(() => { /* sync disabilitato */ }, [seed, manualOverrides, learning, user]);
   const [activeTab, setActiveTab] = useState("planner");
   const [prepTime, setPrepTime] = useState("18:30");
   const [prepReminderMessage, setPrepReminderMessage] = useState("È ora di iniziare a cucinare");
