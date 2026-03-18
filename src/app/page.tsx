@@ -5190,7 +5190,7 @@ function TimeTag({ minutes }: { minutes: number }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // AUTH MODAL COMPONENT (inline)
 // ─────────────────────────────────────────────────────────────────────────────
-function AuthModalInline({ onClose, supabase }: { onClose: () => void; supabase: SupabaseClient | null }) {
+function AuthModalInline({ onClose }: { onClose: () => void }) {
   const [mode, setMode] = React.useState<"login" | "signup">("login");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -5868,7 +5868,7 @@ export default function SettimanaSmartMVP() {
       <style>{designTokens}</style>
       {/* ── AUTH MODAL ── */}
       {showAuthModal && isMounted && (
-        <AuthModalInline onClose={() => setShowAuthModal(false)} supabase={supabase} />
+        <AuthModalInline onClose={() => setShowAuthModal(false)} />
       )}
 
       {/* ── TOUR INTERATTIVO ── */}
