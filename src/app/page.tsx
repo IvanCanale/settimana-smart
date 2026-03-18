@@ -5219,37 +5219,9 @@ export default function SettimanaSmartMVP() {
 
 
   // Carica dati dal cloud
-  const _applyCloudData_disabled = (data: Record<string, unknown>) => {
-    if (data.preferences && Object.keys(data.preferences).length > 0) {
-      setPreferences(data.preferences as typeof preferences);
-    }
-    if (data.pantry && (data.pantry as typeof pantryItems).length > 0) {
-      setPantryItems(data.pantry as typeof pantryItems);
-    }
-    if (data.seed) setSeed(data.seed as number);
-    if (data.manualOverrides) setManualOverrides(data.manualOverrides as typeof manualOverrides);
-    if (data.learning) setLearning(data.learning as typeof learning);
-  };
+  const _applyCloudData_disabled = (_data: Record<string, unknown>) => { /* disabled */ };
 
-  const _loadCloudData_disabled = async (userId: string) => {
-    if (!sbClient) return;
-    try {
-      const data: Record<string, unknown> = {};
-      // Se non ci sono dati cloud, migra da localStorage
-      const hasCloudData = Object.keys(data.preferences || {}).length > 0 ||
-                           (data.pantry || []).length > 0;
-      if (!hasCloudData) {
-        await migrateFromLocalStorage(sbClient, userId);
-        // Ricarica dopo migrazione
-        const migrated: Record<string, unknown> = {};
-        applyCloudData(migrated);
-      } else {
-        applyCloudData(data);
-      }
-    } catch (err) {
-      console.error("Errore caricamento dati cloud:", err);
-    }
-  };
+  const _loadCloudData_disabled = async (_userId: string) => { /* disabled */ };
 
   // Carica dati cloud quando sbClient e user sono disponibili
   // (deve stare dopo la dichiarazione di loadCloudData)
@@ -5280,24 +5252,7 @@ export default function SettimanaSmartMVP() {
   const [learning, setLearning] = useState<PreferenceLearning>(() => {
 
   // Salva su cloud con debounce
-  const _syncToCloud_disabled = useCallback(async (type: "preferences" | "pantry" | "plan") => {
-    if (!user) return;
-    setSyncStatus("saving");
-    try {
-      if (type === "preferences") await savePreferences(sbClient!, user.id, preferences as Record<string, unknown>);
-      if (type === "pantry") await savePantry(sbClient!, user.id, pantryItems);
-      if (type === "plan") await saveWeeklyPlan(sbClient!, user.id, {
-        seed,
-        manualOverrides: manualOverrides as Record<string, unknown>,
-        learning: learning as Record<string, unknown>,
-      });
-      setSyncStatus("saved");
-      setTimeout(() => setSyncStatus("idle"), 2000);
-    } catch {
-      setSyncStatus("error");
-      setTimeout(() => setSyncStatus("idle"), 3000);
-    }
-  }, [sbClient, user, preferences, pantryItems, seed, manualOverrides, learning]);
+  const _syncToCloud_disabled = async (_type: string) => { /* disabled */ };
 
   // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
   useEffect(() => { if (false); }, [preferences, user]);
