@@ -5426,9 +5426,9 @@ export default function SettimanaSmartMVP() {
       if (dinner) usedIds.add(dinner.id);
       return { ...day, lunch, dinner };
     });
-    const meals = dedupedDays.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
-    const shopping = aggregateShopping(meals, pantryItems, computedPrefs.people);
-    const stats = computeStats(meals, shopping);
+    const planMeals = dedupedDays.flatMap((day) => [day.lunch, day.dinner].filter(Boolean)) as Recipe[];
+    const shopping = aggregateShopping(planMeals, pantryItems, computedPrefs.people);
+    const stats = computeStats(planMeals, shopping);
     // Ricalcola freezeItems sui giorni aggiornati (include le sostituzioni manuali)
     const computeFreeze = (planDays: DayPlan[], pref: Preferences): FreezeItem[] => {
       const dayMap2: Record<string, {dayIndex: number; qty: number; unit: string; recipe: string}[]> = {};
