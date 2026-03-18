@@ -1,15 +1,10 @@
 "use client";
-export const dynamic = "force-dynamic";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAuth, AuthProvider } from "@/lib/AuthProvider";
+import { useAuth } from "@/lib/AuthProvider";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 import { loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage } from "@/lib/supabase";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
@@ -5346,7 +5341,6 @@ export default function SettimanaSmartMVP() {
   }, [sbClient, user]);
 
 
-  // syncToCloud definita sotto dopo tutti gli useState
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("ss_onboarding_done") === "1";
@@ -5860,7 +5854,6 @@ export default function SettimanaSmartMVP() {
 
 
   return (
-    <AuthProvider>
     <>
       <style>{designTokens}</style>
       {/* ── AUTH MODAL ── */}
@@ -6549,6 +6542,5 @@ export default function SettimanaSmartMVP() {
         </div>
       )}
     </>
-    </AuthProvider>
   );
 }
