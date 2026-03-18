@@ -5203,12 +5203,13 @@ function AuthModalInline({ onClose, client }: { onClose: () => void; client: Sup
     e.preventDefault();
     setLoading(true); setError(""); setSuccess("");
     try {
+      if (!client) throw new Error("Client non disponibile");
       if (mode === "login") {
-        const { error } = await client?.auth.signInWithPassword({ email, password });
+        const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
         onClose();
       } else {
-        const { error } = await client?.auth.signUp({ email, password });
+        const { error } = await client.auth.signUp({ email, password });
         if (error) throw error;
         setSuccess("Controlla la tua email per confermare l'account.");
       }
