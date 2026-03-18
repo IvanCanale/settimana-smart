@@ -1,8 +1,10 @@
 "use client";
+export const dynamic = "force-dynamic";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createSupabaseClient, loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage } from "@/lib/supabase";
-import type { User, Session } from "@supabase/supabase-js";
+import { useAuth, AuthProvider } from "@/lib/AuthProvider";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
+import { loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5296,34 +5298,16 @@ export default function SettimanaSmartMVP() {
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   // ── AUTH STATE ──────────────────────────────────────────────────────────
-  const [sbClient, setSbClient] = useState<SupabaseClient | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
 
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    setIsMounted(true);
-    const client = createSupabaseClient();
-    setSbClient(client);
-  }, []);
+  useEffect(() => { setIsMounted(true); }, []);
 
-  // ── AUTH LISTENER ─────────────────────────────────────────────────────
+  // Carica dati cloud quando sbClient e user sono disponibili
   useEffect(() => {
-    if (!sbClient) return;
-    sbClient.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) loadCloudData(session.user.id);
-    });
-    const { data: { subscription } } = sbClient.auth.onAuthStateChange(
-      async (_event: string, session: Session | null) => {
-        setUser(session?.user ?? null);
-        if (session?.user) await loadCloudData(session.user.id);
-      }
-    );
-    return () => subscription.unsubscribe();
-  }, [sbClient]);
+    if (sbClient && user) loadCloudData(user.id);
+  }, [sbClient, user]);
 
   // Carica dati dal cloud
   const loadCloudData = async (userId: string) => {
@@ -5869,6 +5853,7 @@ export default function SettimanaSmartMVP() {
   ];
 
   return (
+    <AuthProvider>
     <>
       <style>{designTokens}</style>
       {/* ── AUTH MODAL ── */}
@@ -6557,5 +6542,6 @@ export default function SettimanaSmartMVP() {
         </div>
       )}
     </>
+    </AuthProvider>
   );
 }

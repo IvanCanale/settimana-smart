@@ -1,15 +1,6 @@
-"use client";
-import { createClient } from "@supabase/supabase-js";
-import type { SupabaseClient, User, Session } from "@supabase/supabase-js";
-
-export type { User, Session };
-
-export function createSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+// lib/supabase.ts
+// Funzioni di utilità per il database - il client viene passato come parametro
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type UserData = {
   preferences: Record<string, unknown>;
@@ -46,13 +37,16 @@ export async function saveWeeklyPlan(client: SupabaseClient, userId: string, dat
   seed: number; manualOverrides: Record<string, unknown>; learning: Record<string, unknown>;
 }) {
   return client.from("weekly_plan").upsert({
-    user_id: userId, seed: data.seed,
-    manual_overrides: data.manualOverrides, learning: data.learning,
+    user_id: userId,
+    seed: data.seed,
+    manual_overrides: data.manualOverrides,
+    learning: data.learning,
   }, { onConflict: "user_id" });
 }
 
 export async function migrateFromLocalStorage(client: SupabaseClient, userId: string) {
-  const ops = [];
+  if (typeof window === "undefined") return;
+  const ops: Promise<unknown>[] = [];
   const pref     = localStorage.getItem("ss_preferences_v1");
   const pantry   = localStorage.getItem("ss_pantry_v1");
   const seed     = localStorage.getItem("ss_seed_v1");
