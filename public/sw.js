@@ -21,6 +21,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+  const method = event.request.method;
+
+  // Do not cache API calls to Supabase or non-GET requests
+  if (url.includes('supabase.co') || method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
