@@ -1117,7 +1117,7 @@ export default function SettimanaSmartMVP() {
                     onClick={() => (sbClient as SupabaseClient | null)?.auth.signOut()}
                     style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
                   >
-                    {user.email?.split("@")[0] ?? "Account"} · Esci
+                    {(user as User | null)?.email?.split("@")[0] ?? "Account"} · Esci
                   </button>
                 </div>
               ) : (
