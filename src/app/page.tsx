@@ -5368,10 +5368,7 @@ export default function SettimanaSmartMVP() {
 
 
 
-  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
-  useEffect(() => { if (user) syncToCloud("preferences"); }, [preferences, user]);
-  useEffect(() => { if (user) syncToCloud("pantry"); }, [pantryItems, user]);
-  useEffect(() => { if (user) syncToCloud("plan"); }, [seed, manualOverrides, learning, user]);
+
   const [manualOverrides, setManualOverrides] = useState<ManualOverrides>(() => {
     if (typeof window === "undefined") return {};
     try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
@@ -5397,6 +5394,11 @@ export default function SettimanaSmartMVP() {
       setTimeout(() => setSyncStatus("idle"), 3000);
     }
   }, [user, preferences, pantryItems, seed, manualOverrides, learning]);
+
+  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
+  useEffect(() => { if (user) syncToCloud("preferences"); }, [preferences, user]);
+  useEffect(() => { if (user) syncToCloud("pantry"); }, [pantryItems, user]);
+  useEffect(() => { if (user) syncToCloud("plan"); }, [seed, manualOverrides, learning, user]);
     const fallback: PreferenceLearning = { keptRecipeIds: {}, regeneratedRecipeIds: {}, likedCategories: {}, dislikedCategories: {}, likedIngredients: {}, dislikedIngredients: {} };
     if (typeof window === "undefined") return fallback;
     try { const saved = localStorage.getItem("ss_learning_v1"); return saved ? { ...fallback, ...JSON.parse(saved) } : fallback; } catch { return fallback; }
