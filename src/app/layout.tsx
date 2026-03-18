@@ -1,12 +1,10 @@
 export const dynamic = "force-dynamic";
-
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/lib/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Settimana Smart",
-  description: "Meal planning settimanale automatico — 200 ricette con istruzioni dettagliate",
+  description: "Meal planning settimanale automatico",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -30,18 +28,22 @@ export default function RootLayout({
   return (
     <html lang="it">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link rel="icon" href="/icon-192.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
