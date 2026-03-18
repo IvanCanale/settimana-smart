@@ -1,8 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabase, loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage, signOut } from "@/lib/supabase";
+// Supabase importato dinamicamente per evitare problemi SSR
 import type { User, Session } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5191,7 +5192,7 @@ function TimeTag({ minutes }: { minutes: number }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // AUTH MODAL COMPONENT (inline)
 // ─────────────────────────────────────────────────────────────────────────────
-function AuthModalInline({ onClose }: { onClose: () => void }) {
+function AuthModalInline({ onClose, supabaseClient }: { onClose: () => void; supabaseClient: SupabaseClient | null }) {
   const [mode, setMode] = React.useState<"login" | "signup">("login");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -5204,11 +5205,11 @@ function AuthModalInline({ onClose }: { onClose: () => void }) {
     setLoading(true); setError(""); setSuccess("");
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabaseClient?.auth.signInWithPassword({ email, password });
         if (error) throw error;
         onClose();
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabaseClient?.auth.signUp({ email, password });
         if (error) throw error;
         setSuccess("Controlla la tua email per confermare l'account.");
       }
@@ -5229,12 +5230,12 @@ function AuthModalInline({ onClose }: { onClose: () => void }) {
 
         {/* Social buttons */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-          <button onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })}
+          <button onClick={() => supabaseClient?.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 20px", borderRadius: 12, border: "1.5px solid var(--cream-dark)", background: "white", cursor: "pointer", fontSize: 15, fontWeight: 600, color: "var(--sepia)" }}>
             <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Continua con Google
           </button>
-          <button onClick={() => supabase.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: window.location.origin } })}
+          <button onClick={() => supabaseClient?.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: window.location.origin } })}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 20px", borderRadius: 12, border: "none", background: "#000", cursor: "pointer", fontSize: 15, fontWeight: 600, color: "white" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.07c1.17.06 2.01.6 2.74.63.98-.18 1.94-.76 2.95-.73 1.28.07 2.25.65 2.9 1.65-2.53 1.54-1.84 4.93.6 5.93-.54 1.48-1.22 2.92-2.19 3.73zM12.03 7c-.12-2.16 1.74-3.96 3.73-4C15.94 5.11 14 7.11 12.03 7z"/></svg>
             Continua con Apple
@@ -5295,23 +5296,33 @@ export default function SettimanaSmartMVP() {
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   // ── AUTH STATE ──────────────────────────────────────────────────────────
+  const [supabaseClient, setSupabaseClient] = useState<SupabaseClient | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    setIsMounted(true);
+    // Inizializza Supabase solo lato client
+    import("@supabase/supabase-js").then(({ createClient }) => {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      if (url && key) setSupabaseClient(createClient(url, key));
+    });
+  }, []);
 
   // ── AUTH LISTENER ─────────────────────────────────────────────────────
   useEffect(() => {
+    if (!supabaseClient) return;
     // Controlla sessione corrente
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
+    supabaseClient.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setUser(session?.user ?? null);
       if (session?.user) loadCloudData(session.user.id);
     });
     // Ascolta cambiamenti auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       async (_event: string, session: Session | null) => {
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -5320,19 +5331,19 @@ export default function SettimanaSmartMVP() {
       }
     );
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabaseClient]);
 
   // Carica dati dal cloud
   const loadCloudData = async (userId: string) => {
     try {
-      const data = await loadUserData(userId);
+      const data = await (await import("@/lib/supabase")).loadUserData(userId);
       // Se non ci sono dati cloud, migra da localStorage
       const hasCloudData = Object.keys(data.preferences || {}).length > 0 ||
                            (data.pantry || []).length > 0;
       if (!hasCloudData) {
-        await migrateFromLocalStorage(userId);
+        await (await import("@/lib/supabase")).migrateFromLocalStorage(userId);
         // Ricarica dopo migrazione
-        const migrated = await loadUserData(userId);
+        const migrated = await (await import("@/lib/supabase")).loadUserData(userId);
         applyCloudData(migrated);
       } else {
         applyCloudData(data);
@@ -5381,9 +5392,9 @@ export default function SettimanaSmartMVP() {
     if (!user) return;
     setSyncStatus("saving");
     try {
-      if (type === "preferences") await savePreferences(user.id, preferences as Record<string, unknown>);
-      if (type === "pantry") await savePantry(user.id, pantryItems);
-      if (type === "plan") await saveWeeklyPlan(user.id, {
+      if (type === "preferences") await (await import("@/lib/supabase")).savePreferences(user.id, preferences as Record<string, unknown>);
+      if (type === "pantry") await (await import("@/lib/supabase")).savePantry(user.id, pantryItems);
+      if (type === "plan") await (await import("@/lib/supabase")).saveWeeklyPlan(user.id, {
         seed,
         manualOverrides: manualOverrides as Record<string, unknown>,
         learning: learning as Record<string, unknown>,
@@ -5869,7 +5880,7 @@ export default function SettimanaSmartMVP() {
       <style>{designTokens}</style>
       {/* ── AUTH MODAL ── */}
       {showAuthModal && isMounted && (
-        <AuthModalInline onClose={() => setShowAuthModal(false)} />
+        <AuthModalInline onClose={() => setShowAuthModal(false)} supabaseClient={supabaseClient} />
       )}
 
       {/* ── TOUR INTERATTIVO ── */}
@@ -5987,7 +5998,7 @@ export default function SettimanaSmartMVP() {
                   {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
                   {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
                   <button
-                    onClick={() => signOut()}
+                    onClick={() => (await import("@/lib/supabase")).signOut()}
                     style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
                   >
                     {user.email?.split("@")[0] ?? "Account"} · Esci
