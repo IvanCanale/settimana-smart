@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { supabase, loadUserData, savePreferences, savePantry, saveWeeklyPlan, migrateFromLocalStorage, signOut } from "@/lib/supabase";
+import type { User, Session } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5185,6 +5187,87 @@ function TimeTag({ minutes }: { minutes: number }) {
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AUTH MODAL COMPONENT (inline)
+// ─────────────────────────────────────────────────────────────────────────────
+function AuthModalInline({ onClose }: { onClose: () => void }) {
+  const [mode, setMode] = React.useState<"login" | "signup">("login");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [success, setSuccess] = React.useState("");
+
+  async function handleEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true); setError(""); setSuccess("");
+    try {
+      if (mode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        onClose();
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        setSuccess("Controlla la tua email per confermare l'account.");
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Errore. Riprova.");
+    } finally { setLoading(false); }
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(61,43,31,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: "var(--warm-white)", borderRadius: 24, padding: 32, width: "100%", maxWidth: 400, boxShadow: "0 24px 60px rgba(61,43,31,0.25)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <h2 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: 22, color: "var(--sepia)" }}>
+            {mode === "login" ? "Accedi" : "Crea account"}
+          </h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "var(--sepia-light)" }}>×</button>
+        </div>
+
+        {/* Social buttons */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          <button onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 20px", borderRadius: 12, border: "1.5px solid var(--cream-dark)", background: "white", cursor: "pointer", fontSize: 15, fontWeight: 600, color: "var(--sepia)" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continua con Google
+          </button>
+          <button onClick={() => supabase.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: window.location.origin } })}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "12px 20px", borderRadius: 12, border: "none", background: "#000", cursor: "pointer", fontSize: 15, fontWeight: 600, color: "white" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.07c1.17.06 2.01.6 2.74.63.98-.18 1.94-.76 2.95-.73 1.28.07 2.25.65 2.9 1.65-2.53 1.54-1.84 4.93.6 5.93-.54 1.48-1.22 2.92-2.19 3.73zM12.03 7c-.12-2.16 1.74-3.96 3.73-4C15.94 5.11 14 7.11 12.03 7z"/></svg>
+            Continua con Apple
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: "var(--cream-dark)" }} /><span style={{ fontSize: 13, color: "var(--sepia-light)" }}>oppure</span><div style={{ flex: 1, height: 1, background: "var(--cream-dark)" }} />
+        </div>
+
+        {/* Email form */}
+        <form onSubmit={handleEmail} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const }} />
+          <input type="password" placeholder="Password (min. 6 caratteri)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const }} />
+          {error   && <p style={{ margin: 0, fontSize: 13, color: "var(--terra)", fontWeight: 600 }}>{error}</p>}
+          {success && <p style={{ margin: 0, fontSize: 13, color: "var(--olive)", fontWeight: 600 }}>{success}</p>}
+          <button type="submit" disabled={loading} className="btn-terra" style={{ justifyContent: "center", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "..." : mode === "login" ? "Accedi" : "Crea account"}
+          </button>
+        </form>
+
+        <p style={{ margin: "16px 0 0", textAlign: "center", fontSize: 14, color: "var(--sepia-light)" }}>
+          {mode === "login" ? "Non hai un account? " : "Hai già un account? "}
+          <button onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setSuccess(""); }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--terra)", fontWeight: 700, fontSize: 14 }}>
+            {mode === "login" ? "Registrati" : "Accedi"}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function SettimanaSmartMVP() {
   const [preferences, setPreferences] = useState<Preferences>(() => {
     const fallback: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
@@ -5210,9 +5293,85 @@ export default function SettimanaSmartMVP() {
   const [extraShoppingInput, setExtraShoppingInput] = useState("");
   const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
+  // ── AUTH STATE ──────────────────────────────────────────────────────────
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
   const [isMounted, setIsMounted] = useState(false);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setIsMounted(true); }, []);
+
+  // ── AUTH LISTENER ─────────────────────────────────────────────────────
+  useEffect(() => {
+    // Controlla sessione corrente
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) loadCloudData(session.user.id);
+    });
+    // Ascolta cambiamenti auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event: string, session: Session | null) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await loadCloudData(session.user.id);
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Carica dati dal cloud
+  const loadCloudData = async (userId: string) => {
+    try {
+      const data = await loadUserData(userId);
+      // Se non ci sono dati cloud, migra da localStorage
+      const hasCloudData = Object.keys(data.preferences || {}).length > 0 ||
+                           (data.pantry || []).length > 0;
+      if (!hasCloudData) {
+        await migrateFromLocalStorage(userId);
+        // Ricarica dopo migrazione
+        const migrated = await loadUserData(userId);
+        applyCloudData(migrated);
+      } else {
+        applyCloudData(data);
+      }
+    } catch (err) {
+      console.error("Errore caricamento dati cloud:", err);
+    }
+  };
+
+  const applyCloudData = (data: Awaited<ReturnType<typeof loadUserData>>) => {
+    if (data.preferences && Object.keys(data.preferences).length > 0) {
+      setPreferences(data.preferences as typeof preferences);
+    }
+    if (data.pantry && (data.pantry as typeof pantryItems).length > 0) {
+      setPantryItems(data.pantry as typeof pantryItems);
+    }
+    if (data.seed) setSeed(data.seed as number);
+    if (data.manualOverrides) setManualOverrides(data.manualOverrides as typeof manualOverrides);
+    if (data.learning) setLearning(data.learning as typeof learning);
+  };
+
+  // Salva su cloud con debounce
+  const syncToCloud = useCallback(async (type: "preferences" | "pantry" | "plan") => {
+    if (!user) return;
+    setSyncStatus("saving");
+    try {
+      if (type === "preferences") await savePreferences(user.id, preferences as Record<string, unknown>);
+      if (type === "pantry") await savePantry(user.id, pantryItems);
+      if (type === "plan") await saveWeeklyPlan(user.id, {
+        seed,
+        manualOverrides: manualOverrides as Record<string, unknown>,
+        learning: learning as Record<string, unknown>,
+      });
+      setSyncStatus("saved");
+      setTimeout(() => setSyncStatus("idle"), 2000);
+    } catch {
+      setSyncStatus("error");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    }
+  }, [user, preferences, pantryItems, seed, manualOverrides, learning]);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("ss_onboarding_done") === "1";
@@ -5224,6 +5383,11 @@ export default function SettimanaSmartMVP() {
   });
   const [tutorialStep, setTutorialStep] = useState(0);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
+
+  // Auto-sync su cloud quando cambiano preferenze, dispensa, seed
+  useEffect(() => { if (user) syncToCloud("preferences"); }, [preferences, user]);
+  useEffect(() => { if (user) syncToCloud("pantry"); }, [pantryItems, user]);
+  useEffect(() => { if (user) syncToCloud("plan"); }, [seed, manualOverrides, learning, user]);
   const [manualOverrides, setManualOverrides] = useState<ManualOverrides>(() => {
     if (typeof window === "undefined") return {};
     try { const saved = localStorage.getItem("ss_manual_overrides_v1"); return saved ? JSON.parse(saved) : {}; } catch { return {}; }
@@ -5696,6 +5860,11 @@ export default function SettimanaSmartMVP() {
   return (
     <>
       <style>{designTokens}</style>
+      {/* ── AUTH MODAL ── */}
+      {showAuthModal && isMounted && (
+        <AuthModalInline onClose={() => setShowAuthModal(false)} />
+      )}
+
       {/* ── TOUR INTERATTIVO ── */}
       {isMounted && !tutorialDone && (() => {
         const step = TOUR_STEPS[tutorialStep];
@@ -5802,6 +5971,30 @@ export default function SettimanaSmartMVP() {
                 <div><div style={{ fontSize: 11, fontWeight: 600, color: "var(--sepia-light)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Risparmio</div><div className="font-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--olive)", lineHeight: 1.1 }}>{isMounted ? `€${generated.stats.estimatedSavings.toFixed(0)}` : "—"}</div></div>
                 <span style={{ fontSize: 22 }}>💶</span>
               </div>
+            </div>
+            {/* Pulsante account */}
+            <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", marginTop: -8 }}>
+              {isMounted && (user ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {syncStatus === "saving" && <span style={{ fontSize: 11, color: "var(--sepia-light)" }}>↑ salvataggio...</span>}
+                  {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
+                  {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
+                  <button
+                    onClick={() => signOut()}
+                    style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
+                  >
+                    {user.email?.split("@")[0] ?? "Account"} · Esci
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="btn-terra"
+                  style={{ padding: "7px 16px", fontSize: 13 }}
+                >
+                  Accedi · Salva i tuoi dati ☁️
+                </button>
+              ))}
             </div>
           </div>
 
