@@ -1114,7 +1114,7 @@ export default function SettimanaSmartMVP() {
                   {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
                   {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
                   <button
-                    onClick={() => sbClient?.auth.signOut()}
+                    onClick={() => (sbClient as SupabaseClient | null)?.auth.signOut()}
                     style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}
                   >
                     {user.email?.split("@")[0] ?? "Account"} · Esci
