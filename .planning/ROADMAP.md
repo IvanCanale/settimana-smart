@@ -30,7 +30,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `planEngine.ts` business-critical functions are covered by Vitest tests — running `vitest` shows green with coverage on `buildPlan()`, `scoreCandidate()`, `aggregateShopping()`
   3. `framer-motion` and the `radix-ui` meta-package are removed from `package.json` and the bundle
   4. The app still opens in the browser and the plan, recipe, and shopping views all render without errors after refactoring
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Vitest setup, planEngine test coverage, engine bug fixes, dependency cleanup
+- [ ] 01-02-PLAN.md — CSS migration, monolith decomposition into tab components and hooks, error boundary
 
 ### Phase 2: Auth and Onboarding
 **Goal**: Users have a real identity in the system and have completed a guided profile setup that includes allergen selection before accessing the app
@@ -100,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Hardening | 0/TBD | Not started | - |
+| 1. Foundation Hardening | 0/2 | Planning complete | - |
 | 2. Auth and Onboarding | 0/TBD | Not started | - |
 | 3. Engine Hardening and Cloud Sync | 0/TBD | Not started | - |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |
