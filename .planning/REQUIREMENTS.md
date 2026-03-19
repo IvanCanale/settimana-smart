@@ -58,7 +58,8 @@
 ### Notifiche
 
 - [ ] **NOTIF-01**: L'utente imposta il proprio "giorno della spesa" nel profilo
-- [ ] **NOTIF-02**: L'app invia una push notification la sera prima del giorno della spesa impostato (default: domenica) con promemoria di pianificare la settimana
+- [ ] **NOTIF-02**: L'app invia una push notification la sera prima del giorno della spesa impostato (default: domenica sera) con promemoria di pianificare/rivedere il piano della settimana
+- [ ] **NOTIF-03**: L'app invia una seconda push notification il giorno della spesa stesso, all'orario configurato dall'utente nel profilo, come promemoria di fare la spesa
 
 ### Refactoring Tecnico
 
@@ -105,43 +106,44 @@ Aggiornato durante la creazione del roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase TBD | Pending |
-| AUTH-02 | Phase TBD | Pending |
-| AUTH-03 | Phase TBD | Pending |
-| ONBOARD-01 | Phase TBD | Pending |
-| ONBOARD-02 | Phase TBD | Pending |
-| ONBOARD-03 | Phase TBD | Pending |
-| ONBOARD-04 | Phase TBD | Pending |
-| ONBOARD-05 | Phase TBD | Pending |
-| ENGINE-01 | Phase TBD | Pending |
-| ENGINE-02 | Phase TBD | Pending |
-| ENGINE-03 | Phase TBD | Pending |
-| ENGINE-04 | Phase TBD | Pending |
-| RECIPES-01 | Phase TBD | Pending |
-| RECIPES-02 | Phase TBD | Pending |
-| RECIPES-03 | Phase TBD | Pending |
-| RECIPES-04 | Phase TBD | Pending |
-| PLAN-01 | Phase TBD | Pending |
-| PLAN-02 | Phase TBD | Pending |
-| PLAN-03 | Phase TBD | Pending |
-| PLAN-04 | Phase TBD | Pending |
-| PLAN-05 | Phase TBD | Pending |
-| PLAN-06 | Phase TBD | Pending |
-| SHOP-01 | Phase TBD | Pending |
-| SHOP-02 | Phase TBD | Pending |
-| SHOP-03 | Phase TBD | Pending |
-| CLOUD-01 | Phase TBD | Pending |
-| CLOUD-02 | Phase TBD | Pending |
-| NOTIF-01 | Phase TBD | Pending |
-| NOTIF-02 | Phase TBD | Pending |
-| TECH-01 | Phase TBD | Pending |
-| TECH-02 | Phase TBD | Pending |
+| TECH-01 | Phase 1 | Pending |
+| TECH-02 | Phase 1 | Pending |
+| ENGINE-04 | Phase 1 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| ONBOARD-01 | Phase 2 | Pending |
+| ONBOARD-02 | Phase 2 | Pending |
+| ONBOARD-03 | Phase 2 | Pending |
+| ONBOARD-04 | Phase 2 | Pending |
+| ONBOARD-05 | Phase 2 | Pending |
+| ENGINE-01 | Phase 3 | Pending |
+| ENGINE-02 | Phase 3 | Pending |
+| ENGINE-03 | Phase 3 | Pending |
+| CLOUD-01 | Phase 3 | Pending |
+| CLOUD-02 | Phase 3 | Pending |
+| RECIPES-01 | Phase 4 | Pending |
+| RECIPES-02 | Phase 4 | Pending |
+| RECIPES-03 | Phase 4 | Pending |
+| RECIPES-04 | Phase 4 | Pending |
+| PLAN-01 | Phase 5 | Pending |
+| PLAN-02 | Phase 5 | Pending |
+| PLAN-03 | Phase 5 | Pending |
+| PLAN-04 | Phase 5 | Pending |
+| PLAN-05 | Phase 5 | Pending |
+| PLAN-06 | Phase 5 | Pending |
+| SHOP-01 | Phase 5 | Pending |
+| SHOP-02 | Phase 5 | Pending |
+| SHOP-03 | Phase 5 | Pending |
+| NOTIF-01 | Phase 6 | Pending |
+| NOTIF-02 | Phase 6 | Pending |
+| NOTIF-03 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 31 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 31 ⚠️
+- v1 requirements: 32 total
+- Mapped to phases: 32
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 — traceability mapped after roadmap creation*
