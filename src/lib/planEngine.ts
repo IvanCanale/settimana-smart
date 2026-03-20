@@ -299,7 +299,6 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     "fesa di tacchino",    "fesa di tacchino a fette",    "pollo intero o cosce e sovracosce",
     "petto di pollo macinato",    "tacchino",    "ali di pollo",
     "sovracosce di pollo",    "petto di tacchino",    "anatra",
-    "coniglio"
   ];
 
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
@@ -507,6 +506,19 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     });
     if (preferences.leftoversAllowed && recipeItem.tags.includes("avanzi")) score += 4;
     if (context.special) score += 6;
+
+    // ── BUDGET SCORING ──
+    // budget è un valore 20-100 (slider). Budget basso penalizza ricette con molti ingredienti.
+    const budgetIngCount = recipeItem.ingredients.length;
+    if (preferences.budget <= 30) {
+      // Budget molto basso: penalizza ricette con più di 5 ingredienti
+      if (budgetIngCount > 5) score -= 3;
+    } else if (preferences.budget <= 50) {
+      // Budget medio-basso: penalizza ricette con più di 7 ingredienti
+      if (budgetIngCount > 7) score -= 2;
+    }
+    // budget > 50: nessuna penalità (budget generoso)
+
     if (learning) {
       score += (learning.keptRecipeIds[recipeItem.id] || 0) * 10;
       score -= (learning.regeneratedRecipeIds[recipeItem.id] || 0) * 12;
