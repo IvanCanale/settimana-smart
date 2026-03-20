@@ -26,7 +26,7 @@
 - [ ] **ENGINE-01**: Il piano generato rispetta rigidamente le intolleranze dichiarate tramite un layer di validazione deterministico (non delegato a LLM)
 - [ ] **ENGINE-02**: Il piano garantisce varietà (nessuna proteina principale ripetuta più di 2 volte nella stessa settimana)
 - [ ] **ENGINE-03**: I pasti della settimana condividono ingredienti per ridurre la lista della spesa e gli sprechi
-- [ ] **ENGINE-04**: Il motore di generazione è coperto da test automatici (Vitest) con coverage su funzioni business-critical
+- [x] **ENGINE-04**: Il motore di generazione è coperto da test automatici (Vitest) con coverage su funzioni business-critical
 
 ### Ricette & AI
 
@@ -64,7 +64,7 @@
 ### Refactoring Tecnico
 
 - [ ] **TECH-01**: Il monolith `page.tsx` (1738 righe) è decomposto in tab components separati e custom hooks (`usePlanEngine`, `useLocalStorage`, `useCloudSync`)
-- [ ] **TECH-02**: I package inutilizzati sono rimossi dal bundle (`framer-motion`, `radix-ui` meta-package)
+- [x] **TECH-02**: I package inutilizzati sono rimossi dal bundle (`framer-motion`, `radix-ui` meta-package)
 
 ---
 
@@ -107,8 +107,8 @@ Aggiornato durante la creazione del roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | TECH-01 | Phase 1 | Pending |
-| TECH-02 | Phase 1 | Pending |
-| ENGINE-04 | Phase 1 | Pending |
+| TECH-02 | Phase 1 | Complete |
+| ENGINE-04 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Pending |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |
@@ -146,4 +146,4 @@ Aggiornato durante la creazione del roadmap.
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 — traceability mapped after roadmap creation*
+*Last updated: 2026-03-20 — ENGINE-04 and TECH-02 completed in plan 01-01*

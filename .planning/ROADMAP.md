@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The app still opens in the browser and the plan, recipe, and shopping views all render without errors after refactoring
 **Plans:** 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Vitest setup, planEngine test coverage, engine bug fixes, dependency cleanup
+- [x] 01-01-PLAN.md — Vitest setup, planEngine test coverage, engine bug fixes, dependency cleanup
 - [ ] 01-02-PLAN.md — CSS migration, monolith decomposition into tab components and hooks, error boundary
 
 ### Phase 2: Auth and Onboarding
@@ -103,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Hardening | 0/2 | Planning complete | - |
+| 1. Foundation Hardening | 1/2 | In progress | - |
 | 2. Auth and Onboarding | 0/TBD | Not started | - |
 | 3. Engine Hardening and Cloud Sync | 0/TBD | Not started | - |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |
