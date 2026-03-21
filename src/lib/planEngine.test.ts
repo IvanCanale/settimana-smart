@@ -654,3 +654,53 @@ describe('aggregateShopping variant merge', () => {
     expect(polloEntries[0].name).toBe('pollo');
   });
 });
+
+// ── allergen filtering for single-meal swap ────────────────────────────────────
+
+describe('allergen filtering for single-meal swap', () => {
+  it('recipeContainsAllergen returns true when a recipe ingredient matches an allergen', () => {
+    const recipe = makeRecipe({
+      ingredients: [
+        ing('latte intero', 200, 'ml', 'Latticini'),
+        ing('farina 00', 200, 'g', 'Cereali'),
+      ],
+    });
+    expect(recipeContainsAllergen(recipe, 'latticini')).toBe(true);
+  });
+
+  it('recipeContainsAllergen returns false when no ingredient matches the allergen', () => {
+    const recipe = makeRecipe({
+      ingredients: [
+        ing('pomodori pelati', 400, 'g', 'Dispensa'),
+        ing('olio extravergine', 3, 'cucchiai', 'Dispensa'),
+      ],
+    });
+    expect(recipeContainsAllergen(recipe, 'latticini')).toBe(false);
+  });
+
+  it('filtering a recipe pool with allergen exclusions removes unsafe recipes and keeps safe ones', () => {
+    const safeRecipe = makeRecipe({
+      id: 'safe-recipe',
+      title: 'Pasta al pomodoro',
+      ingredients: [
+        ing('spaghetti', 160, 'g', 'Cereali'),
+        ing('passata di pomodoro', 300, 'g', 'Dispensa'),
+      ],
+    });
+    const unsafeRecipe = makeRecipe({
+      id: 'unsafe-recipe',
+      title: 'Pasta al burro',
+      ingredients: [
+        ing('spaghetti', 160, 'g', 'Cereali'),
+        ing('burro', 30, 'g', 'Latticini'),
+      ],
+    });
+    const pool = [safeRecipe, unsafeRecipe];
+    const exclusions = ['latticini'];
+    const filtered = pool.filter((rec) =>
+      !exclusions.some((allergen) => recipeContainsAllergen(rec, allergen))
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].id).toBe('safe-recipe');
+  });
+});
