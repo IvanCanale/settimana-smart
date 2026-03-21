@@ -43,7 +43,7 @@ Declared values (must be multiples of 4):
 | 3xl | 64px | Page-level spacing |
 
 Exceptions:
-- Offline banner: 12px vertical padding (3px above xs) — intentionally compact to avoid stealing vertical space from the plan view
+- Offline banner: 8px vertical padding (sm token) — compact to avoid stealing vertical space from the plan view
 - Sync status text in AppHeader: no additional padding — inline with existing header row at natural line height
 - Touch targets for banner dismiss button (if present): minimum 44px × 44px
 
@@ -101,7 +101,7 @@ Source: `src/app/globals.css` custom tokens — pre-existing, not new to this ph
 - **Content**: Icon `WifiOff` (lucide) + text "Modalità offline — modifiche salvate localmente"
 - **Dismissible**: No — it auto-hides when `navigator.onLine` returns true. No manual dismiss.
 - **Animation**: `.animate-in` fade-slide-up (already defined)
-- **Height**: auto, approximately 44–48px at 14px body text with 12px vertical padding
+- **Height**: auto, approximately 40–44px at 14px body text with 8px vertical padding
 
 ### 2. Sync Status in AppHeader
 
