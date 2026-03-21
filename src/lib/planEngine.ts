@@ -263,6 +263,47 @@ export const FREEZE_CANDIDATES = [
     "ali di pollo",    "sovracosce di pollo",    "petto di tacchino",
     "anatra"
   ];
+// Mappa allergie EU → parole chiave che compaiono nei nomi degli ingredienti del database ricette
+const ALLERGEN_INGREDIENT_MAP: Record<string, string[]> = {
+  glutine: [
+    "pasta","penne","spaghetti","bucatini","rigatoni","linguine","tagliatelle","pappardelle",
+    "fusilli","orecchiette","farfalle","trofie","cannelloni","lasagna","lasagne","sfoglie",
+    "gnocchi","farina","pane","pangrattato","panini","brioche","brisée","pizza","grissini",
+    "piadina","piadine","wrap","cous cous","couscous","bulgur","farro","orzo","avena","semola",
+  ],
+  latticini: [
+    "latte intero","mozzarella","burrata","parmigiano","pecorino","burro","ricotta",
+    "formaggio","yogurt","gorgonzola","mascarpone","stracchino","squacquerone",
+    "scamorza","provola","emmenthal","gruyère","feta","panna","pesto",
+  ],
+  uova: ["uova","maionese"],
+  crostacei: [
+    "gamberi","gamberetti","cozze","vongole","seppie","polpo","aragosta","scampi","mazzancolle",
+  ],
+  "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","pinoli","anacardi","castagne","pecan"],
+  arachidi: ["arachidi"],
+  sesamo: ["sesamo","tahini","olio di sesamo"],
+  soia: ["soia","tofu","edamame","tempeh","miso"],
+  sedano: ["sedano"],
+};
+
+export function recipeContainsAllergen(recipeItem: Recipe, allergen: string): boolean {
+  const keywords = ALLERGEN_INGREDIENT_MAP[allergen];
+  if (keywords) {
+    return recipeItem.ingredients.some((i) => keywords.some((k) => normalize(i.name).includes(k)));
+  }
+  // Fallback: controlla nome ingrediente e categoria
+  return recipeItem.ingredients.some((i) => normalize(i.name).includes(allergen))
+    || getRecipeCategory(recipeItem) === allergen;
+}
+
+export function validateAllergenSafety(plan: PlanResult, exclusions: string[]): boolean {
+  const allMeals = plan.days.flatMap(d => [d.lunch, d.dinner]).filter(Boolean) as Recipe[];
+  return !allMeals.some(meal =>
+    exclusions.some(ex => recipeContainsAllergen(meal, ex))
+  );
+}
+
 export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: number, learning?: PreferenceLearning): PlanResult {
   const pantrySet = new Set(pantryItems.map((x) => normalize(x.name)));
   const exclusions = preferences.exclusions || [];
@@ -302,40 +343,6 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
   ];
 
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
-
-  // Mappa allergie EU → parole chiave che compaiono nei nomi degli ingredienti del database ricette
-  const ALLERGEN_INGREDIENT_MAP: Record<string, string[]> = {
-    glutine: [
-      "pasta","penne","spaghetti","bucatini","rigatoni","linguine","tagliatelle","pappardelle",
-      "fusilli","orecchiette","farfalle","trofie","cannelloni","lasagna","lasagne","sfoglie",
-      "gnocchi","farina","pane","pangrattato","panini","brioche","brisée","pizza","grissini",
-      "piadina","piadine","wrap","cous cous","couscous","bulgur","farro","orzo","avena","semola",
-    ],
-    latticini: [
-      "latte intero","mozzarella","burrata","parmigiano","pecorino","burro","ricotta",
-      "formaggio","yogurt","gorgonzola","mascarpone","stracchino","squacquerone",
-      "scamorza","provola","emmenthal","gruyère","feta","panna","pesto",
-    ],
-    uova: ["uova","maionese"],
-    crostacei: [
-      "gamberi","gamberetti","cozze","vongole","seppie","polpo","aragosta","scampi","mazzancolle",
-    ],
-    "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","pinoli","anacardi","castagne","pecan"],
-    arachidi: ["arachidi"],
-    sesamo: ["sesamo","tahini","olio di sesamo"],
-    soia: ["soia","tofu","edamame","tempeh","miso"],
-    sedano: ["sedano"],
-  };
-
-  const recipeContainsAllergen = (recipeItem: (typeof RECIPE_LIBRARY)[number], allergen: string): boolean => {
-    const keywords = ALLERGEN_INGREDIENT_MAP[allergen];
-    if (keywords) {
-      return recipeItem.ingredients.some((i) => keywords.some((k) => normalize(i.name).includes(k)));
-    }
-    // Fallback: controlla nome ingrediente e categoria
-    return recipeItem.ingredients.some((i) => normalize(i.name).includes(allergen))
-      || getRecipeCategory(recipeItem) === allergen;
-  };
 
   const eligible = RECIPE_LIBRARY.filter((recipeItem) => {
     if (!recipeItem.diet.includes(preferences.diet)) return false;
@@ -582,6 +589,9 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
       .filter((recipeItem) => {
         if (excludeIds.has(recipeItem.id)) return false;
         if (usedThisWeek.has(recipeItem.id)) return false;
+        // Hard cap: protein category must not exceed maxPerCategory
+        const category = getRecipeCategory(recipeItem);
+        if ((categoryCounts[category] || 0) >= (maxPerCategory[category as keyof typeof maxPerCategory] ?? 99)) return false;
         const recipeIngredients = recipeItem.ingredients.map((i) => normalize(i.name));
         if (sameDayLunch) {
           const lunchIngredients = sameDayLunch.ingredients.map((i) => normalize(i.name));
@@ -603,7 +613,12 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     if (scored[0]?.recipe) return scored[0].recipe;
 
     const relaxed = sourcePool
-      .filter((rec) => !excludeIds.has(rec.id))
+      .filter((rec) => {
+        if (excludeIds.has(rec.id)) return false;
+        const cat = getRecipeCategory(rec);
+        if ((categoryCounts[cat] || 0) >= (maxPerCategory[cat as keyof typeof maxPerCategory] ?? 99)) return false;
+        return true;
+      })
       .map((rec) => ({ recipe: rec, score: scoreCandidate(rec, { special, preferNoMainCarb, avoidCarb, sameDayLunch, slot, dayIndex }) }))
       .sort((a, b) => b.score - a.score);
     return relaxed[0]?.recipe || null;

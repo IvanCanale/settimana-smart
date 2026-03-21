@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Recipe, RecipeIngredient, Preferences, PantryItem } from '@/types';
+import type { Recipe, RecipeIngredient, Preferences, PantryItem, PlanResult } from '@/types';
 import {
   normalize,
   seededShuffle,
@@ -10,6 +10,8 @@ import {
   buildPlan,
   runSanityChecks,
   DAYS,
+  validateAllergenSafety,
+  recipeContainsAllergen,
 } from '@/lib/planEngine';
 
 // ── FIXTURES ──────────────────────────────────────────────────────────────────
@@ -515,5 +517,58 @@ describe('budget scoring', () => {
 
     // Low budget should produce plans with fewer average ingredients than high budget
     expect(lowAvg).toBeLessThanOrEqual(highAvg);
+  });
+});
+
+// ── protein variety ENGINE-02 ─────────────────────────────────────────────────
+
+describe('protein variety ENGINE-02', () => {
+  const PROTEIN_CATEGORIES = ['carne', 'pesce', 'pollo', 'legumi', 'uova'];
+
+  it.each([1, 42, 99])('no protein category exceeds 2 for seed %i', (testSeed) => {
+    const result = buildPlan(DEFAULT_PREFS, [], testSeed);
+    PROTEIN_CATEGORIES.forEach(cat => {
+      expect(result.stats.categoryCounts[cat] ?? 0).toBeLessThanOrEqual(2);
+    });
+  });
+
+  it('dinner-only plan also respects protein cap', () => {
+    const prefs = { ...DEFAULT_PREFS, mealsPerDay: 'dinner' as const };
+    const result = buildPlan(prefs, [], 42);
+    PROTEIN_CATEGORIES.forEach(cat => {
+      expect(result.stats.categoryCounts[cat] ?? 0).toBeLessThanOrEqual(2);
+    });
+  });
+});
+
+// ── allergen gate ENGINE-01 ───────────────────────────────────────────────────
+
+describe('allergen gate ENGINE-01', () => {
+  it('validateAllergenSafety returns true for safe plan', () => {
+    const prefs = { ...DEFAULT_PREFS, exclusions: ['latticini'] };
+    const result = buildPlan(prefs, [], 42);
+    expect(validateAllergenSafety(result, ['latticini'])).toBe(true);
+  });
+
+  it('validateAllergenSafety detects unsafe meal', () => {
+    const unsafeMeal = makeRecipe({
+      id: 'unsafe-dairy',
+      ingredients: [ing('mozzarella', 200, 'g', 'Latticini'), ing('pomodoro', 300, 'g', 'Verdure')],
+    });
+    const fakePlan: PlanResult = {
+      days: [{ day: 'Lun', lunch: unsafeMeal, dinner: null, notes: [] }, ...DAYS.slice(1).map(d => ({ day: d, lunch: null, dinner: null, notes: [] }))],
+      shopping: [], stats: { recipesCount: 1, uniqueIngredients: 2, reusedIngredients: 0, estimatedSavings: 0, estimatedTotal: 0, categoryCounts: {} }, alerts: [], freezeItems: [],
+    };
+    expect(validateAllergenSafety(fakePlan, ['latticini'])).toBe(false);
+  });
+
+  it('recipeContainsAllergen detects dairy ingredient', () => {
+    const recipe = makeRecipe({ ingredients: [ing('mozzarella', 200, 'g', 'Latticini')] });
+    expect(recipeContainsAllergen(recipe, 'latticini')).toBe(true);
+  });
+
+  it('recipeContainsAllergen returns false for safe recipe', () => {
+    const recipe = makeRecipe({ ingredients: [ing('pomodoro', 300, 'g', 'Verdure'), ing('basilico fresco', 5, 'g', 'Verdure')] });
+    expect(recipeContainsAllergen(recipe, 'latticini')).toBe(false);
   });
 });
