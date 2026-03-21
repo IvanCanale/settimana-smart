@@ -3,10 +3,25 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-21T21:25:39.640Z"
+progress:
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 17
+  completed_plans: 16
+  percent: 94
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: unknown
 stopped_at: Completed 06-01-PLAN.md
 last_updated: "2026-03-21T22:19:00.000Z"
 progress:
-  total_phases: 6
+  [█████████░] 94%
   completed_phases: 5
   total_plans: 17
   completed_plans: 15
@@ -57,6 +72,7 @@ Plan: 2 of 3
 | Phase 05 P02 | 8 | 2 tasks | 3 files |
 | Phase 05 P03 | 4 | 2 tasks | 5 files |
 | Phase 05 P04 | 15 | 2 tasks | 4 files |
+| Phase 06-notifications P02 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -118,6 +134,9 @@ Recent decisions affecting current work:
 - [06-01]: shoppingDay?, shoppingNotificationTime?, timezone? added as optional fields to Preferences — backward-compatible, no existing consumers affected
 - [06-01]: Timezone auto-detected via Intl.DateTimeFormat().resolvedOptions().timeZone in ProfileDrawer useEffect — stored in preferences for Edge Function use in Plans 02/03
 - [06-01]: Notification time input only rendered when shoppingDay !== undefined — avoids orphaned time preference with no shopping day context
+- [Phase 06-02]: SW cache bumped to v2 to force push handler installation on existing browser sessions
+- [Phase 06-02]: SUPABASE_SERVICE_ROLE_KEY used in push server actions — runs server-side, bypasses RLS for subscription upsert
+- [Phase 06-02]: NotificationPrompt shown only after shopping day set and user logged in — contextual prompt avoids onboarding friction
 
 ### Pending Todos
 
@@ -130,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T20:42:16.293Z
-Stopped at: Completed 05-04-PLAN.md
+Last session: 2026-03-21T21:25:39.636Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
