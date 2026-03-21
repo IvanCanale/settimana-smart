@@ -34,6 +34,24 @@ export function ShoppingTab({
   return (
     <div className="animate-in delay-2">
       <SectionHeader icon="🛒" title="Lista della spesa" subtitle="Consolidata e già depurata da ciò che hai in dispensa" />
+      {generated.stats.reusedIngredients > 0 && (
+        <div className="stat-chip" style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          marginBottom: 12,
+          fontSize: 14,
+          fontWeight: 600,
+          color: "var(--olive)",
+          background: "var(--cream)",
+          border: "1px solid rgba(61,43,31,0.12)",
+          borderRadius: 100,
+          padding: "4px 14px",
+          width: "fit-content",
+        }}>
+          <span>&#9851;</span> {generated.stats.reusedIngredients} ingredienti condivisi tra i pasti
+        </div>
+      )}
       {generated.shopping.length === 0 ? (
         <div className="card-warm" style={{ padding: 28, textAlign: "center", color: "var(--sepia-light)" }}>Nessun ingrediente da acquistare con questi parametri.</div>
       ) : (

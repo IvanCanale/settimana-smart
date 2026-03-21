@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES } from "@/lib/planEngine";
+import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety } from "@/lib/planEngine";
 import { RECIPE_LIBRARY } from "@/data/recipes";
 import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe } from "@/types";
 
@@ -21,11 +21,27 @@ export function usePlanEngine(
     ],
   }), [preferences]);
 
-  // Piano base generato dall'engine
-  const basePlan = useMemo(
-    () => buildPlan(computedPrefs, pantryItems, seed, learning),
-    [computedPrefs, pantryItems, seed, learning],
-  );
+  // Piano base con allergen safety gate — retry fino a 3 tentativi con seed+1
+  const basePlan = useMemo(() => {
+    const exclusions = computedPrefs.exclusions || [];
+    if (exclusions.length === 0) {
+      return buildPlan(computedPrefs, pantryItems, seed, learning);
+    }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const plan = buildPlan(computedPrefs, pantryItems, seed + attempt, learning);
+      if (validateAllergenSafety(plan, exclusions)) {
+        return plan;
+      }
+      // Log per debug — non visibile a utente
+      console.warn(`Allergen gate failed for plan seed ${seed + attempt}, attempt ${attempt + 1}/3 — retrying with seed ${seed + attempt + 1}`);
+    }
+    // Tutti e 3 i tentativi falliti — ritorna l'ultimo tentativo con alert
+    const fallback = buildPlan(computedPrefs, pantryItems, seed + 2, learning);
+    return {
+      ...fallback,
+      alerts: [...fallback.alerts, "Non e stato possibile generare un piano sicuro. Riprova modificando le preferenze."],
+    };
+  }, [computedPrefs, pantryItems, seed, learning]);
 
   // Piano finale con override manuali applicati
   const generated = useMemo(() => {
