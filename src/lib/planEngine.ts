@@ -305,7 +305,7 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
 
   // Mappa allergie EU → ingredienti che le contengono (i nomi degli ingredienti non contengono "glutine" o "latticini")
   const ALLERGEN_INGREDIENT_MAP: Record<string, string[]> = {
-    glutine: ["pasta","farina","pane","pizza","grissini","cous cous","couscous","orzo","farro","bulgur","semola","gnocchi","lasagne","tagliatelle","pappardelle","linguine","spaghetti","rigatoni","calamarata","mezze maniche","tortiglioni","fusilli","orecchiette","farfalle","pangrattato","crackers","crostini"],
+    glutine: ["pasta","farina","pane","piadina","piadine","pizza","grissini","cous cous","couscous","orzo","farro","bulgur","semola","gnocchi","lasagna","lasagne","tagliatelle","pappardelle","linguine","spaghetti","bucatini","rigatoni","calamarata","mezze maniche","tortiglioni","fusilli","orecchiette","farfalle","penne","cannelloni","sfoglie","brioche","brisée","panini","pangrattato","crackers","crostini","wrap","avena"],
     latticini: ["latte","mozzarella","parmigiano","pecorino","burro","ricotta","formaggio","yogurt","grana padano","grana","scamorza","provola","fontina","taleggio","gorgonzola","mascarpone","stracchino","robiola","asiago","crescenza","caciotta","caciocavallo"],
     crostacei: ["gamberi","gamberetti","aragosta","granchio","scampi","mazzancolle"],
     "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","anacardi","pinoli","castagne","arachidi","pecan","macadamia"],
