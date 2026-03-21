@@ -110,7 +110,11 @@ Plans:
   2. The evening before the user's selected shopping day, the app sends a push notification reminding them to review/finalize the weekly plan
   3. The user can configure a specific time for a second notification sent on the shopping day itself as a reminder to go shopping — this time is saved in the profile
   4. A user who has not granted notification permissions is prompted to grant them at an appropriate moment (not during onboarding) — the app works fully without notifications if declined
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 06-01-PLAN.md — Extend Preferences type, notification scheduling utils with tests, ProfileDrawer shopping day picker
+- [ ] 06-02-PLAN.md — Push subscription infrastructure: service worker, hook, server actions, migration, NotificationPrompt UI
+- [ ] 06-03-PLAN.md — Edge Function for scheduled push dispatch, pg_cron schedules, end-to-end verification
 
 ## Progress
 
@@ -124,4 +128,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Engine Hardening and Cloud Sync | 2/2 | Complete   | 2026-03-21 |
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
-| 6. Notifications | 0/TBD | Not started | - |
+| 6. Notifications | 0/3 | Not started | - |
