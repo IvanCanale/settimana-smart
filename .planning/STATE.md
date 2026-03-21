@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-ai-recipe-generation-01-PLAN.md
-last_updated: "2026-03-21T16:00:36.324Z"
+stopped_at: Completed 04-ai-recipe-generation-02-PLAN.md
+last_updated: "2026-03-21T16:08:48.703Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -50,6 +50,7 @@ Plan: 1 of 4
 | Phase 03-engine-hardening-and-cloud-sync P01 | 3 | 2 tasks | 4 files |
 | Phase 03-engine-hardening-and-cloud-sync P02 | 3 | 1 tasks | 4 files |
 | Phase 04-ai-recipe-generation P01 | 3 | 2 tasks | 7 files |
+| Phase 04-ai-recipe-generation P02 | 5 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 04-ai-recipe-generation]: source_url required in AIRecipeSchema (z.string().url()) — rejects hallucinated recipes without verifiable Italian source
 - [Phase 04-ai-recipe-generation]: fetchRecipes selects explicit columns not * — prevents extra DB fields leaking into Recipe type via rowToRecipe
 - [Phase 04-ai-recipe-generation]: normalizeRecipeTitle uses NFD normalize + combining-char strip — client mirror of DB GENERATED ALWAYS column for consistent dedup
+- [Phase 04-ai-recipe-generation]: buildPlan recipesOverride is optional — backward-compatible, no existing callers modified
+- [Phase 04-ai-recipe-generation]: useState(RECIPE_LIBRARY) as initial recipes state — eliminates blank state before Supabase fetch
+- [Phase 04-ai-recipe-generation]: Per-file jsdom env via // @vitest-environment jsdom — preserves node env for planEngine tests
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T16:00:36.320Z
-Stopped at: Completed 04-ai-recipe-generation-01-PLAN.md
+Last session: 2026-03-21T16:08:48.700Z
+Stopped at: Completed 04-ai-recipe-generation-02-PLAN.md
 Resume file: None

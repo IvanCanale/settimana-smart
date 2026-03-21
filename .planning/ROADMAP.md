@@ -75,7 +75,7 @@ Plans:
   3. A recipe generated for a user with a declared allergen never reaches the UI containing that allergen — the post-generation validation layer blocks it before display
   4. Generated recipes are recognizable Italian dishes with realistic ingredients (not invented combinations)
   5. The plan generation screen shows a progress indicator while AI generation runs — the UI never freezes or shows a blank screen during the 8-25 second generation window
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 Plans:
 - [ ] 04-01-PLAN.md — Zod recipe schema, SQL migrations, fetchRecipes(), seed migration script
 - [ ] 04-02-PLAN.md — Wire usePlanEngine to Supabase with async fetch, cache, and fallback
@@ -117,6 +117,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation Hardening | 2/2 | Complete   | 2026-03-21 |
 | 2. Auth and Onboarding | 2/2 | Complete   | 2026-03-21 |
 | 3. Engine Hardening and Cloud Sync | 2/2 | Complete   | 2026-03-21 |
-| 4. AI Recipe Generation | 1/4 | In Progress|  |
+| 4. AI Recipe Generation | 2/4 | In Progress|  |
 | 5. Plan Lifecycle and Shopping | 0/TBD | Not started | - |
 | 6. Notifications | 0/TBD | Not started | - |
