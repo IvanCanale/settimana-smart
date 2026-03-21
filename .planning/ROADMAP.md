@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer (completed 2026-03-21)
 - [x] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation (completed 2026-03-21)
 - [x] **Phase 6: Notifications** - Add push notifications for weekly planning prompts and shopping day reminders (completed 2026-03-21)
-- [ ] **Phase 7: Account Management** - Add account deletion (Apple App Store compliance), GDPR data export, preference reset, and enhanced profile info page
+- [x] **Phase 7: Account Management** - Add account deletion (Apple App Store compliance), GDPR data export, preference reset, and enhanced profile info page (completed 2026-03-21)
 
 ## Phase Details
 
@@ -127,7 +127,7 @@ Plans:
   3. A user can reset all preferences to default values with a single confirmed action — all 5 localStorage keys are cleared
   4. ProfileDrawer shows user email, account creation date, and number of plans generated for logged-in users
   5. All destructive actions (delete, reset) require an explicit Italian confirmation step before executing
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 07-01-PLAN.md — Supabase Edge Function delete-account + exportUserData() client utility
 - [ ] 07-02-PLAN.md — ProfileDrawer: enhanced profile info card + Zona pericolosa (delete/export/reset)
@@ -145,4 +145,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
-| 7. Account Management | 1/2 | In Progress|  |
+| 7. Account Management | 2/2 | Complete   | 2026-03-21 |
