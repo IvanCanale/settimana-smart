@@ -55,13 +55,14 @@ Exceptions:
 |------|------|--------|-------------|
 | Body | 16px | 400 (regular) | 1.5 |
 | Label | 14px | 600 (semibold) | 1.4 |
-| Caption / status text | 12px | 500 (medium) | 1.4 |
-| Display / heading | 22–32px (clamp) | 700 (bold), font-display class | 1.1 |
+| Caption / status text | 12px | 400 (regular) | 1.4 |
+| Display / heading | 22–32px (clamp) | 600 (semibold), font-display class | 1.1 |
 
 Notes:
-- Sync status text in AppHeader uses 11px / weight 500 — matches existing `fontSize: 11` pattern already in AppHeader.tsx (source: existing code)
+- Sync status text in AppHeader uses 12px (Caption) / weight 400 — existing `fontSize: 11` pattern in AppHeader.tsx is superseded by this contract; 12px is the minimum declared size
 - Offline banner body text uses 14px / weight 400 — uses the Label size without semibold to signal informational (not urgent) tone
-- Shared-ingredient metric line ("X ingredienti condivisi tra i pasti") uses 13px / weight 600 / color var(--olive) — matches stat-chip uppercase label pattern
+- Shared-ingredient metric line ("X ingredienti condivisi tra i pasti") uses 14px (Label) / weight 600 / color var(--olive) — matches stat-chip uppercase label pattern
+- Display headings use weight 600; clamp size range (22–32px) alone provides the visual hierarchy distinction from Label
 
 ---
 
@@ -105,11 +106,11 @@ Source: `src/app/globals.css` custom tokens — pre-existing, not new to this ph
 ### 2. Sync Status in AppHeader
 
 Existing rendering already in `AppHeader.tsx` — three states rendered as inline text:
-- `saving`: "↑ salvataggio..." in var(--sepia-light), 11px, weight 500
-- `saved`: "✓ salvato" in var(--olive), 11px, weight 500
-- `error`: "⚠ errore sync" in var(--terra), 11px, weight 500
+- `saving`: "↑ salvataggio..." in var(--sepia-light), 12px, weight 400
+- `saved`: "✓ salvato" in var(--olive), 12px, weight 400
+- `error`: "⚠ errore sync" in var(--terra), 12px, weight 400
 
-Phase 3 activates this UI by wiring real sync logic. No visual changes to the existing renders.
+Phase 3 activates this UI by wiring real sync logic. Visual values updated to contract (12px / weight 400) from existing 11px / weight 500.
 
 ### 3. Shared-Ingredient Metric in ShoppingTab
 
@@ -117,7 +118,7 @@ Phase 3 activates this UI by wiring real sync logic. No visual changes to the ex
 - **Visible when**: `generated.stats.reusedIngredients > 0`
 - **Component class**: `.stat-chip` with modified layout — single-row inline text variant
 - **Content**: `♻️ {N} ingredienti condivisi tra i pasti` where N = `generated.stats.reusedIngredients`
-- **Typography**: 13px, weight 600, color var(--olive)
+- **Typography**: 14px, weight 600, color var(--olive)
 - **Background**: var(--cream) with border rgba(61,43,31,0.12) — matches existing .stat-chip
 - **Width**: `fit-content` — does not stretch full width
 
@@ -184,7 +185,7 @@ Notes:
 ## Component Inventory
 
 Components already existing that Phase 3 uses without modification:
-- `AppHeader.tsx` — sync status display already wired
+- `AppHeader.tsx` — sync status display already wired (update fontSize from 11px to 12px, weight from 500 to 400)
 - `ShoppingTab.tsx` — receives updated stats
 - `.alert-banner` CSS class — used for offline banner and allergen hard failure
 - `.stat-chip` CSS class — used for shared-ingredient metric
