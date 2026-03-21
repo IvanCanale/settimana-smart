@@ -4,7 +4,7 @@ import type { Preferences, Diet } from "@/types";
 import { ALLERGEN_OPTIONS } from "@/types";
 import { useAuth } from "@/lib/AuthProvider";
 import { AuthModalInline } from "@/components/AuthModalInline";
-import { migrateFromLocalStorage } from "@/lib/supabase";
+import { migrateFromLocalStorage, exportUserData } from "@/lib/supabase";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
 
@@ -23,12 +23,19 @@ interface ProfileDrawerProps {
   onClose: () => void;
   preferences: Preferences;
   setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
+  onResetAllLocalStorage?: () => void;
+  defaultPrefs?: Preferences;
 }
 
-export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: ProfileDrawerProps) {
+export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, onResetAllLocalStorage, defaultPrefs }: ProfileDrawerProps) {
   const { sbClient, user } = useAuth();
   const push = usePushSubscription(user?.id ?? null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [planCount, setPlanCount] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   React.useEffect(() => {
     if (!preferences.timezone) {
@@ -36,6 +43,67 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: 
       setPreferences((p) => ({ ...p, timezone: tz }));
     }
   }, [preferences.timezone, setPreferences]);
+
+  React.useEffect(() => {
+    if (!user || !sbClient) { setPlanCount(null); return; }
+    sbClient
+      .from("weekly_plan")
+      .select("week_iso", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setPlanCount(count ?? 0));
+  }, [user, sbClient]);
+
+  const accountCreatedAt = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+
+  const handleDeleteAccount = async () => {
+    if (!sbClient || !user) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await sbClient.functions.invoke("delete-account", { method: "POST" });
+      if (error) throw error;
+      ["ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1", "ss_manual_overrides_v1", "ss_checked_shopping_v1"].forEach(k => localStorage.removeItem(k));
+      await sbClient.auth.signOut();
+      onClose();
+    } catch (err) {
+      console.error("Errore eliminazione account:", err);
+      alert("Errore durante l'eliminazione dell'account. Riprova.");
+    } finally {
+      setIsDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!sbClient || !user) return;
+    setIsExporting(true);
+    try {
+      const data = await exportUserData(sbClient, user.id);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `settimana-smart-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Errore export dati:", err);
+      alert("Errore durante l'export dei dati. Riprova.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleReset = () => {
+    const fallback = defaultPrefs ?? { people: 2, diet: "mediterranea" as const, maxTime: 20, budget: 60, skill: "beginner" as const, mealsPerDay: "dinner" as const, leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
+    ["ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1", "ss_manual_overrides_v1", "ss_checked_shopping_v1"].forEach(k => localStorage.removeItem(k));
+    setPreferences(fallback as Preferences);
+    onResetAllLocalStorage?.();
+    setConfirmReset(false);
+  };
 
   if (!isOpen) return null;
 
@@ -456,9 +524,25 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: 
             </div>
           ) : (
             <div style={{ display: "grid", gap: 10 }}>
-              <p style={{ margin: 0, fontSize: 14, color: "var(--sepia)", fontWeight: 600 }}>
-                {user.email}
-              </p>
+              <div style={{
+                background: "var(--cream)",
+                borderRadius: 12,
+                padding: "14px 16px",
+                display: "grid",
+                gap: 6,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--sepia)" }}>{user.email}</div>
+                {accountCreatedAt && (
+                  <div style={{ fontSize: 12, color: "var(--sepia-light)" }}>
+                    Account creato il {accountCreatedAt}
+                  </div>
+                )}
+                {planCount !== null && (
+                  <div style={{ fontSize: 12, color: "var(--sepia-light)" }}>
+                    {planCount === 0 ? "Nessun piano generato" : `${planCount} ${planCount === 1 ? "piano" : "piani"} generati`}
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => sbClient?.auth.signOut()}
                 className="btn-outline"
@@ -469,6 +553,152 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: 
             </div>
           )}
         </div>
+
+        {/* Danger Zone */}
+        {user && (
+          <>
+            <hr style={divider} />
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ ...sectionLabel, color: "#c0392b" }}>Zona pericolosa</p>
+
+              {/* Export data */}
+              <button
+                onClick={handleExport}
+                disabled={isExporting}
+                style={{
+                  width: "100%",
+                  background: "var(--cream)",
+                  border: "2px solid rgba(61,43,31,0.12)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  cursor: isExporting ? "not-allowed" : "pointer",
+                  textAlign: "left",
+                  marginBottom: 10,
+                  opacity: isExporting ? 0.6 : 1,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--sepia)" }}>
+                  {isExporting ? "Esportazione..." : "Scarica i tuoi dati"}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--sepia-light)", marginTop: 2 }}>
+                  Esporta preferenze e piani in formato JSON (GDPR)
+                </div>
+              </button>
+
+              {/* Reset preferences */}
+              {!confirmReset ? (
+                <button
+                  onClick={() => setConfirmReset(true)}
+                  style={{
+                    width: "100%",
+                    background: "var(--cream)",
+                    border: "2px solid rgba(192,57,43,0.3)",
+                    borderRadius: 12,
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    marginBottom: 10,
+                  }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#c0392b" }}>
+                    Reimposta preferenze
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--sepia-light)", marginTop: 2 }}>
+                    Riporta tutte le impostazioni ai valori predefiniti
+                  </div>
+                </button>
+              ) : (
+                <div style={{
+                  background: "rgba(192,57,43,0.06)",
+                  border: "2px solid rgba(192,57,43,0.3)",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  marginBottom: 10,
+                }}>
+                  <p style={{ margin: "0 0 12px", fontSize: 14, color: "var(--sepia)", fontWeight: 600 }}>
+                    Reimpostare le preferenze? Questa azione non può essere annullata.
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={handleReset}
+                      style={{
+                        flex: 1, background: "#c0392b", color: "white", border: "none",
+                        borderRadius: 8, padding: "10px 0", cursor: "pointer", fontWeight: 700, fontSize: 14,
+                      }}
+                    >
+                      Reimposta
+                    </button>
+                    <button
+                      onClick={() => setConfirmReset(false)}
+                      style={{
+                        flex: 1, background: "var(--cream)", color: "var(--sepia)", border: "2px solid rgba(61,43,31,0.12)",
+                        borderRadius: 8, padding: "10px 0", cursor: "pointer", fontWeight: 600, fontSize: 14,
+                      }}
+                    >
+                      Annulla
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete account */}
+              {!confirmDelete ? (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  style={{
+                    width: "100%",
+                    background: "#c0392b",
+                    border: "none",
+                    borderRadius: 12,
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    color: "white",
+                  }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Elimina account</div>
+                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
+                    Elimina definitivamente account e tutti i dati
+                  </div>
+                </button>
+              ) : (
+                <div style={{
+                  background: "rgba(192,57,43,0.06)",
+                  border: "2px solid #c0392b",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                }}>
+                  <p style={{ margin: "0 0 12px", fontSize: 14, color: "var(--sepia)", fontWeight: 600 }}>
+                    Eliminare definitivamente l&apos;account? Tutti i tuoi dati saranno cancellati e non potranno essere recuperati.
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting}
+                      style={{
+                        flex: 1, background: "#c0392b", color: "white", border: "none",
+                        borderRadius: 8, padding: "10px 0", cursor: isDeleting ? "not-allowed" : "pointer",
+                        fontWeight: 700, fontSize: 14, opacity: isDeleting ? 0.6 : 1,
+                      }}
+                    >
+                      {isDeleting ? "Eliminazione..." : "Elimina"}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      disabled={isDeleting}
+                      style={{
+                        flex: 1, background: "var(--cream)", color: "var(--sepia)", border: "2px solid rgba(61,43,31,0.12)",
+                        borderRadius: 8, padding: "10px 0", cursor: "pointer", fontWeight: 600, fontSize: 14,
+                      }}
+                    >
+                      Annulla
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Auth modal on top */}
