@@ -559,7 +559,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
           <>
             <hr style={divider} />
             <div style={{ marginBottom: 24 }}>
-              <p style={{ ...sectionLabel, color: "#c0392b" }}>Zona pericolosa</p>
+              <p style={{ ...sectionLabel }}>Gestione account</p>
 
               {/* Export data */}
               <button
