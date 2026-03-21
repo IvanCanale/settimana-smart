@@ -123,10 +123,31 @@ export default function SettimanaSmartMVP() {
   const closeRecipeFlow = (completed = false) => { setRunningRecipe(null); setRunningStepIndex(0); setCurrentStepChecked(false); if (completed) setTimeout(() => tourAdvance("guided_completed"), 50); };
   const advanceRecipeFlow = () => { if (!runningRecipe) return; if (runningStepIndex >= runningRecipe.steps.length - 1) { const t = runningRecipe.title; closeRecipeFlow(true); setLastMessage(`Completato: ${t}`); return; } setRunningStepIndex((p) => p + 1); setCurrentStepChecked(false); };
   const goToRecipe = (recipe: Recipe) => { setSelectedRecipe(recipe); setActiveTab("recipes"); setTimeout(() => { recipeDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100); };
+  useEffect(() => {
+    if (!user || !sbClient || !onboardingDone) return;
+    // Migrate localStorage data to cloud on first login/signup
+    import("@/lib/supabase").then(({ migrateFromLocalStorage }) => {
+      migrateFromLocalStorage(sbClient, user.id);
+    });
+  }, [user, sbClient, onboardingDone]);
+
   if (isMounted && !onboardingDone) return (
-    <OnboardingFlow preferences={preferences} setPreferences={setPreferences}
-      onboardingStep={onboardingStep} setOnboardingStep={setOnboardingStep}
-      onComplete={() => { localStorage.setItem("ss_onboarding_done", "1"); setOnboardingDone(true); setSeed((p) => p + 1); setShowGeneratedBanner(true); setLastMessage("Piano generato — benvenuto!"); setActiveTab("week"); setTutorialDone(false); setTutorialStep(0); }}
+    <OnboardingFlow
+      preferences={preferences}
+      setPreferences={setPreferences}
+      onboardingStep={onboardingStep}
+      setOnboardingStep={setOnboardingStep}
+      onComplete={() => {
+        localStorage.setItem("ss_onboarding_done", "1");
+        setOnboardingDone(true);
+        setSeed((p) => p + 1);
+        setShowGeneratedBanner(true);
+        setLastMessage("Piano generato — benvenuto!");
+        setActiveTab("week");
+        setTutorialDone(false);
+        setTutorialStep(0);
+      }}
+      sbClient={sbClient}
     />
   );
   const dayMap: Record<number, string> = { 1: "Lun", 2: "Mar", 3: "Mer", 4: "Gio", 5: "Ven", 6: "Sab", 0: "Dom" };
