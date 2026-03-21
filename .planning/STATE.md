@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-21T14:49:18.043Z"
+stopped_at: Completed 04-ai-recipe-generation-01-PLAN.md
+last_updated: "2026-03-21T16:00:36.324Z"
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 03 — engine-hardening-and-cloud-sync
+**Current focus:** Phase 04 — ai-recipe-generation
 
 ## Current Position
 
-Phase: 03 (engine-hardening-and-cloud-sync) — EXECUTING
-Plan: 1 of 2
+Phase: 04 (ai-recipe-generation) — EXECUTING
+Plan: 1 of 4
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: 1 of 2
 | Phase 02-auth-and-onboarding P01 | 3 | 2 tasks | 3 files |
 | Phase 03-engine-hardening-and-cloud-sync P01 | 3 | 2 tasks | 4 files |
 | Phase 03-engine-hardening-and-cloud-sync P02 | 3 | 1 tasks | 4 files |
+| Phase 04-ai-recipe-generation P01 | 3 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 03-01]: Allergen retry loop fast path: skip retry when exclusions is empty
 - [Phase 03-engine-hardening-and-cloud-sync]: cloudSync passed as optional param to usePlanEngine — backward-compatible, no-op for anonymous users
 - [Phase 03-engine-hardening-and-cloud-sync]: local-wins-always: load-on-mount skips hydration if ss_seed_v1 exists in localStorage
+- [Phase 04-ai-recipe-generation]: source_url required in AIRecipeSchema (z.string().url()) — rejects hallucinated recipes without verifiable Italian source
+- [Phase 04-ai-recipe-generation]: fetchRecipes selects explicit columns not * — prevents extra DB fields leaking into Recipe type via rowToRecipe
+- [Phase 04-ai-recipe-generation]: normalizeRecipeTitle uses NFD normalize + combining-char strip — client mirror of DB GENERATED ALWAYS column for consistent dedup
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:49:18.040Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-ai-recipe-generation/04-CONTEXT.md
+Last session: 2026-03-21T16:00:36.320Z
+Stopped at: Completed 04-ai-recipe-generation-01-PLAN.md
+Resume file: None

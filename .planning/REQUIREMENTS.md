@@ -30,9 +30,9 @@
 
 ### Ricette & AI
 
-- [ ] **RECIPES-01**: Le ricette sono generate da AI (GPT-4o-mini) personalizzate sulle preferenze utente
-- [ ] **RECIPES-02**: Le ricette generate rispettano la cucina italiana e sono realistiche (ispirate a ricette verificate esistenti, non inventate)
-- [ ] **RECIPES-03**: Ogni ricetta generata segue uno schema strutturato: ingredienti con quantità e unità, passi di preparazione, tempo stimato
+- [x] **RECIPES-01**: Le ricette sono generate da AI (GPT-4o-mini) personalizzate sulle preferenze utente
+- [x] **RECIPES-02**: Le ricette generate rispettano la cucina italiana e sono realistiche (ispirate a ricette verificate esistenti, non inventate)
+- [x] **RECIPES-03**: Ogni ricetta generata segue uno schema strutturato: ingredienti con quantità e unità, passi di preparazione, tempo stimato
 - [ ] **RECIPES-04**: Le ricette generate sono validate post-generazione per allergie/intolleranze prima di essere mostrate all'utente
 
 ### Gestione Piano
@@ -122,9 +122,9 @@ Aggiornato durante la creazione del roadmap.
 | ENGINE-03 | Phase 3 | Complete |
 | CLOUD-01 | Phase 3 | Complete |
 | CLOUD-02 | Phase 3 | Complete |
-| RECIPES-01 | Phase 4 | Pending |
-| RECIPES-02 | Phase 4 | Pending |
-| RECIPES-03 | Phase 4 | Pending |
+| RECIPES-01 | Phase 4 | Complete |
+| RECIPES-02 | Phase 4 | Complete |
+| RECIPES-03 | Phase 4 | Complete |
 | RECIPES-04 | Phase 4 | Pending |
 | PLAN-01 | Phase 5 | Pending |
 | PLAN-02 | Phase 5 | Pending |
