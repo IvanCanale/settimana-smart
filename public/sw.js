@@ -1,4 +1,4 @@
-const CACHE_NAME = 'settimana-smart-v1';
+const CACHE_NAME = 'settimana-smart-v2';
 const urlsToCache = ['/'];
 
 self.addEventListener('install', (event) => {
@@ -39,4 +39,23 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => caches.match(event.request))
   );
+});
+
+// ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() ?? {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Settimana Smart', {
+      body: data.body || '',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: data.tag || 'reminder',
+      data: { url: data.url || '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow(event.notification.data.url));
 });
