@@ -63,13 +63,14 @@ All type uses DM Sans unless the `.font-display` class is applied.
 | Role | Size | Weight | Line Height | Font | Usage |
 |------|------|--------|-------------|------|-------|
 | Body | 14px | 400 | 1.5 | DM Sans | Recipe card secondary text, notification body, ingredient list |
-| Label | 13px | 600–700 | 1.3 | DM Sans | Section headers (uppercase, `letterSpacing: 0.05em`), metadata chips |
+| Label | 13px | 700 | 1.3 | DM Sans | Section headers (uppercase, `letterSpacing: 0.05em`), metadata chips, timestamps, badges, source attribution, loading labels |
 | Heading | 16px | 700 | 1.4 | DM Sans | Notification item title, drawer section titles, recipe card title |
 | Display | 22px | 700 | 1.1 | Playfair Display | NotificationDrawer panel title ("Notifiche"), NuoveRicettePage page title |
 
 Notes:
 - Section labels in drawers use 13px, weight 700, uppercase, `letterSpacing: 0.05em`, color `var(--sepia-light)` — matches `sectionLabel` style object in `ProfileDrawer.tsx`
-- Recipe count badge ("N nuove ricette") uses 11px, weight 600, uppercase — matches `.tag-pill` pattern in `globals.css`
+- Recipe count badge ("N nuove ricette") uses 13px, weight 700, uppercase — matches `.tag-pill` pattern in `globals.css`
+- Timestamps, source attribution, and inline confirmation labels all map to the 13px Label role at weight 700 (timestamps, badges) or weight 400 (source attribution)
 
 ---
 
@@ -145,11 +146,11 @@ Olive `#5C6B3A` reserved specifically for:
 - Notification list: vertically stacked items, `gap: 8px`
 
 **Notification item anatomy (type: `new_recipes`):**
-- Container: `background: var(--cream)`, `borderRadius: 12px`, `padding: 14px 16px`, `cursor: pointer`, `transition: all 0.15s`
+- Container: `background: var(--cream)`, `borderRadius: 12px`, `padding: 12px 16px`, `cursor: pointer`, `transition: all 0.15s`
 - Icon area: 38×38px `.section-icon` (existing class) with `Bell` lucide icon, `color: var(--terra)`
 - Title: "N nuove ricette disponibili" — 16px weight 700 `var(--sepia)`
 - Body: "Questa settimana sono state aggiunte N ricette al catalogo. Scoprile!" — 14px weight 400 `var(--sepia-light)`, line-height 1.5
-- Timestamp: "Settimana W12 · 2026" — 12px weight 600 `var(--sepia-light)`, uppercase, `letterSpacing: 0.05em`
+- Timestamp: "Settimana W12 · 2026" — 13px weight 700 `var(--sepia-light)`, uppercase, `letterSpacing: 0.05em`
 - Unread indicator: left border `3px solid var(--terra)` on the container when `read: false`; no border when `read: true`
 
 **States:**
@@ -170,19 +171,21 @@ Olive `#5C6B3A` reserved specifically for:
 
 **Layout:** Full-width view replacing current tab content, or rendered as an overlay page within the tab shell. Uses the same `max-width` container as other tabs.
 
+**Focal point:** Primary visual anchor is the recipe grid. Eye-entry point is the Playfair Display page title "Ricette della settimana" at the top of the view — the display font draws the eye first, then flows down into the grid.
+
 **Anatomy:**
 - Page header: back arrow button (left) + page title "Ricette della settimana" in Playfair Display 22px 700 `var(--sepia)` (centered or left-aligned matching tab headings)
 - Subtitle: "N ricette aggiunte negli ultimi 7 giorni" — 14px 400 `var(--sepia-light)`
 - Recipe grid: single column on mobile, 2-column grid `gap: 16px` on ≥640px
-- Recipe card: use existing `.recipe-card` class (`border: 1.5px solid rgba(61,43,31,0.12)`, `borderRadius: 16px`, `padding: 14px 16px`, `background: var(--warm-white)`)
+- Recipe card: use existing `.recipe-card` class (`border: 1.5px solid rgba(61,43,31,0.12)`, `borderRadius: 16px`, `padding: 12px 16px`, `background: var(--warm-white)`)
 
 **Recipe card anatomy (NuoveRicette variant):**
 - Recipe title: 16px weight 700 `var(--sepia)`, line-height 1.4
 - Diet tag: `.tag-pill` or `.tag-pill-terra` (existing classes) — shows diet type
 - Time badge: `.badge-time` (existing class) — e.g. "30 min"
-- Source attribution: "Fonte: giallozafferano.it" — 11px weight 500 `var(--sepia-light)` (from `source_url` domain)
+- Source attribution: "Fonte: giallozafferano.it" — 13px weight 400 `var(--sepia-light)` (from `source_url` domain)
 - Wishlist button: 44×44px touch target, right-aligned, heart icon — idle: `Heart` lucide outline `color: var(--sepia-light)`; active: `HeartFilled` or `Heart` filled `color: var(--terra)`, `background: rgba(196,103,58,0.08)`
-- "Aggiunto!" confirmation: inline label 12px `var(--olive)` that appears for 2s then fades — replaces heart icon temporarily
+- "Aggiunto!" confirmation: inline label 13px `var(--olive)` that appears for 2s then fades — replaces heart icon temporarily
 
 **Wishlist interaction:**
 - Tap heart → optimistic toggle (instant visual feedback, no spinner)
@@ -212,8 +215,8 @@ Olive `#5C6B3A` reserved specifically for:
 | Wishlist CTA (remove) | aria-label: "Rimuovi dalla wishlist" | Toggled state |
 | Recipe source attribution | "Fonte: {domain}" | e.g. "Fonte: giallozafferano.it" |
 | Error state (fetch fails) | "Impossibile caricare le ricette. Controlla la connessione e riprova." | Shown in NuoveRicettePage on network error |
-| Error state retry CTA | "Riprova" | `.btn-outline-terra` style, inline below error message |
-| Notification fetch error | "Errore nel caricamento notifiche." | Shown inside drawer, 14px `var(--terra)` |
+| Error state retry CTA | "Riprova il caricamento" | `.btn-outline-terra` style, inline below error message |
+| Notification fetch error | "Errore nel caricamento notifiche. Riprova tra qualche istante." | Shown inside drawer, 14px `var(--terra)` |
 
 Destructive actions in this phase: none. The wishlist toggle is fully reversible with no confirmation required.
 
