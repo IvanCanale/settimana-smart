@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-ai-recipe-generation-02-PLAN.md
-last_updated: "2026-03-21T16:08:48.703Z"
+stopped_at: Completed 04-ai-recipe-generation-03-PLAN.md
+last_updated: "2026-03-21T16:12:24.000Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 04 (ai-recipe-generation) — EXECUTING
-Plan: 1 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: 1 of 4
 | Phase 03-engine-hardening-and-cloud-sync P02 | 3 | 1 tasks | 4 files |
 | Phase 04-ai-recipe-generation P01 | 3 | 2 tasks | 7 files |
 | Phase 04-ai-recipe-generation P02 | 5 | 3 tasks | 5 files |
+| Phase 04-ai-recipe-generation P03 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,10 @@ Recent decisions affecting current work:
 - [Phase 04-ai-recipe-generation]: buildPlan recipesOverride is optional — backward-compatible, no existing callers modified
 - [Phase 04-ai-recipe-generation]: useState(RECIPE_LIBRARY) as initial recipes state — eliminates blank state before Supabase fetch
 - [Phase 04-ai-recipe-generation]: Per-file jsdom env via // @vitest-environment jsdom — preserves node env for planEngine tests
+- [04-03]: validateParsedRecipe() uses source_url.startsWith("http") — sufficient hallucination rejection gate before insert
+- [04-03]: buildDietArray() vegana->3 tags (vegana+vegetariana+mediterranea), vegetariana->2, onnivora->2 — mirrors static recipe conventions
+- [04-03]: Edge Function uses direct fetch to api.openai.com/v1/responses — avoids Deno npm compatibility issues with OpenAI SDK
+- [04-03]: Notification inserted only when totalInserted > 0 — avoids noise from empty/failed runs
 
 ### Pending Todos
 
@@ -100,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T16:08:48.700Z
-Stopped at: Completed 04-ai-recipe-generation-02-PLAN.md
+Last session: 2026-03-21T16:12:24.000Z
+Stopped at: Completed 04-ai-recipe-generation-03-PLAN.md
 Resume file: None
