@@ -303,16 +303,28 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
 
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
 
-  // Mappa allergie EU → ingredienti che le contengono (i nomi degli ingredienti non contengono "glutine" o "latticini")
+  // Mappa allergie EU → parole chiave che compaiono nei nomi degli ingredienti del database ricette
   const ALLERGEN_INGREDIENT_MAP: Record<string, string[]> = {
-    glutine: ["pasta","farina","pane","piadina","piadine","pizza","grissini","cous cous","couscous","orzo","farro","bulgur","semola","gnocchi","lasagna","lasagne","tagliatelle","pappardelle","linguine","spaghetti","bucatini","rigatoni","calamarata","mezze maniche","tortiglioni","fusilli","orecchiette","farfalle","penne","cannelloni","sfoglie","brioche","brisée","panini","pangrattato","crackers","crostini","wrap","avena"],
-    latticini: ["latte","mozzarella","parmigiano","pecorino","burro","ricotta","formaggio","yogurt","grana padano","grana","scamorza","provola","fontina","taleggio","gorgonzola","mascarpone","stracchino","robiola","asiago","crescenza","caciotta","caciocavallo"],
-    crostacei: ["gamberi","gamberetti","aragosta","granchio","scampi","mazzancolle"],
-    "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","anacardi","pinoli","castagne","arachidi","pecan","macadamia"],
-    arachidi: ["arachidi","burro di arachidi"],
-    sesamo: ["sesamo","tahini"],
-    soia: ["soia","tofu","edamame","tempeh"],
-    sedano: ["sedano","sedano rapa"],
+    glutine: [
+      "pasta","penne","spaghetti","bucatini","rigatoni","linguine","tagliatelle","pappardelle",
+      "fusilli","orecchiette","farfalle","trofie","cannelloni","lasagna","lasagne","sfoglie",
+      "gnocchi","farina","pane","pangrattato","panini","brioche","brisée","pizza","grissini",
+      "piadina","piadine","wrap","cous cous","couscous","bulgur","farro","orzo","avena","semola",
+    ],
+    latticini: [
+      "latte intero","mozzarella","burrata","parmigiano","pecorino","burro","ricotta",
+      "formaggio","yogurt","gorgonzola","mascarpone","stracchino","squacquerone",
+      "scamorza","provola","emmenthal","gruyère","feta","panna","pesto",
+    ],
+    uova: ["uova","maionese"],
+    crostacei: [
+      "gamberi","gamberetti","cozze","vongole","seppie","polpo","aragosta","scampi","mazzancolle",
+    ],
+    "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","pinoli","anacardi","castagne","pecan"],
+    arachidi: ["arachidi"],
+    sesamo: ["sesamo","tahini","olio di sesamo"],
+    soia: ["soia","tofu","edamame","tempeh","miso"],
+    sedano: ["sedano"],
   };
 
   const recipeContainsAllergen = (recipeItem: (typeof RECIPE_LIBRARY)[number], allergen: string): boolean => {
