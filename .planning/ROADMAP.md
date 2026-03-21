@@ -60,7 +60,7 @@ Plans:
   3. The weekly shopping list is shorter than the sum of individual meal ingredient lists — ingredient sharing between meals is active and measurable
   4. A user who logs in on a second device sees the same plan they generated on the first device
   5. The app shows the saved plan when the device has no internet connection
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 03-01-PLAN.md — Engine hardening: hard protein variety cap, allergen post-validation gate, shared ingredient metric
 - [ ] 03-02-PLAN.md — Cloud sync: auto-save with debounce, load-on-mount for multi-device, offline banner
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation Hardening | 2/2 | Complete   | 2026-03-21 |
 | 2. Auth and Onboarding | 2/2 | Complete   | 2026-03-21 |
-| 3. Engine Hardening and Cloud Sync | 0/2 | In progress | - |
+| 3. Engine Hardening and Cloud Sync | 1/2 | In Progress|  |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |
 | 5. Plan Lifecycle and Shopping | 0/TBD | Not started | - |
 | 6. Notifications | 0/TBD | Not started | - |

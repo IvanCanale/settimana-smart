@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: context_gathered
-stopped_at: Discussed 03-engine-hardening-and-cloud-sync context
-last_updated: "2026-03-21T14:00:00.000Z"
+status: unknown
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-21T14:12:04.428Z"
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 03 (engine-hardening-and-cloud-sync) — CONTEXT GATHERED, ready for planning
-Plan: 0 of ? (not yet planned)
+Phase: 03 (engine-hardening-and-cloud-sync) — EXECUTING
+Plan: 1 of 2
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 0 of ? (not yet planned)
 
 *Updated after each plan completion*
 | Phase 02-auth-and-onboarding P01 | 3 | 2 tasks | 3 files |
+| Phase 03-engine-hardening-and-cloud-sync P01 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [02-02]: exclusions[] and exclusionsText merged in usePlanEngine — allergen chips were previously ignored by the plan engine (safety-critical fix)
 - [02-02]: useLocalStorage spread merge restricted to plain objects — Array.isArray guard prevents arrays being converted to objects on reload
 - [02-02]: Allergen→ingredient keyword map added to usePlanEngine — deterministic EU allergen coverage, precursor to Phase 3 validation layer
+- [Phase 03-01]: ALLERGEN_INGREDIENT_MAP moved to module scope — only recipeContainsAllergen and validateAllergenSafety exported
+- [Phase 03-01]: Hard protein-category filter in pickRecipe primary filter AND relaxed fallback — soft penalty retained for scoring bias
+- [Phase 03-01]: Allergen retry loop fast path: skip retry when exclusions is empty
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:00:00.000Z
-Stopped at: Discussed 03-engine-hardening-and-cloud-sync — CONTEXT.md created, ready for /gsd:plan-phase 3
+Last session: 2026-03-21T14:12:04.425Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

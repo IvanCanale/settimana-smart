@@ -23,9 +23,9 @@
 
 ### Motore Piano
 
-- [ ] **ENGINE-01**: Il piano generato rispetta rigidamente le intolleranze dichiarate tramite un layer di validazione deterministico (non delegato a LLM)
-- [ ] **ENGINE-02**: Il piano garantisce varietà (nessuna proteina principale ripetuta più di 2 volte nella stessa settimana)
-- [ ] **ENGINE-03**: I pasti della settimana condividono ingredienti per ridurre la lista della spesa e gli sprechi
+- [x] **ENGINE-01**: Il piano generato rispetta rigidamente le intolleranze dichiarate tramite un layer di validazione deterministico (non delegato a LLM)
+- [x] **ENGINE-02**: Il piano garantisce varietà (nessuna proteina principale ripetuta più di 2 volte nella stessa settimana)
+- [x] **ENGINE-03**: I pasti della settimana condividono ingredienti per ridurre la lista della spesa e gli sprechi
 - [x] **ENGINE-04**: Il motore di generazione è coperto da test automatici (Vitest) con coverage su funzioni business-critical
 
 ### Ricette & AI
@@ -117,9 +117,9 @@ Aggiornato durante la creazione del roadmap.
 | ONBOARD-03 | Phase 2 | Complete |
 | ONBOARD-04 | Phase 2 | Complete |
 | ONBOARD-05 | Phase 2 | Complete |
-| ENGINE-01 | Phase 3 | Pending |
-| ENGINE-02 | Phase 3 | Pending |
-| ENGINE-03 | Phase 3 | Pending |
+| ENGINE-01 | Phase 3 | Complete |
+| ENGINE-02 | Phase 3 | Complete |
+| ENGINE-03 | Phase 3 | Complete |
 | CLOUD-01 | Phase 3 | Pending |
 | CLOUD-02 | Phase 3 | Pending |
 | RECIPES-01 | Phase 4 | Pending |
