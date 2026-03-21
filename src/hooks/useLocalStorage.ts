@@ -6,11 +6,11 @@ export function useLocalStorage<T>(key: string, fallback: T): [T, React.Dispatch
     if (typeof window === "undefined") return fallback;
     try {
       const saved = localStorage.getItem(key);
-      return saved
-        ? (typeof fallback === "object" && fallback !== null
-            ? { ...fallback, ...JSON.parse(saved) }
-            : JSON.parse(saved)) as T
-        : fallback;
+      if (!saved) return fallback;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(fallback)) return (Array.isArray(parsed) ? parsed : fallback) as T;
+      if (typeof fallback === "object" && fallback !== null) return { ...fallback, ...parsed } as T;
+      return parsed as T;
     } catch {
       return fallback;
     }
