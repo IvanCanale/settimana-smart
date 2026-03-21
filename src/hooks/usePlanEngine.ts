@@ -182,8 +182,11 @@ export function usePlanEngine(
 
     saveTimerRef.current = setTimeout(async () => {
       try {
+        const { currentWeekISO } = await import("@/lib/weekUtils");
         await Promise.all([
           saveWeeklyPlan(client, userId, {
+            week_iso: currentWeekISO(),
+            status: "active",
             seed,
             manualOverrides: manualOverrides as Record<string, unknown>,
             learning: learning as Record<string, unknown>,

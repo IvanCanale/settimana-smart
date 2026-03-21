@@ -25,6 +25,11 @@ interface PlannerTabProps {
   setManualOverrides: React.Dispatch<React.SetStateAction<Record<string, Partial<Record<"lunch" | "dinner", import("@/types").Recipe | null>>>>>;
   setShowGeneratedBanner: React.Dispatch<React.SetStateAction<boolean>>;
   setLastMessage: React.Dispatch<React.SetStateAction<string>>;
+  // Week-scoped plan management (optional — wired from useWeeklyPlans in page.tsx)
+  feedbackNote?: string;
+  setFeedbackNote?: React.Dispatch<React.SetStateAction<string>>;
+  activeWeek?: string;
+  switchWeek?: (week: string) => void;
 }
 
 export function PlannerTab({
@@ -45,6 +50,10 @@ export function PlannerTab({
   onConfirmWeek,
   onReset,
   onRestartOnboarding,
+  feedbackNote,
+  setFeedbackNote,
+  activeWeek,
+  switchWeek,
 }: PlannerTabProps) {
   const addPantryItem = () => {
     if (!pantryInput.name.trim()) return;
@@ -176,6 +185,40 @@ export function PlannerTab({
             ))}
           </div>
         </div>
+
+        {switchWeek && activeWeek && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            <button
+              className={activeWeek === "current" || !activeWeek.includes("next") ? "btn-outline-terra" : "btn-ghost"}
+              onClick={() => switchWeek("current")}
+              style={{ fontSize: 13, padding: "7px 14px" }}
+            >
+              Questa settimana
+            </button>
+            <button
+              className={activeWeek === "next" ? "btn-outline-terra" : "btn-ghost"}
+              onClick={() => switchWeek("next")}
+              style={{ fontSize: 13, padding: "7px 14px" }}
+            >
+              Prossima settimana
+            </button>
+          </div>
+        )}
+
+        {setFeedbackNote !== undefined && (
+          <div style={{ marginBottom: 14 }}>
+            <label>💬 Nota per la rigenerazione</label>
+            <input
+              type="text"
+              placeholder="es. meno pesce questa settimana"
+              value={feedbackNote ?? ""}
+              onChange={(e) => setFeedbackNote(e.target.value)}
+              className="input-warm"
+              style={{ marginTop: 6 }}
+            />
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--sepia-light)" }}>Verrà aggiunta alle esclusioni al prossimo piano generato.</p>
+          </div>
+        )}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
           <button className="btn-terra" onClick={onGenerate} disabled={isGenerating}>{isGenerating ? "⏳ Generazione..." : "✨ Genera piano"}</button>
