@@ -143,3 +143,51 @@ export async function fetchNotifications(client: SupabaseClient): Promise<AppNot
 export async function markNotificationRead(client: SupabaseClient, notificationId: string) {
   return client.from("notifications").update({ read: true }).eq("id", notificationId);
 }
+
+// ── GDPR data export ──────────────────────────────────────────────────────────
+
+export type UserExportData = {
+  exported_at: string;       // ISO timestamp of export
+  preferences: Record<string, unknown> | null;
+  weekly_plans: WeeklyPlanRecord[];
+  push_subscriptions: Array<Record<string, unknown>>;
+};
+
+export async function exportUserData(
+  client: SupabaseClient,
+  userId: string
+): Promise<UserExportData> {
+  const [prefRes, plansRes, subsRes] = await Promise.all([
+    client
+      .from("preferences")
+      .select("data, updated_at")
+      .eq("user_id", userId)
+      .single(),
+    client
+      .from("weekly_plan")
+      .select("week_iso, status, seed, manual_overrides, learning, feedback_note, checked_items, created_at")
+      .eq("user_id", userId)
+      .order("week_iso", { ascending: false }),
+    client
+      .from("push_subscriptions")
+      .select("endpoint, created_at")
+      .eq("user_id", userId),
+  ]);
+
+  const weekly_plans: WeeklyPlanRecord[] = (plansRes.data ?? []).map((row) => ({
+    week_iso: row.week_iso || "",
+    status: row.status || "active",
+    seed: row.seed ?? 1,
+    manual_overrides: row.manual_overrides ?? {},
+    learning: row.learning ?? {},
+    feedback_note: row.feedback_note ?? "",
+    checked_items: row.checked_items ?? [],
+  })) as WeeklyPlanRecord[];
+
+  return {
+    exported_at: new Date().toISOString(),
+    preferences: prefRes.data?.data ?? null,
+    weekly_plans,
+    push_subscriptions: (subsRes.data ?? []) as Array<Record<string, unknown>>,
+  };
+}
