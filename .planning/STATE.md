@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-ai-recipe-generation-03-PLAN.md
-last_updated: "2026-03-21T16:12:24.000Z"
+stopped_at: "Checkpoint reached: Task 3 of 04-04-PLAN.md (human-verify pending)"
+last_updated: "2026-03-21T19:35:22.455Z"
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -52,6 +52,7 @@ Plan: 4 of 4
 | Phase 04-ai-recipe-generation P01 | 3 | 2 tasks | 7 files |
 | Phase 04-ai-recipe-generation P02 | 5 | 3 tasks | 5 files |
 | Phase 04-ai-recipe-generation P03 | 3 | 2 tasks | 2 files |
+| Phase 04-ai-recipe-generation P04 | 4 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,9 @@ Recent decisions affecting current work:
 - [04-03]: buildDietArray() vegana->3 tags (vegana+vegetariana+mediterranea), vegetariana->2, onnivora->2 — mirrors static recipe conventions
 - [04-03]: Edge Function uses direct fetch to api.openai.com/v1/responses — avoids Deno npm compatibility issues with OpenAI SDK
 - [04-03]: Notification inserted only when totalInserted > 0 — avoids noise from empty/failed runs
+- [Phase 04-04]: ricette-nuove is a virtual tab activated only via notification click — avoids polluting main nav with contextual view
+- [Phase 04-04]: markAllRead called on bell open (not on click) — optimistic unread badge clear
+- [Phase 04-04]: WishlistButton internal showConfirm state — 2s confirmation logic contained within sub-component
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T16:12:24.000Z
-Stopped at: Completed 04-ai-recipe-generation-03-PLAN.md
+Last session: 2026-03-21T19:35:22.451Z
+Stopped at: Checkpoint reached: Task 3 of 04-04-PLAN.md (human-verify pending)
 Resume file: None
