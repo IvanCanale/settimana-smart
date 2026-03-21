@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Bell, BellDot } from "lucide-react";
 import type { PlanResult } from "@/types";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
@@ -12,10 +13,12 @@ interface AppHeaderProps {
   onSignIn: () => void;
   onSignOut: () => void;
   onProfileOpen: () => void;
+  onNotificationOpen: () => void;
+  hasUnread: boolean;
   recipeCount: number;
 }
 
-export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, onSignIn, onSignOut, onProfileOpen, recipeCount }: AppHeaderProps) {
+export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, onSignIn, onSignOut, onProfileOpen, onNotificationOpen, hasUnread, recipeCount }: AppHeaderProps) {
   return (
     <div className="animate-in mobile-stack" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "start", gap: 12, marginBottom: 20 }}>
       <div>
@@ -45,6 +48,27 @@ export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, on
             {syncStatus === "error"  && <span style={{ fontSize: 12, color: "var(--terra)" }}>⚠ errore sync</span>}
           </>
         )}
+        <button
+          onClick={onNotificationOpen}
+          aria-label={hasUnread ? "Notifiche non lette" : "Notifiche"}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "var(--cream)",
+            border: "1.5px solid rgba(61,43,31,0.12)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 20,
+            transition: "all 0.15s",
+            position: "relative",
+          }}
+          title="Notifiche"
+        >
+          {hasUnread ? <BellDot size={20} color="var(--terra)" /> : <Bell size={20} color="var(--sepia-light)" />}
+        </button>
         <button
           onClick={onProfileOpen}
           style={{

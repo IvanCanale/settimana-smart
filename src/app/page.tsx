@@ -11,6 +11,8 @@ import { HerbBanner } from "@/components/HerbBanner";
 import { RecipeModal } from "@/components/RecipeModal";
 import { AppHeader } from "@/components/AppHeader";
 import { ProfileDrawer } from "@/components/ProfileDrawer";
+import { NotificationDrawer } from "@/components/NotificationDrawer";
+import { useNotifications } from "@/hooks/useNotifications";
 import { PlannerTab } from "@/components/PlannerTab";
 import { WeekTab } from "@/components/WeekTab";
 import { ShoppingTab } from "@/components/ShoppingTab";
@@ -68,6 +70,8 @@ export default function SettimanaSmartMVP() {
   const [herbAnswers, setHerbAnswers] = useState<Record<string, boolean>>({});
   const [showHerbBanner, setShowHerbBanner] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { notifications, loading: notifLoading, unreadCount, markAllRead } = useNotifications(sbClient);
   const [isOffline, setIsOffline] = useState(() =>
     typeof window !== "undefined" ? !navigator.onLine : false
   );
@@ -224,13 +228,26 @@ export default function SettimanaSmartMVP() {
 
           <AppHeader isMounted={isMounted} generated={generated} user={user} syncStatus={syncStatus} sbClient={sbClient}
             onSignIn={() => setShowAuthModal(true)} onSignOut={() => sbClient?.auth.signOut()}
-            onProfileOpen={() => setShowProfile(true)} recipeCount={recipeCount} />
+            onProfileOpen={() => setShowProfile(true)} recipeCount={recipeCount}
+            onNotificationOpen={() => { setIsNotificationOpen(true); markAllRead(); }}
+            hasUnread={unreadCount > 0} />
           <OfflineBanner isOffline={isOffline} />
           <ProfileDrawer
             isOpen={showProfile}
             onClose={() => setShowProfile(false)}
             preferences={preferences}
             setPreferences={setPreferences}
+          />
+          <NotificationDrawer
+            isOpen={isNotificationOpen}
+            onClose={() => setIsNotificationOpen(false)}
+            notifications={notifications}
+            loading={notifLoading}
+            onNotificationClick={() => {
+              setIsNotificationOpen(false);
+              setActiveTab("ricette-nuove");
+            }}
+            onMarkAllRead={markAllRead}
           />
           {isMounted && currentRecipe && (
             <div style={{ background: "linear-gradient(135deg, var(--terra), var(--terra-dark))", borderRadius: 18, padding: "16px 18px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, boxShadow: "0 4px 20px rgba(196,103,58,0.3)", flexWrap: "wrap" }} className="animate-in">
