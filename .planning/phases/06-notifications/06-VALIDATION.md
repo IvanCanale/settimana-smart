@@ -2,8 +2,8 @@
 phase: 6
 slug: notifications
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-21
 ---
 
@@ -19,7 +19,7 @@ created: 2026-03-21
 |----------|-------|
 | **Framework** | Vitest |
 | **Config file** | vitest.config.ts |
-| **Quick run command** | `npx vitest run src/lib/notifications.test.ts` |
+| **Quick run command** | `npx vitest run src/lib/notifUtils.test.ts` |
 | **Full suite command** | `npx vitest run` |
 | **Estimated runtime** | ~3 seconds |
 
@@ -27,7 +27,7 @@ created: 2026-03-21
 
 ## Sampling Rate
 
-- **After every task commit:** Run `npx vitest run src/lib/notifications.test.ts` or `npx tsc --noEmit`
+- **After every task commit:** Run `npx vitest run src/lib/notifUtils.test.ts` or `npx tsc --noEmit`
 - **After every plan wave:** Run `npx vitest run`
 - **Before `/gsd:verify-work`:** Full suite must be green
 - **Max feedback latency:** 5 seconds
@@ -38,10 +38,10 @@ created: 2026-03-21
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 06-01-01 | 01 | 1 | NOTIF-01 | unit | `npx vitest run src/lib/notifications.test.ts` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 01 | 1 | NOTIF-01 | unit | `npx vitest run src/lib/notifUtils.test.ts` | ✅ created by task | ⬜ pending |
 | 06-01-02 | 01 | 1 | NOTIF-01 | type | `npx tsc --noEmit` | ✅ | ⬜ pending |
-| 06-02-01 | 02 | 2 | NOTIF-02 | unit | `npx vitest run src/lib/notifications.test.ts` | ❌ W0 | ⬜ pending |
-| 06-02-02 | 02 | 2 | NOTIF-03 | file | file exists check | ❌ W0 | ⬜ pending |
+| 06-02-01 | 02 | 2 | NOTIF-02 | unit | `npx vitest run src/lib/notifUtils.test.ts` | ✅ created by 06-01 | ⬜ pending |
+| 06-02-02 | 02 | 2 | NOTIF-03 | file | file exists check | ✅ created by 06-02 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -49,8 +49,7 @@ created: 2026-03-21
 
 ## Wave 0 Requirements
 
-- [ ] `src/lib/notifications.ts` — module to create before tests run
-- [ ] `src/lib/notifications.test.ts` — stubs for NOTIF-01, NOTIF-02, NOTIF-03 (VAPID subscription, schedule helpers, permission flow)
+Plan 01 Task 1 creates `src/lib/notifUtils.ts` and `src/lib/notifUtils.test.ts` inline via TDD — tests are written first, then implementation. This satisfies the wave-0 contract without a separate stub plan.
 
 *Existing infrastructure (vitest, tsc) covers type checking.*
 
