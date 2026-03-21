@@ -12,6 +12,7 @@ import { RecipeModal } from "@/components/RecipeModal";
 import { AppHeader } from "@/components/AppHeader";
 import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { NotificationDrawer } from "@/components/NotificationDrawer";
+import { NuoveRicettePage } from "@/components/NuoveRicettePage";
 import { useNotifications } from "@/hooks/useNotifications";
 import { PlannerTab } from "@/components/PlannerTab";
 import { WeekTab } from "@/components/WeekTab";
@@ -23,7 +24,7 @@ import { loadUserData } from "@/lib/supabase";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem } from "@/types";
 
-const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
+const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [], wishlistedRecipeIds: [] };
 const DEFAULT_PANTRY: PantryItem[] = [{ name: "pasta", quantity: 500, unit: "g" }, { name: "olio extravergine", quantity: 200, unit: "ml" }, { name: "uova fresche", quantity: 2, unit: "pezzi" }];
 const TABS = [{ id: "planner", label: "Planner" }, { id: "week", label: "Settimana" }, { id: "shopping", label: "Spesa" }, { id: "recipes", label: "Ricette" }, { id: "reminder", label: "Reminder" }];
 const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto","erba cipollina o aneto"];
@@ -274,6 +275,24 @@ export default function SettimanaSmartMVP() {
             {TABS.map((tab) => <button key={tab.id} className={`tab-item${activeTab === tab.id ? " active" : ""}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}
           </div>
 
+          {activeTab === "ricette-nuove" && (
+            <NuoveRicettePage
+              sbClient={sbClient}
+              wishlistedIds={preferences.wishlistedRecipeIds ?? []}
+              onToggleWishlist={(recipeId) => {
+                setPreferences((p) => {
+                  const ids = p.wishlistedRecipeIds ?? [];
+                  return {
+                    ...p,
+                    wishlistedRecipeIds: ids.includes(recipeId)
+                      ? ids.filter((id) => id !== recipeId)
+                      : [...ids, recipeId],
+                  };
+                });
+              }}
+              onBack={() => setActiveTab("planner")}
+            />
+          )}
           {activeTab === "planner" && <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} />}
           {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} />}
           {activeTab === "shopping" && <ShoppingTab generated={generated} checkedShoppingItems={checkedShoppingItems} setCheckedShoppingItems={setCheckedShoppingItems} extraShoppingItems={extraShoppingItems} setExtraShoppingItems={setExtraShoppingItems} tourAdvance={tourAdvance} />}

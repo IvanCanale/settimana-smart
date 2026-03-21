@@ -40,6 +40,7 @@ export type Preferences = {
   sundayDinnerLeftovers: boolean;
   skippedMeals: string[];
   coreIngredients: string[];
+  wishlistedRecipeIds: string[];
 };
 
 export type PreferenceLearning = {
