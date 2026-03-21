@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer (completed 2026-03-21)
 - [x] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation (completed 2026-03-21)
 - [x] **Phase 6: Notifications** - Add push notifications for weekly planning prompts and shopping day reminders (completed 2026-03-21)
+- [ ] **Phase 7: Account Management** - Add account deletion (Apple App Store compliance), GDPR data export, preference reset, and enhanced profile info page
 
 ## Phase Details
 
@@ -116,10 +117,25 @@ Plans:
 - [ ] 06-02-PLAN.md — Push subscription infrastructure: service worker, hook, server actions, migration, NotificationPrompt UI
 - [ ] 06-03-PLAN.md — Edge Function for scheduled push dispatch, pg_cron schedules, end-to-end verification
 
+### Phase 7: Account Management — eliminazione account, export dati GDPR, reset preferenze, pagina profilo
+**Goal**: Users can delete their account (required for Apple App Store), export all their data as JSON (GDPR), reset preferences to defaults, and see enhanced profile information including creation date and plan count
+**Depends on**: Phase 6
+**Requirements**: ACCT-01, ACCT-02, ACCT-03, ACCT-04
+**Success Criteria** (what must be TRUE):
+  1. A logged-in user can permanently delete their account from ProfileDrawer — all rows in preferences, weekly_plan, and push_subscriptions are deleted and the auth account is removed
+  2. A logged-in user can download all their data as a JSON file from ProfileDrawer
+  3. A user can reset all preferences to default values with a single confirmed action — all 5 localStorage keys are cleared
+  4. ProfileDrawer shows user email, account creation date, and number of plans generated for logged-in users
+  5. All destructive actions (delete, reset) require an explicit Italian confirmation step before executing
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Supabase Edge Function delete-account + exportUserData() client utility
+- [ ] 07-02-PLAN.md — ProfileDrawer: enhanced profile info card + Zona pericolosa (delete/export/reset)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -129,3 +145,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
+| 7. Account Management | 0/2 | Planning   | — |
