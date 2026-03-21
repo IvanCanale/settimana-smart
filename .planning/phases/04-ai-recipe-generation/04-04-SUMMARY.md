@@ -87,15 +87,18 @@ Each task was committed atomically:
 
 1. **Task 1: useNotifications hook, NotificationDrawer, bell icon in AppHeader** - `82cbc56` (feat)
 2. **Task 2: NuoveRicettePage with wishlist toggle and preferences integration** - `b9cf370` (feat)
+3. **Post-verification polish: bell styling, wishlist engine, mock data** - `162f598` (fix)
 
 ## Files Created/Modified
 
-- `src/hooks/useNotifications.ts` - New hook: fetchNotifications on mount, markAllRead, unreadCount derived state
+- `src/hooks/useNotifications.ts` - New hook: fetchNotifications on mount, markAllRead (now optimistic), unreadCount derived state; mock notification for UI testing
 - `src/components/NotificationDrawer.tsx` - New: ProfileDrawer-pattern slide-in, notification list with unread border, empty state, loading skeletons, Escape key handler
-- `src/components/NuoveRicettePage.tsx` - New: AI recipe discovery page, WishlistButton sub-component with 2s confirmation, responsive grid, full async state handling
-- `src/components/AppHeader.tsx` - Added Bell/BellDot import, onNotificationOpen + hasUnread props, bell button in icon row
-- `src/app/page.tsx` - Added imports, isNotificationOpen state, useNotifications hook, NotificationDrawer, NuoveRicettePage routing, wishlistedRecipeIds in DEFAULT_PREFS
+- `src/components/NuoveRicettePage.tsx` - New: AI recipe discovery page, WishlistButton sub-component with 2s confirmation, responsive grid, full async state handling; maxTime warning badge; wishlist hint text replaces source attribution; mock recipes for testing
+- `src/components/AppHeader.tsx` - Added Bell/BellDot import, onNotificationOpen + hasUnread props, bell button uses terra background + white icon + white dot badge when unread
+- `src/app/page.tsx` - Added imports, isNotificationOpen state, useNotifications hook, NotificationDrawer, NuoveRicettePage routing, wishlistedRecipes state (full Recipe objects), wishlistedRecipeIds in DEFAULT_PREFS
 - `src/types/index.ts` - Added wishlistedRecipeIds: string[] to Preferences type
+- `src/lib/planEngine.ts` - Wishlisted recipes bypass diet/time/protein filters; allergen check never bypassed; +300 score boost for wishlisted recipes
+- `src/hooks/usePlanEngine.ts` - Merges wishlistedRecipes into pool before buildPlan, deduplicating by id
 
 ## Decisions Made
 
@@ -103,14 +106,35 @@ Each task was committed atomically:
 - markAllRead called when bell opens (not on individual notification click) — clears unread badge immediately, optimistic update matching UI-SPEC spec.
 - WishlistButton uses internal showConfirm state — keeps 2s confirmation logic contained, no lifting needed.
 - `auto-fill minmax(280px, 1fr)` grid — achieves responsive 1-col/2-col layout without explicit media query breakpoint.
+- Allergen check never bypassed for wishlisted recipes — food safety is a hard constraint regardless of user preference.
+- onToggleWishlist receives full Recipe object (not just ID) — enables planEngine to include wishlisted recipes even if absent from main Supabase fetch.
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] onToggleWishlist signature changed from (recipeId: string) to (recipe: NewRecipe)**
+- **Found during:** Task 3 (visual verification)
+- **Issue:** Wishlist only stored IDs but planEngine needed full Recipe objects to include wishlisted recipes in pool — recipes absent from Supabase fetch would be unresolvable
+- **Fix:** Changed onToggleWishlist to receive full NewRecipe object; page.tsx stores full Recipe objects in wishlistedRecipes state; planEngine/usePlanEngine merge pool with wishlisted objects
+- **Files modified:** src/components/NuoveRicettePage.tsx, src/app/page.tsx, src/hooks/usePlanEngine.ts, src/lib/planEngine.ts
+- **Committed in:** 162f598
+
+**2. [Rule 2 - Missing Critical] Added maxTime warning badge on recipe cards**
+- **Found during:** Task 3 (visual verification)
+- **Issue:** User has no indication that a wishlisted recipe exceeds their configured maxTime; without this they could wishlist recipes that their preferences would normally exclude
+- **Fix:** NuoveRicettePage receives maxTime prop; recipe cards show orange warning badge when recipe.time > maxTime
+- **Files modified:** src/components/NuoveRicettePage.tsx, src/app/page.tsx
+- **Committed in:** 162f598
+
+---
+
+**Total deviations:** 2 auto-fixed (1 bug, 1 missing critical)
+**Impact on plan:** Both fixes necessary for correctness and user experience. No scope creep.
 
 ## Self-Check: PASSED
 
-All key files exist and committed at 82cbc56 and b9cf370.
+All key files exist and committed at 82cbc56, b9cf370, and 162f598.
 
 ---
 *Phase: 04-ai-recipe-generation*

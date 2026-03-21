@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: "Checkpoint reached: Task 3 of 04-04-PLAN.md (human-verify pending)"
-last_updated: "2026-03-21T19:35:22.455Z"
+stopped_at: Completed 04-04-PLAN.md — Phase 04 complete
+last_updated: "2026-03-21T20:02:44.338Z"
 progress:
   total_phases: 6
   completed_phases: 4
@@ -97,6 +97,9 @@ Recent decisions affecting current work:
 - [Phase 04-04]: ricette-nuove is a virtual tab activated only via notification click — avoids polluting main nav with contextual view
 - [Phase 04-04]: markAllRead called on bell open (not on click) — optimistic unread badge clear
 - [Phase 04-04]: WishlistButton internal showConfirm state — 2s confirmation logic contained within sub-component
+- [04-04]: onToggleWishlist receives full Recipe object — planEngine can include wishlisted recipes even if absent from Supabase fetch
+- [04-04]: Allergen check never bypassed for wishlisted recipes — food safety hard constraint regardless of user wishlist preference
+- [04-04]: maxTime warning badge on recipe cards — user sees when wishlisted recipe exceeds their configured time limit
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T19:35:22.451Z
-Stopped at: Checkpoint reached: Task 3 of 04-04-PLAN.md (human-verify pending)
+Last session: 2026-03-21T20:02:44.334Z
+Stopped at: Completed 04-04-PLAN.md — Phase 04 complete
 Resume file: None
