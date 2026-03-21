@@ -1,6 +1,8 @@
 // lib/supabase.ts
 // Funzioni di utilità per il database - il client viene passato come parametro
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Recipe } from "@/types";
+import { rowToRecipe } from "@/lib/recipeSchema";
 
 export type UserData = {
   preferences: Record<string, unknown>;
@@ -62,4 +64,39 @@ export async function migrateFromLocalStorage(client: SupabaseClient, userId: st
     }));
   }
   await Promise.all(ops);
+}
+
+// ── Recipe catalog (shared, public read) ─────────────────────────────────────
+
+export async function fetchRecipes(client: SupabaseClient): Promise<Recipe[]> {
+  const { data, error } = await client
+    .from("recipes")
+    .select("id, title, diet, tags, time, difficulty, servings, ingredients, steps")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(rowToRecipe);
+}
+
+// ── Notifications (shared catalog update feed) ────────────────────────────────
+
+export type AppNotification = {
+  id: string;
+  type: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+  read: boolean;
+};
+
+export async function fetchNotifications(client: SupabaseClient): Promise<AppNotification[]> {
+  const { data, error } = await client
+    .from("notifications")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw error;
+  return (data ?? []) as AppNotification[];
+}
+
+export async function markNotificationRead(client: SupabaseClient, notificationId: string) {
+  return client.from("notifications").update({ read: true }).eq("id", notificationId);
 }
