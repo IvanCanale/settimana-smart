@@ -52,8 +52,8 @@
 
 ### Cloud & Sincronizzazione
 
-- [ ] **CLOUD-01**: Il piano settimanale è salvato nel cloud e accessibile da più dispositivi con lo stesso account
-- [ ] **CLOUD-02**: L'app funziona offline e mostra il piano salvato senza connessione (PWA)
+- [x] **CLOUD-01**: Il piano settimanale è salvato nel cloud e accessibile da più dispositivi con lo stesso account
+- [x] **CLOUD-02**: L'app funziona offline e mostra il piano salvato senza connessione (PWA)
 
 ### Notifiche
 
@@ -120,8 +120,8 @@ Aggiornato durante la creazione del roadmap.
 | ENGINE-01 | Phase 3 | Complete |
 | ENGINE-02 | Phase 3 | Complete |
 | ENGINE-03 | Phase 3 | Complete |
-| CLOUD-01 | Phase 3 | Pending |
-| CLOUD-02 | Phase 3 | Pending |
+| CLOUD-01 | Phase 3 | Complete |
+| CLOUD-02 | Phase 3 | Complete |
 | RECIPES-01 | Phase 4 | Pending |
 | RECIPES-02 | Phase 4 | Pending |
 | RECIPES-03 | Phase 4 | Pending |
