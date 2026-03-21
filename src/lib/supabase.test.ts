@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { fetchRecipes, fetchNotifications, type AppNotification } from "./supabase";
+import { fetchRecipes, fetchNotifications, saveWeeklyPlan, loadWeeklyPlans, type AppNotification } from "./supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ── Helper: build a chainable Supabase query mock ─────────────────────────────
@@ -44,6 +44,128 @@ const sampleNotificationRow: AppNotification = {
   created_at: "2026-03-21T03:00:00Z",
   read:       false,
 };
+
+// ── saveWeeklyPlan tests ──────────────────────────────────────────────────────
+
+describe("saveWeeklyPlan", () => {
+  it("calls upsert with onConflict: 'user_id, week_iso'", async () => {
+    const upsertMock = vi.fn(() => Promise.resolve({ error: null }));
+    const mockClient = {
+      from: vi.fn(() => ({ upsert: upsertMock })),
+    } as unknown as SupabaseClient;
+
+    await saveWeeklyPlan(mockClient, "user-1", {
+      week_iso: "2026-W12",
+      status: "active",
+      seed: 42,
+      manualOverrides: {},
+      learning: {},
+    });
+
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: "user-1",
+        week_iso: "2026-W12",
+        status: "active",
+        seed: 42,
+      }),
+      { onConflict: "user_id, week_iso" }
+    );
+  });
+
+  it("defaults feedback_note to empty string and checked_items to []", async () => {
+    const upsertMock = vi.fn(() => Promise.resolve({ error: null }));
+    const mockClient = {
+      from: vi.fn(() => ({ upsert: upsertMock })),
+    } as unknown as SupabaseClient;
+
+    await saveWeeklyPlan(mockClient, "user-1", {
+      week_iso: "2026-W12",
+      status: "active",
+      seed: 1,
+      manualOverrides: {},
+      learning: {},
+    });
+
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({ feedback_note: "", checked_items: [] }),
+      expect.any(Object)
+    );
+  });
+});
+
+// ── loadWeeklyPlans tests ─────────────────────────────────────────────────────
+
+describe("loadWeeklyPlans", () => {
+  it("returns mapped WeeklyPlanRecord[] ordered by week_iso desc", async () => {
+    const sampleRow = {
+      week_iso: "2026-W12",
+      status: "active",
+      seed: 5,
+      manual_overrides: {},
+      learning: {},
+      feedback_note: "meno pesce",
+      checked_items: ["pomodoro"],
+    };
+    const mockClient = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              limit: vi.fn(() => Promise.resolve({ data: [sampleRow], error: null })),
+            })),
+          })),
+        })),
+      })),
+    } as unknown as SupabaseClient;
+
+    const plans = await loadWeeklyPlans(mockClient, "user-1");
+
+    expect(plans).toHaveLength(1);
+    expect(plans[0].week_iso).toBe("2026-W12");
+    expect(plans[0].status).toBe("active");
+    expect(plans[0].seed).toBe(5);
+    expect(plans[0].feedback_note).toBe("meno pesce");
+    expect(plans[0].checked_items).toEqual(["pomodoro"]);
+  });
+
+  it("returns empty array when data is null", async () => {
+    const mockClient = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              limit: vi.fn(() => Promise.resolve({ data: null, error: null })),
+            })),
+          })),
+        })),
+      })),
+    } as unknown as SupabaseClient;
+
+    const plans = await loadWeeklyPlans(mockClient, "user-1");
+    expect(plans).toEqual([]);
+  });
+
+  it("throws when Supabase returns an error", async () => {
+    const mockClient = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              limit: vi.fn(() =>
+                Promise.resolve({ data: null, error: { message: "weekly_plan not found" } })
+              ),
+            })),
+          })),
+        })),
+      })),
+    } as unknown as SupabaseClient;
+
+    await expect(loadWeeklyPlans(mockClient, "user-1")).rejects.toMatchObject({
+      message: "weekly_plan not found",
+    });
+  });
+});
 
 // ── fetchRecipes tests ────────────────────────────────────────────────────────
 

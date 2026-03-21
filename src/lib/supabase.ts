@@ -1,7 +1,7 @@
 // lib/supabase.ts
 // Funzioni di utilità per il database - il client viene passato come parametro
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Recipe } from "@/types";
+import type { Recipe, WeeklyPlanRecord } from "@/types";
 import { rowToRecipe } from "@/lib/recipeSchema";
 
 export type UserData = {
@@ -13,10 +13,18 @@ export type UserData = {
 };
 
 export async function loadUserData(client: SupabaseClient, userId: string): Promise<Partial<UserData>> {
+  const { currentWeekISO } = await import("@/lib/weekUtils");
+  const currentWeek = currentWeekISO();
   const [prefRes, pantryRes, planRes] = await Promise.all([
     client.from("preferences").select("data").eq("user_id", userId).single(),
     client.from("pantry").select("items").eq("user_id", userId).single(),
-    client.from("weekly_plan").select("seed, manual_overrides, learning").eq("user_id", userId).single(),
+    client.from("weekly_plan")
+      .select("seed, manual_overrides, learning")
+      .eq("user_id", userId)
+      .or(`week_iso.eq.${currentWeek},week_iso.is.null`)
+      .order("week_iso", { ascending: false })
+      .limit(1)
+      .single(),
   ]);
   return {
     preferences: prefRes.data?.data ?? {},
@@ -36,14 +44,46 @@ export async function savePantry(client: SupabaseClient, userId: string, items: 
 }
 
 export async function saveWeeklyPlan(client: SupabaseClient, userId: string, data: {
-  seed: number; manualOverrides: Record<string, unknown>; learning: Record<string, unknown>;
+  week_iso: string;
+  status: "draft" | "active" | "archived";
+  seed: number;
+  manualOverrides: Record<string, unknown>;
+  learning: Record<string, unknown>;
+  feedback_note?: string;
+  checked_items?: string[];
 }) {
   return client.from("weekly_plan").upsert({
     user_id: userId,
+    week_iso: data.week_iso,
+    status: data.status,
     seed: data.seed,
     manual_overrides: data.manualOverrides,
     learning: data.learning,
-  }, { onConflict: "user_id" });
+    feedback_note: data.feedback_note ?? "",
+    checked_items: data.checked_items ?? [],
+  }, { onConflict: "user_id, week_iso" });
+}
+
+export async function loadWeeklyPlans(
+  client: SupabaseClient,
+  userId: string
+): Promise<WeeklyPlanRecord[]> {
+  const { data, error } = await client
+    .from("weekly_plan")
+    .select("week_iso, status, seed, manual_overrides, learning, feedback_note, checked_items")
+    .eq("user_id", userId)
+    .order("week_iso", { ascending: false })
+    .limit(4);
+  if (error) throw error;
+  return (data ?? []).map(row => ({
+    week_iso: row.week_iso || "",
+    status: row.status || "active",
+    seed: row.seed ?? 1,
+    manual_overrides: row.manual_overrides ?? {},
+    learning: row.learning ?? {},
+    feedback_note: row.feedback_note ?? "",
+    checked_items: row.checked_items ?? [],
+  })) as WeeklyPlanRecord[];
 }
 
 export async function migrateFromLocalStorage(client: SupabaseClient, userId: string) {
@@ -57,7 +97,10 @@ export async function migrateFromLocalStorage(client: SupabaseClient, userId: st
   if (pref)    { try { ops.push(savePreferences(client, userId, JSON.parse(pref))); } catch {} }
   if (pantry)  { try { ops.push(savePantry(client, userId, JSON.parse(pantry))); } catch {} }
   if (seed || overrides || learning) {
+    const { currentWeekISO } = await import("@/lib/weekUtils");
     ops.push(saveWeeklyPlan(client, userId, {
+      week_iso: currentWeekISO(),
+      status: "active",
       seed: seed ? Number(seed) : 1,
       manualOverrides: overrides ? JSON.parse(overrides) : {},
       learning: learning ? JSON.parse(learning) : {},
