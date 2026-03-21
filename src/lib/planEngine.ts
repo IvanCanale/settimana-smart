@@ -308,6 +308,8 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
     if (exclusions.some((ex) => recipeItem.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
+    // Escludi per categoria (es. "pesce" esclude tonno, salmone, ecc. anche se il nome ingrediente non contiene "pesce")
+    if (exclusions.some((ex) => getRecipeCategory(recipeItem) === ex)) return false;
     // Escludi la categoria proteica di questa settimana (solo per diete onnivore/mediterranee)
     if (["onnivora","mediterranea"].includes(preferences.diet)) {
       if (recipeItem.ingredients.some((i) => excludedProtein.includes(normalize(i.name)))) return false;
