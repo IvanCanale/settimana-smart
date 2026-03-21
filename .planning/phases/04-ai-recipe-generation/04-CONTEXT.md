@@ -59,11 +59,14 @@ Ogni ricetta nel catalogo Supabase deve avere:
 - Nessuna logica allergenica delegata all'AI — deterministico come prima
 - L'AI semplicemente cataloga; il gate di sicurezza è separato e controllato
 
-### UX: scoperta ricette nuove
+### UX: notification center (campanella)
 
-- **Nessun badge o indicatore visivo in Fase 4** — il catalogo cresce silenziosamente
-- L'utente scopre le ricette nuove naturalmente quando il piano viene generato (trova piatti che non aveva mai visto)
-- La push notification "N nuove ricette disponibili" è **demandata alla Fase 6** come nuovo tipo di notifica insieme al resto dell'infrastruttura push
+- **Icona campanella** nell'`AppHeader` affianco all'icona profilo (👤) — punto unico per tutte le notifiche in-app
+- Click sulla campanella apre un **pannello/drawer notifiche** con la lista delle notifiche recenti
+- In Fase 4 il pannello contiene il tipo: _"N nuove ricette aggiunte questa settimana"_
+- Click sulla notifica → apre una **pagina/view "Ricette Nuove"** che mostra le ricette catalogate nell'ultima settimana
+- Dalla pagina Ricette Nuove l'utente può **aggiungere ricette alla lista desiderata** per la settimana successiva — queste ricette vengono poi prioritizzate da `buildPlan()` al momento della generazione del piano successivo
+- La **push notification OS-level** (che apre il pannello notifiche da fuori app) è **demandata alla Fase 6** — stesso contenuto, canale diverso
 
 ### Claude's Discretion
 
@@ -102,7 +105,9 @@ Ogni ricetta nel catalogo Supabase deve avere:
 - `planEngine.ts → validateAllergenSafety()`: già esportata da Fase 3 — viene applicata identicamente al catalogo Supabase
 - `planEngine.ts → buildPlan()`: accetta `RecipeItem[]` — basta passargli le ricette da Supabase invece di quelle statiche
 - `supabase.ts`: client già configurato, pattern `saveWeeklyPlan`/`loadWeeklyPlan` da estendere per `fetchRecipes`
-- `RicetteTab.tsx`: tab esistente che mostra le ricette — nessuna modifica richiesta in Fase 4
+- `RicetteTab.tsx`: tab esistente che mostra le ricette
+- `AppHeader.tsx`: già esistente — aggiungere icona campanella affianco all'icona profilo
+- `ProfileDrawer.tsx`: pattern drawer esistente — riusabile per il pannello notifiche
 
 ### Established Patterns
 - Zod validation per output LLM strutturato — da applicare anche allo schema ricette parsate dall'AI
@@ -113,6 +118,9 @@ Ogni ricetta nel catalogo Supabase deve avere:
 - `usePlanEngine.ts`: sostituire `import { recipes } from "@/data/recipes"` con `fetchRecipes()` da Supabase
 - `src/data/recipes.ts`: migrare array in script di seed per Supabase, poi deprecare come import
 - Nuovo: `src/lib/recipeJob.ts` (o Supabase Edge Function) per il job di catalogazione AI
+- Nuovo: `src/components/NotificationDrawer.tsx` — pannello notifiche aperto dalla campanella
+- Nuovo: `src/components/NuoveRicettePage.tsx` (o route) — pagina scoperta ricette nuove con wishlist per piano successivo
+- `buildPlan()`: estendere per accettare lista ricette "desiderate" e prioritizzarle nella selezione
 
 </code_context>
 
@@ -122,13 +130,14 @@ Ogni ricetta nel catalogo Supabase deve avere:
 - "Non voglio che l'AI generi ricette ma che faccia ricerche, cataloghi le ricette, capisca gli ingredienti, tempistiche, costi e alimenti sempre il catalogo con ricette nuove" — l'AI è un ricercatore, non un generatore
 - 20 ricette per tipo di dieta a settimana — obiettivo volume specifico per run
 - Siti target italiani: Giallo Zafferano, Cucchiaio d'Argento, La Cucina Italiana (sorgenti di qualità verificata)
+- Notification center: campanella affianco al profilo → pannello → pagina ricette nuove → wishlist per piano successivo (push OS-level separata, Fase 6)
 
 </specifics>
 
 <deferred>
 ## Deferred Ideas
 
-- Push notification "N nuove ricette disponibili" — Fase 6 (infrastruttura notifiche già pianificata lì)
+- Push notification OS-level "N nuove ricette disponibili" — Fase 6 (stesso contenuto del pannello, canale push esterno)
 - Rating/preferenze utente sulle ricette ("non rifarla") — potenziale Fase 5 o backlog v2
 - Ricette stagionali (filtraggio per stagione) — backlog v2
 
