@@ -303,13 +303,34 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
 
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
 
+  // Mappa allergie EU → ingredienti che le contengono (i nomi degli ingredienti non contengono "glutine" o "latticini")
+  const ALLERGEN_INGREDIENT_MAP: Record<string, string[]> = {
+    glutine: ["pasta","farina","pane","pizza","grissini","cous cous","couscous","orzo","farro","bulgur","semola","gnocchi","lasagne","tagliatelle","pappardelle","linguine","spaghetti","rigatoni","calamarata","mezze maniche","tortiglioni","fusilli","orecchiette","farfalle","pangrattato","crackers","crostini"],
+    latticini: ["latte","mozzarella","parmigiano","pecorino","burro","ricotta","formaggio","yogurt","grana padano","grana","scamorza","provola","fontina","taleggio","gorgonzola","mascarpone","stracchino","robiola","asiago","crescenza","caciotta","caciocavallo"],
+    crostacei: ["gamberi","gamberetti","aragosta","granchio","scampi","mazzancolle"],
+    "frutta a guscio": ["noci","mandorle","nocciole","pistacchi","anacardi","pinoli","castagne","arachidi","pecan","macadamia"],
+    arachidi: ["arachidi","burro di arachidi"],
+    sesamo: ["sesamo","tahini"],
+    soia: ["soia","tofu","edamame","tempeh"],
+    sedano: ["sedano","sedano rapa"],
+  };
+
+  const recipeContainsAllergen = (recipeItem: (typeof RECIPE_LIBRARY)[number], allergen: string): boolean => {
+    const keywords = ALLERGEN_INGREDIENT_MAP[allergen];
+    if (keywords) {
+      return recipeItem.ingredients.some((i) => keywords.some((k) => normalize(i.name).includes(k)));
+    }
+    // Fallback: controlla nome ingrediente e categoria
+    return recipeItem.ingredients.some((i) => normalize(i.name).includes(allergen))
+      || getRecipeCategory(recipeItem) === allergen;
+  };
+
   const eligible = RECIPE_LIBRARY.filter((recipeItem) => {
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
-    if (exclusions.some((ex) => recipeItem.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
-    // Escludi per categoria (es. "pesce" esclude tonno, salmone, ecc. anche se il nome ingrediente non contiene "pesce")
-    if (exclusions.some((ex) => getRecipeCategory(recipeItem) === ex)) return false;
+    // Escludi ricette che contengono allergie dichiarate
+    if (exclusions.some((ex) => recipeContainsAllergen(recipeItem, ex))) return false;
     // Escludi la categoria proteica di questa settimana (solo per diete onnivore/mediterranee)
     if (["onnivora","mediterranea"].includes(preferences.diet)) {
       if (recipeItem.ingredients.some((i) => excludedProtein.includes(normalize(i.name)))) return false;
