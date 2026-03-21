@@ -132,10 +132,25 @@ Plans:
 - [ ] 07-01-PLAN.md — Supabase Edge Function delete-account + exportUserData() client utility
 - [ ] 07-02-PLAN.md — ProfileDrawer: enhanced profile info card + Zona pericolosa (delete/export/reset)
 
+### Phase 8: Legal — Privacy Policy e Terms of Service (pagine pubbliche), consenso esplicito al signup
+**Goal**: Users can access a Privacy Policy at /privacy and Terms of Service at /terms, and must explicitly consent to both before creating an account during onboarding
+**Depends on**: Phase 7
+**Requirements**: LEGAL-01, LEGAL-02, LEGAL-03
+**Success Criteria** (what must be TRUE):
+  1. /privacy renders an Italian-language Privacy Policy covering data collected, Supabase as processor, retention, and user rights
+  2. /terms renders an Italian-language Terms of Service covering service description, no-warranty clause, and Italian governing law
+  3. Both pages are accessible without authentication and use the existing design system (no external dependencies)
+  4. The onboarding Step 4 (registration) shows a consent checkbox linking to /privacy and /terms — "Crea account o accedi" is disabled until checked
+  5. "Continua senza account" requires no consent — anonymous use remains frictionless
+**Plans:** 2 plans
+Plans:
+- [ ] 08-01-PLAN.md — Privacy Policy page (/privacy) and Terms of Service page (/terms) as static server components
+- [ ] 08-02-PLAN.md — Consent checkbox in OnboardingFlow Step 4 with links to legal pages
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -146,3 +161,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
 | 7. Account Management | 2/2 | Complete   | 2026-03-21 |
+| 8. Legal | 0/2 | In Progress | — |
