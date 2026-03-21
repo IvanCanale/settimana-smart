@@ -38,12 +38,12 @@ created: 2026-03-21
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | PLAN-01 | unit | `npx vitest run src/lib/weekScope.test.ts` | ❌ W0 | ⬜ pending |
+| 05-01-01 | 01 | 1 | PLAN-01 | unit | `npx vitest run src/lib/weekUtils.test.ts` | ❌ W0 | ⬜ pending |
 | 05-01-02 | 01 | 1 | PLAN-01 | migration | file exists check | ❌ W0 | ⬜ pending |
 | 05-02-01 | 02 | 1 | SHOP-01 | unit | `npx vitest run src/lib/planEngine.test.ts` | ✅ | ⬜ pending |
 | 05-02-02 | 02 | 1 | SHOP-02 | unit | `npx vitest run src/lib/planEngine.test.ts` | ✅ | ⬜ pending |
-| 05-03-01 | 03 | 2 | PLAN-02,PLAN-03 | unit | `npx vitest run src/lib/weekScope.test.ts` | ❌ W0 | ⬜ pending |
-| 05-03-02 | 03 | 2 | PLAN-04 | unit | `npx vitest run src/lib/weekScope.test.ts` | ❌ W0 | ⬜ pending |
+| 05-03-01 | 03 | 2 | PLAN-02,PLAN-03 | unit | `npx vitest run src/lib/weekUtils.test.ts` | ❌ W0 | ⬜ pending |
+| 05-03-02 | 03 | 2 | PLAN-04 | unit | `npx vitest run src/lib/weekUtils.test.ts` | ❌ W0 | ⬜ pending |
 | 05-04-01 | 04 | 2 | PLAN-05,PLAN-06 | unit | `npx vitest run src/hooks/usePlanEngine.test.ts` | ✅ | ⬜ pending |
 | 05-04-02 | 04 | 2 | SHOP-03 | unit | `npx vitest run` | ✅ | ⬜ pending |
 
@@ -53,8 +53,8 @@ created: 2026-03-21
 
 ## Wave 0 Requirements
 
-- [ ] `src/lib/weekScope.test.ts` — stubs for PLAN-01, PLAN-02, PLAN-03, PLAN-04 (ISO week arithmetic, state machine, multi-week coexistence)
-- [ ] `src/lib/weekScope.ts` — module to create before tests run
+- [ ] `src/lib/weekUtils.test.ts` — stubs for PLAN-01, PLAN-02, PLAN-03, PLAN-04 (ISO week arithmetic, state machine, multi-week coexistence)
+- [ ] `src/lib/weekUtils.ts` — module to create before tests run
 
 *Existing infrastructure covers SHOP-01 (planEngine.test.ts), SHOP-02, SHOP-03.*
 
