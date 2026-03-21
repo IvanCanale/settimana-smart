@@ -5,6 +5,8 @@ import { ALLERGEN_OPTIONS } from "@/types";
 import { useAuth } from "@/lib/AuthProvider";
 import { AuthModalInline } from "@/components/AuthModalInline";
 import { migrateFromLocalStorage } from "@/lib/supabase";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
+import { NotificationPrompt } from "@/components/NotificationPrompt";
 
 const DAYS_IT = [
   { value: 0, label: "Dom" },
@@ -25,6 +27,7 @@ interface ProfileDrawerProps {
 
 export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: ProfileDrawerProps) {
   const { sbClient, user } = useAuth();
+  const push = usePushSubscription(user?.id ?? null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   React.useEffect(() => {
@@ -422,6 +425,16 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: 
               }}
             />
           </div>
+        )}
+
+        {user && preferences.shoppingDay !== undefined && (
+          <>
+            <hr style={divider} />
+            <div style={{ marginBottom: 20 }}>
+              <p style={sectionLabel}>Notifiche</p>
+              <NotificationPrompt push={push} />
+            </div>
+          </>
         )}
 
         <hr style={divider} />
