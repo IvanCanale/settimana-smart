@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-21T21:25:39.640Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-21T21:34:46.317Z"
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 17
   percent: 94
 ---
 
@@ -73,6 +73,7 @@ Plan: 2 of 3
 | Phase 05 P03 | 4 | 2 tasks | 5 files |
 | Phase 05 P04 | 15 | 2 tasks | 4 files |
 | Phase 06-notifications P02 | 3 | 2 tasks | 6 files |
+| Phase 06-notifications P03 | 20 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,9 @@ Recent decisions affecting current work:
 - [Phase 06-02]: SW cache bumped to v2 to force push handler installation on existing browser sessions
 - [Phase 06-02]: SUPABASE_SERVICE_ROLE_KEY used in push server actions — runs server-side, bypasses RLS for subscription upsert
 - [Phase 06-02]: NotificationPrompt shown only after shopping day set and user logged in — contextual prompt avoids onboarding friction
+- [Phase 06-03]: web-push npm package does NOT run in Deno — VAPID JWT built with Web Crypto API (crypto.subtle.sign) directly
+- [Phase 06-03]: Two-query pattern for push_subscriptions + preferences: no direct FK between tables, PostgREST embedded join unavailable
+- [Phase 06-03]: 410 Gone from push service triggers automatic deletion of expired subscription from push_subscriptions
 
 ### Pending Todos
 
@@ -149,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T21:25:39.636Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-21T21:34:46.313Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None

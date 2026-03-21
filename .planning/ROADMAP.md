@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Engine Hardening and Cloud Sync** - Add allergen validation layer, multi-objective variety constraints, and activate Supabase cloud sync (completed 2026-03-21)
 - [x] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer (completed 2026-03-21)
 - [x] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation (completed 2026-03-21)
-- [ ] **Phase 6: Notifications** - Add push notifications for weekly planning prompts and shopping day reminders
+- [x] **Phase 6: Notifications** - Add push notifications for weekly planning prompts and shopping day reminders (completed 2026-03-21)
 
 ## Phase Details
 
@@ -110,7 +110,7 @@ Plans:
   2. The evening before the user's selected shopping day, the app sends a push notification reminding them to review/finalize the weekly plan
   3. The user can configure a specific time for a second notification sent on the shopping day itself as a reminder to go shopping — this time is saved in the profile
   4. A user who has not granted notification permissions is prompted to grant them at an appropriate moment (not during onboarding) — the app works fully without notifications if declined
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] 06-01-PLAN.md — Extend Preferences type, notification scheduling utils with tests, ProfileDrawer shopping day picker
 - [ ] 06-02-PLAN.md — Push subscription infrastructure: service worker, hook, server actions, migration, NotificationPrompt UI
@@ -128,4 +128,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Engine Hardening and Cloud Sync | 2/2 | Complete   | 2026-03-21 |
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
-| 6. Notifications | 1/3 | In Progress|  |
+| 6. Notifications | 3/3 | Complete   | 2026-03-21 |
