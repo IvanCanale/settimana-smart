@@ -33,7 +33,7 @@ L'utente apre l'app a inizio settimana e trova già tutto deciso: cosa mangiare 
 - [ ] Canonical ingredient registry per aggregazione lista della spesa (nomi italiani)
 - [ ] Piano state machine (DRAFT → ACTIVE → ARCHIVED — previene rigenerazione silenziosa)
 - [ ] Decomposizione monolith `page.tsx` (1738 righe → tab components + custom hooks)
-- [ ] Push notifications (promemoria domenica per pianificare la settimana)
+- [x] Push notifications (promemoria domenica per pianificare la settimana) — Validated in Phase 06: notifications
 - [ ] Vista riutilizzo avanzi (piano-design level, nessun meal tracking)
 
 ### Out of Scope
@@ -73,4 +73,4 @@ L'utente apre l'app a inizio settimana e trova già tutto deciso: cosa mangiare 
 | OpenAI GPT-4o-mini per generazione ricette | Più economico, output strutturato, supera il limite 150 ricette | — Pending |
 
 ---
-*Last updated: 2026-03-19 after research — brownfield, codebase esistente confermata*
+*Last updated: 2026-03-21 — Phase 06 complete, all phases of v1.0 milestone executed*
