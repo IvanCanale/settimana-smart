@@ -203,5 +203,5 @@ export function usePlanEngine(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generated, cloudSync?.sbClient, cloudSync?.userId, seed, preferences, manualOverrides, learning]);
 
-  return { computedPrefs, basePlan, generated, recipesLoading, recipeCount: recipes.length };
+  return { computedPrefs, basePlan, generated, recipesLoading, recipeCount: recipes.length, recipes };
 }

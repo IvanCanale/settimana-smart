@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/AuthProvider";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePlanEngine } from "@/hooks/usePlanEngine";
 import { useLearning } from "@/hooks/useLearning";
+import { useWeeklyPlans } from "@/hooks/useWeeklyPlans";
+import { currentWeekISO, nextWeekISO } from "@/lib/weekUtils";
 import { AuthModalInline } from "@/components/AuthModalInline";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { TourOverlay, TOUR_STEPS } from "@/components/TourOverlay";
@@ -36,8 +38,9 @@ export default function SettimanaSmartMVP() {
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
+  const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
-  const { computedPrefs, generated, recipeCount } = usePlanEngine(
+  const { computedPrefs, generated, recipeCount, recipes } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
     { sbClient, userId: user?.id ?? null, setSyncStatus },
     wishlistedRecipes,
@@ -109,6 +112,15 @@ export default function SettimanaSmartMVP() {
   }, [tutorialDone]);
   const regenerate = () => {
     tourAdvance("generate"); setIsGenerating(true); setShowGeneratedBanner(false); setShowHerbBanner(false); setLastMessage("Generazione in corso...");
+    // Append feedback note to exclusions if present
+    if (feedbackNote.trim()) {
+      setPreferences(prev => ({
+        ...prev,
+        exclusionsText: prev.exclusionsText
+          ? `${prev.exclusionsText}, ${feedbackNote.trim()}`
+          : feedbackNote.trim(),
+      }));
+    }
     setTimeout(() => {
       const usedHerbs = Array.from(new Set(generated.days.flatMap((d) => [d.lunch, d.dinner].filter(Boolean) as Recipe[]).flatMap((r) => r.ingredients).filter((i) => PERISHABLE_HERBS.includes(normalize(i.name))).map((i) => i.name)));
       if (usedHerbs.length > 0) { setHerbsToCheck(usedHerbs); setHerbAnswers({}); setShowHerbBanner(true); }
@@ -313,7 +325,7 @@ export default function SettimanaSmartMVP() {
             />
           )}
           {activeTab === "planner" && <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} />}
-          {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} />}
+          {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} recipes={recipes} />}
           {activeTab === "shopping" && <ShoppingTab generated={generated} checkedShoppingItems={checkedShoppingItems} setCheckedShoppingItems={setCheckedShoppingItems} extraShoppingItems={extraShoppingItems} setExtraShoppingItems={setExtraShoppingItems} tourAdvance={tourAdvance} />}
           {activeTab === "recipes" && <RicetteTab generated={generated} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} recipeDetailRef={recipeDetailRef} onStartRecipeFlow={startRecipeFlow} />}
           {activeTab === "reminder" && <CucinaTab prepTime={prepTime} setPrepTime={setPrepTime} prepReminderMessage={prepReminderMessage} setPrepReminderMessage={setPrepReminderMessage} scheduledReminderText={scheduledReminderText} availableVoices={availableVoices} selectedVoiceName={selectedVoiceName} setSelectedVoiceName={setSelectedVoiceName} onPlayReminderPreview={playReminderPreview} onScheduleReminder={scheduleReminder} />}
