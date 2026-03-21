@@ -26,13 +26,6 @@ interface NuoveRicettePageProps {
   maxTime: number;
 }
 
-function getSourceDomain(sourceUrl: string): string {
-  try {
-    return new URL(sourceUrl).hostname;
-  } catch {
-    return sourceUrl;
-  }
-}
 
 function WishlistButton({
   recipeId,
@@ -104,45 +97,6 @@ export function NuoveRicettePage({ sbClient, wishlistedIds, onToggleWishlist, on
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    // MOCK temporaneo — rimuovere dopo verifica UI
-    setNewRecipes([
-      {
-        id: "mock-1",
-        title: "Risotto al Limone e Gamberi",
-        diet: ["mediterranea"],
-        tags: ["primo", "pesce"],
-        time: 35,
-        difficulty: "intermediate",
-        servings: 2,
-        ingredients: [
-          { name: "riso carnaroli", qty: 320, unit: "g", category: "Cereali" },
-          { name: "gamberi", qty: 200, unit: "g", category: "Pesce" },
-        ],
-        steps: ["Tosta il riso.", "Aggiungi il brodo.", "Manteca con burro e limone."],
-        source_url: "https://www.giallozafferano.it/risotto-limone-gamberi",
-        added_by: "ai_job",
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "mock-2",
-        title: "Pasta e Fagioli Napoletana",
-        diet: ["vegana", "vegetariana"],
-        tags: ["primo", "legumi"],
-        time: 50,
-        difficulty: "beginner",
-        servings: 4,
-        ingredients: [
-          { name: "pasta mista", qty: 300, unit: "g", category: "Cereali" },
-          { name: "fagioli borlotti", qty: 400, unit: "g", category: "Legumi" },
-        ],
-        steps: ["Cuoci i fagioli.", "Aggiungi la pasta.", "Aggiusta di sale."],
-        source_url: "https://www.cucchiaio.it/pasta-fagioli-napoletana",
-        added_by: "ai_job",
-        created_at: new Date().toISOString(),
-      },
-    ]);
-    setLoading(false);
-    return;
     if (!sbClient) {
       setLoading(false);
       return;

@@ -9,15 +9,6 @@ export function useNotifications(sbClient: SupabaseClient | null) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // MOCK temporaneo — rimuovere dopo verifica UI
-    setNotifications([{
-      id: "test-1",
-      type: "new_recipes",
-      payload: { count: 5 },
-      created_at: new Date().toISOString(),
-      read: false,
-    }]);
-    return;
     if (!sbClient) return;
     setLoading(true);
     fetchNotifications(sbClient)

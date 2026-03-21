@@ -40,7 +40,7 @@ export type Preferences = {
   sundayDinnerLeftovers: boolean;
   skippedMeals: string[];
   coreIngredients: string[];
-  wishlistedRecipeIds: string[];
+  wishlistedRecipeIds?: string[];
   shoppingDay?: number;              // 0=Sunday, 1=Monday, ..., 6=Saturday (matches JS getDay())
   shoppingNotificationTime?: string; // "HH:MM" format, e.g. "09:00"
   timezone?: string;                 // IANA timezone, e.g. "Europe/Rome"
