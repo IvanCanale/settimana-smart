@@ -15,7 +15,10 @@ export function usePlanEngine(
   const computedPrefs = useMemo(() => ({
     ...preferences,
     coreIngredients: preferences.coreIngredients.map((x) => normalize(x)),
-    exclusions: preferences.exclusionsText.split(",").map((x) => normalize(x)).filter(Boolean),
+    exclusions: [
+      ...preferences.exclusionsText.split(",").map((x) => normalize(x)).filter(Boolean),
+      ...(preferences.exclusions || []).map(normalize),
+    ],
   }), [preferences]);
 
   // Piano base generato dall'engine
