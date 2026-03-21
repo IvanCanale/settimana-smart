@@ -12,6 +12,34 @@ export function normalize(text: string) {
   return text.trim().toLowerCase();
 }
 
+// Canonical ingredient name map — collapses Italian variants to a single shopping key.
+// Used in aggregateShopping to merge entries that would otherwise be separate.
+const CANONICAL_INGREDIENT: Record<string, string> = {
+  "pomodori pelati":           "pomodoro",
+  "pomodorini":                "pomodoro",
+  "pomodori ciliegia":         "pomodoro",
+  "pomodori maturi":           "pomodoro",
+  "pomodori ciliegia misti (anche gialli)": "pomodoro",
+  "petti di pollo":            "pollo",
+  "petto di pollo":            "pollo",
+  "cosce di pollo disossate":  "pollo",
+  "pollo intero o cosce e sovracosce": "pollo",
+  "riso basmati":              "riso",
+  "riso carnaroli o arborio":  "riso",
+  "riso integrale o semintegrale": "riso",
+  "lenticchie verdi o marroni": "lenticchie",
+  "lenticchie rosse decorticate": "lenticchie",
+  "lenticchie in lattina o gia cotte": "lenticchie",
+  "ceci in lattina":           "ceci",
+  "fagioli borlotti in lattina": "fagioli",
+  "fagioli cannellini in lattina": "fagioli",
+};
+
+export function canonicalizeName(raw: string): string {
+  const n = normalize(raw);
+  return CANONICAL_INGREDIENT[n] ?? n;
+}
+
 // Fuzzy match per la dispensa: gestisce varianti di nome
 // es. "uova" matches "uova fresche", "pollo" matches "petto di pollo"
 function pantryMatches(pantryName: string, ingredientName: string): boolean {
@@ -177,8 +205,9 @@ export function aggregateShopping(meals: Recipe[], pantryItems: PantryItem[], pe
   const shoppingMap = new Map<string, RecipeIngredient>();
   meals.forEach((meal) => {
     meal.ingredients.forEach((ingr) => {
-      const key = normalize(ingr.name);
-      const existing = shoppingMap.get(key) || { ...ingr, qty: 0 };
+      const key = canonicalizeName(ingr.name);
+      const canonical = CANONICAL_INGREDIENT[normalize(ingr.name)] ?? ingr.name;
+      const existing = shoppingMap.get(key) || { ...ingr, qty: 0, name: canonical };
       existing.qty += scaleQty(ingr.qty, meal.servings, people);
       shoppingMap.set(key, existing);
     });

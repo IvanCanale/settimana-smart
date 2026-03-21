@@ -12,6 +12,7 @@ import {
   DAYS,
   validateAllergenSafety,
   recipeContainsAllergen,
+  canonicalizeName,
 } from '@/lib/planEngine';
 
 // ── FIXTURES ──────────────────────────────────────────────────────────────────
@@ -570,5 +571,86 @@ describe('allergen gate ENGINE-01', () => {
   it('recipeContainsAllergen returns false for safe recipe', () => {
     const recipe = makeRecipe({ ingredients: [ing('pomodoro', 300, 'g', 'Verdure'), ing('basilico fresco', 5, 'g', 'Verdure')] });
     expect(recipeContainsAllergen(recipe, 'latticini')).toBe(false);
+  });
+});
+
+// ── canonicalizeName SHOP-01 ───────────────────────────────────────────────────
+
+describe('canonicalizeName', () => {
+  it('maps "pomodori pelati" to "pomodoro"', () => {
+    expect(canonicalizeName('pomodori pelati')).toBe('pomodoro');
+  });
+
+  it('maps "pomodorini" to "pomodoro"', () => {
+    expect(canonicalizeName('pomodorini')).toBe('pomodoro');
+  });
+
+  it('maps "pomodori ciliegia" to "pomodoro"', () => {
+    expect(canonicalizeName('pomodori ciliegia')).toBe('pomodoro');
+  });
+
+  it('maps "petto di pollo" to "pollo"', () => {
+    expect(canonicalizeName('petto di pollo')).toBe('pollo');
+  });
+
+  it('maps "petti di pollo" to "pollo"', () => {
+    expect(canonicalizeName('petti di pollo')).toBe('pollo');
+  });
+
+  it('maps "riso basmati" to "riso"', () => {
+    expect(canonicalizeName('riso basmati')).toBe('riso');
+  });
+
+  it('returns unknown ingredient as-is (passthrough)', () => {
+    expect(canonicalizeName('basilico fresco')).toBe('basilico fresco');
+  });
+
+  it('is case-insensitive (trims and lowercases)', () => {
+    expect(canonicalizeName('Pomodori Pelati')).toBe('pomodoro');
+  });
+});
+
+// ── aggregateShopping variant merge SHOP-01 ────────────────────────────────────
+
+describe('aggregateShopping variant merge', () => {
+  it('merges "pomodori pelati" and "pomodoro" into a single shopping entry', () => {
+    const meal1 = makeRecipe({
+      id: 'meal-pelati',
+      servings: 2,
+      ingredients: [ing('pomodori pelati', 200, 'g', 'Dispensa')],
+    });
+    const meal2 = makeRecipe({
+      id: 'meal-pomodoro',
+      servings: 2,
+      ingredients: [ing('pomodoro', 150, 'g', 'Verdure')],
+    });
+    const result = aggregateShopping([meal1, meal2], [], 2);
+    // Both should be merged into a single entry for "pomodoro"
+    const tomatoEntries = result.filter((item) =>
+      item.name === 'pomodoro' || item.name === 'pomodori pelati'
+    );
+    expect(tomatoEntries).toHaveLength(1);
+    expect(tomatoEntries[0].name).toBe('pomodoro');
+    // Total qty: 200 + 150 = 350g (both at 2 servings, people=2 so no scaling)
+    expect(tomatoEntries[0].qty).toBeGreaterThanOrEqual(350);
+  });
+
+  it('merges "petti di pollo" and "pollo" into a single entry', () => {
+    const meal1 = makeRecipe({
+      id: 'meal-petti',
+      servings: 2,
+      ingredients: [ing('petti di pollo', 300, 'g', 'Proteine')],
+    });
+    const meal2 = makeRecipe({
+      id: 'meal-pollo',
+      servings: 2,
+      ingredients: [ing('pollo', 200, 'g', 'Proteine')],
+    });
+    const result = aggregateShopping([meal1, meal2], [], 2);
+    const polloEntries = result.filter((item) =>
+      item.name === 'pollo' || item.name === 'petti di pollo'
+    );
+    expect(polloEntries).toHaveLength(1);
+    expect(polloEntries[0].name).toBe('pollo');
   });
 });
