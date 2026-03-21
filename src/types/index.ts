@@ -85,3 +85,15 @@ export const ALLERGEN_OPTIONS = [
   "glutine", "latticini", "uova", "pesce", "crostacei",
   "frutta a guscio", "sesamo", "soia", "arachidi", "sedano",
 ] as const;
+
+export type PlanStatus = "draft" | "active" | "archived";
+
+export type WeeklyPlanRecord = {
+  week_iso: string;
+  status: PlanStatus;
+  seed: number;
+  manual_overrides: ManualOverrides;
+  learning: PreferenceLearning;
+  feedback_note: string;
+  checked_items: string[];
+};
