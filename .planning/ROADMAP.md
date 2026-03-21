@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Auth and Onboarding** - Activate Supabase auth and replace the unguided preferences form with a step-by-step onboarding flow including safety-critical allergen selection (completed 2026-03-21)
 - [x] **Phase 3: Engine Hardening and Cloud Sync** - Add allergen validation layer, multi-objective variety constraints, and activate Supabase cloud sync (completed 2026-03-21)
 - [x] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer (completed 2026-03-21)
-- [ ] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation
+- [x] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation (completed 2026-03-21)
 - [ ] **Phase 6: Notifications** - Add push notifications for weekly planning prompts and shopping day reminders
 
 ## Phase Details
@@ -94,7 +94,7 @@ Plans:
   5. A user who marks three shopping items as bought, closes the app, and reopens it finds those three items still marked as bought
   6. A meal that reuses leftovers from the previous day is explicitly labeled in the week view
   7. A user can swap a single meal and receive a suggested replacement compatible with their allergen profile
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 Plans:
 - [ ] 05-01-PLAN.md — Week utilities (ISO week helpers), PlanStatus/WeeklyPlanRecord types, multi-week SQL migration
 - [ ] 05-02-PLAN.md — Shopping canonicalization (Italian ingredient variant merging) and checked-item persistence
@@ -123,5 +123,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Auth and Onboarding | 2/2 | Complete   | 2026-03-21 |
 | 3. Engine Hardening and Cloud Sync | 2/2 | Complete   | 2026-03-21 |
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
-| 5. Plan Lifecycle and Shopping | 3/4 | In Progress|  |
+| 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 0/TBD | Not started | - |
