@@ -6,6 +6,16 @@ import { useAuth } from "@/lib/AuthProvider";
 import { AuthModalInline } from "@/components/AuthModalInline";
 import { migrateFromLocalStorage } from "@/lib/supabase";
 
+const DAYS_IT = [
+  { value: 0, label: "Dom" },
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mer" },
+  { value: 4, label: "Gio" },
+  { value: 5, label: "Ven" },
+  { value: 6, label: "Sab" },
+];
+
 interface ProfileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +26,13 @@ interface ProfileDrawerProps {
 export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: ProfileDrawerProps) {
   const { sbClient, user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  React.useEffect(() => {
+    if (!preferences.timezone) {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setPreferences((p) => ({ ...p, timezone: tz }));
+    }
+  }, [preferences.timezone, setPreferences]);
 
   if (!isOpen) return null;
 
@@ -354,6 +371,58 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences }: 
             style={{ width: "100%", accentColor: "var(--terra)" }}
           />
         </div>
+
+        <hr style={divider} />
+
+        {/* Section: Giorno della spesa */}
+        <div style={{ marginBottom: 20 }}>
+          <p style={sectionLabel}>Giorno della spesa</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {DAYS_IT.map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setPreferences((p) => ({ ...p, shoppingDay: value }))}
+                style={{
+                  background: preferences.shoppingDay === value ? "rgba(196,103,58,0.08)" : "var(--cream)",
+                  border: `2px solid ${preferences.shoppingDay === value ? "var(--terra)" : "rgba(61,43,31,0.12)"}`,
+                  borderRadius: 100,
+                  padding: "8px 14px",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--sepia)",
+                  transition: "all 0.15s",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {preferences.shoppingDay !== undefined && (
+          <div style={{ marginBottom: 20 }}>
+            <p style={sectionLabel}>Orario promemoria spesa</p>
+            <p style={{ fontSize: 13, color: "var(--sepia-light)", margin: "0 0 12px 0" }}>
+              Riceverai un promemoria a quest&apos;ora il giorno della spesa
+            </p>
+            <input
+              type="time"
+              value={preferences.shoppingNotificationTime ?? "09:00"}
+              onChange={(e) => setPreferences((p) => ({ ...p, shoppingNotificationTime: e.target.value }))}
+              style={{
+                width: "100%",
+                borderRadius: 12,
+                padding: 12,
+                fontSize: 16,
+                color: "var(--sepia)",
+                background: "var(--cream)",
+                border: "2px solid rgba(61,43,31,0.12)",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+        )}
 
         <hr style={divider} />
 
