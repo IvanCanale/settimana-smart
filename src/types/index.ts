@@ -79,3 +79,8 @@ export type PlanResult = {
 
 export type VoiceOption = { name: string; lang: string };
 export type ManualOverrides = Record<string, Partial<Record<MealSlot, Recipe | null>>>;
+
+export const ALLERGEN_OPTIONS = [
+  "glutine", "latticini", "uova", "pesce", "crostacei",
+  "frutta a guscio", "sesamo", "soia", "arachidi", "sedano",
+] as const;
