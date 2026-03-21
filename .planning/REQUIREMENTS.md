@@ -46,9 +46,9 @@
 
 ### Lista della Spesa
 
-- [ ] **SHOP-01**: La lista della spesa aggrega correttamente ingredienti con nomi italiani varianti (es. "pomodoro" e "pomodori pelati" non creano due voci separate)
-- [ ] **SHOP-02**: L'utente può segnare ingredienti come acquistati e lo stato persiste tra sessioni
-- [ ] **SHOP-03**: La lista della spesa si aggiorna automaticamente quando il piano viene modificato o rigenerato
+- [x] **SHOP-01**: La lista della spesa aggrega correttamente ingredienti con nomi italiani varianti (es. "pomodoro" e "pomodori pelati" non creano due voci separate)
+- [x] **SHOP-02**: L'utente può segnare ingredienti come acquistati e lo stato persiste tra sessioni
+- [x] **SHOP-03**: La lista della spesa si aggiorna automaticamente quando il piano viene modificato o rigenerato
 
 ### Cloud & Sincronizzazione
 
@@ -132,9 +132,9 @@ Aggiornato durante la creazione del roadmap.
 | PLAN-04 | Phase 5 | Pending |
 | PLAN-05 | Phase 5 | Pending |
 | PLAN-06 | Phase 5 | Pending |
-| SHOP-01 | Phase 5 | Pending |
-| SHOP-02 | Phase 5 | Pending |
-| SHOP-03 | Phase 5 | Pending |
+| SHOP-01 | Phase 5 | Complete |
+| SHOP-02 | Phase 5 | Complete |
+| SHOP-03 | Phase 5 | Complete |
 | NOTIF-01 | Phase 6 | Pending |
 | NOTIF-02 | Phase 6 | Pending |
 | NOTIF-03 | Phase 6 | Pending |
