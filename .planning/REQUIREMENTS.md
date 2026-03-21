@@ -57,7 +57,7 @@
 
 ### Notifiche
 
-- [ ] **NOTIF-01**: L'utente imposta il proprio "giorno della spesa" nel profilo
+- [x] **NOTIF-01**: L'utente imposta il proprio "giorno della spesa" nel profilo
 - [ ] **NOTIF-02**: L'app invia una push notification la sera prima del giorno della spesa impostato (default: domenica sera) con promemoria di pianificare/rivedere il piano della settimana
 - [ ] **NOTIF-03**: L'app invia una seconda push notification il giorno della spesa stesso, all'orario configurato dall'utente nel profilo, come promemoria di fare la spesa
 
@@ -135,7 +135,7 @@ Aggiornato durante la creazione del roadmap.
 | SHOP-01 | Phase 5 | Complete |
 | SHOP-02 | Phase 5 | Complete |
 | SHOP-03 | Phase 5 | Complete |
-| NOTIF-01 | Phase 6 | Pending |
+| NOTIF-01 | Phase 6 | Complete |
 | NOTIF-02 | Phase 6 | Pending |
 | NOTIF-03 | Phase 6 | Pending |
 

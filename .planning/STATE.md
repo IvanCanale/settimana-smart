@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-04-PLAN.md
-last_updated: "2026-03-21T20:49:00.033Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-21T22:19:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 17
+  completed_plans: 15
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 05 — plan-lifecycle-and-shopping
+**Current focus:** Phase 06 — notifications
 
 ## Current Position
 
-Phase: 05 (plan-lifecycle-and-shopping) — EXECUTING
-Plan: 1 of 4
+Phase: 06 (notifications) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -115,6 +115,9 @@ Recent decisions affecting current work:
 - [Phase 05-04]: recipes prop threads from usePlanEngine return through page.tsx to WeekTab — explicit prop-based data flow, no context/store
 - [Phase 05-04]: recipeContainsAllergen replaces manual string-includes check in regenerateSingleMeal — unified allergen logic, same map as buildPlan
 - [Phase 05-04]: Avanzi badge applied in both mealsPerDay rendering paths (dinner-only and lunch+dinner) for consistent leftover labeling
+- [06-01]: shoppingDay?, shoppingNotificationTime?, timezone? added as optional fields to Preferences — backward-compatible, no existing consumers affected
+- [06-01]: Timezone auto-detected via Intl.DateTimeFormat().resolvedOptions().timeZone in ProfileDrawer useEffect — stored in preferences for Edge Function use in Plans 02/03
+- [06-01]: Notification time input only rendered when shoppingDay !== undefined — avoids orphaned time preference with no shopping day context
 
 ### Pending Todos
 
