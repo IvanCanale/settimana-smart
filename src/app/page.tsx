@@ -17,6 +17,8 @@ import { ShoppingTab } from "@/components/ShoppingTab";
 import { CucinaTab } from "@/components/CucinaTab";
 import { RicetteTab } from "@/components/RicetteTab";
 import { normalize } from "@/lib/planEngine";
+import { loadUserData } from "@/lib/supabase";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem } from "@/types";
 
 const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
@@ -30,8 +32,11 @@ export default function SettimanaSmartMVP() {
   const [seed, setSeed] = useLocalStorage<number>("ss_seed_v1", 1);
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
-  const { computedPrefs, generated } = usePlanEngine(preferences, pantryItems, seed, learning, manualOverrides);
-  const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus } = useAuth();
+  const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
+  const { computedPrefs, generated } = usePlanEngine(
+    preferences, pantryItems, seed, learning, manualOverrides,
+    { sbClient, userId: user?.id ?? null, setSyncStatus },
+  );
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("planner");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -63,6 +68,10 @@ export default function SettimanaSmartMVP() {
   const [herbAnswers, setHerbAnswers] = useState<Record<string, boolean>>({});
   const [showHerbBanner, setShowHerbBanner] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [isOffline, setIsOffline] = useState(() =>
+    typeof window !== "undefined" ? !navigator.onLine : false
+  );
+  const cloudLoadDoneRef = useRef(false);
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => { setIsMounted(true); }, []);
@@ -133,6 +142,47 @@ export default function SettimanaSmartMVP() {
     });
   }, [user, sbClient, onboardingDone]);
 
+  // ── OFFLINE DETECTION ──
+  useEffect(() => {
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => {
+      setIsOffline(false);
+      // Sync triggers automatically via usePlanEngine's auto-save effect
+    };
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, []);
+
+  // ── CLOUD LOAD ON MOUNT ──
+  useEffect(() => {
+    if (!sbClient || !user || cloudLoadDoneRef.current) return;
+    cloudLoadDoneRef.current = true;
+
+    // Solo se localStorage e' vuoto (nuovo dispositivo) — altrimenti locale vince
+    const hasLocalData = typeof window !== "undefined" && localStorage.getItem("ss_seed_v1") !== null;
+    if (hasLocalData) return; // Locale vince sempre — push to cloud via auto-save
+
+    (async () => {
+      try {
+        const data = await loadUserData(sbClient, user.id);
+        if (data.seed !== undefined) setSeed(data.seed);
+        if (data.preferences && Object.keys(data.preferences).length > 0) {
+          setPreferences(prev => ({ ...prev, ...data.preferences as Partial<Preferences> }));
+        }
+        if (data.manualOverrides && Object.keys(data.manualOverrides).length > 0) {
+          setManualOverrides(data.manualOverrides as ManualOverrides);
+        }
+      } catch {
+        // Errore cloud load — fallback silenzioso a stato locale
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sbClient, user]);
+
   if (isMounted && !onboardingDone) return (
     <OnboardingFlow
       preferences={preferences}
@@ -175,6 +225,7 @@ export default function SettimanaSmartMVP() {
           <AppHeader isMounted={isMounted} generated={generated} user={user} syncStatus={syncStatus} sbClient={sbClient}
             onSignIn={() => setShowAuthModal(true)} onSignOut={() => sbClient?.auth.signOut()}
             onProfileOpen={() => setShowProfile(true)} />
+          <OfflineBanner isOffline={isOffline} />
           <ProfileDrawer
             isOpen={showProfile}
             onClose={() => setShowProfile(false)}

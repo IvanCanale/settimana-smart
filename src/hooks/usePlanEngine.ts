@@ -1,8 +1,10 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety } from "@/lib/planEngine";
+import { saveWeeklyPlan, savePreferences } from "@/lib/supabase";
 import { RECIPE_LIBRARY } from "@/data/recipes";
 import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe } from "@/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export function usePlanEngine(
   preferences: Preferences,
@@ -10,6 +12,11 @@ export function usePlanEngine(
   seed: number,
   learning: PreferenceLearning,
   manualOverrides: ManualOverrides,
+  cloudSync?: {
+    sbClient: SupabaseClient | null;
+    userId: string | null;
+    setSyncStatus: (v: "idle" | "saving" | "saved" | "error") => void;
+  },
 ) {
   // Calcola le preferenze normalizzate
   const computedPrefs = useMemo(() => ({
@@ -120,6 +127,39 @@ export function usePlanEngine(
       freezeItems: computeFreeze(dedupedDays, computedPrefs),
     };
   }, [basePlan, manualOverrides, pantryItems, computedPrefs, seed]);
+
+  // ── AUTO-SAVE CLOUD SYNC ──
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!cloudSync?.sbClient || !cloudSync?.userId) return;
+    const { sbClient: client, userId, setSyncStatus: setStatus } = cloudSync;
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    setStatus("saving");
+
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        await Promise.all([
+          saveWeeklyPlan(client, userId, {
+            seed,
+            manualOverrides: manualOverrides as Record<string, unknown>,
+            learning: learning as Record<string, unknown>,
+          }),
+          savePreferences(client, userId, preferences as unknown as Record<string, unknown>),
+        ]);
+        setStatus("saved");
+        setTimeout(() => setStatus("idle"), 3000);
+      } catch {
+        setStatus("error");
+      }
+    }, 2000);
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generated, cloudSync?.sbClient, cloudSync?.userId, seed, preferences, manualOverrides, learning]);
 
   return { computedPrefs, basePlan, generated };
 }

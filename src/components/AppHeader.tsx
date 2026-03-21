@@ -40,9 +40,9 @@ export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, on
       <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10, marginTop: -8 }}>
         {isMounted && user && (
           <>
-            {syncStatus === "saving" && <span style={{ fontSize: 11, color: "var(--sepia-light)" }}>↑ salvataggio...</span>}
-            {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
-            {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
+            {syncStatus === "saving" && <span style={{ fontSize: 12, color: "var(--sepia-light)" }}>↑ salvataggio...</span>}
+            {syncStatus === "saved"  && <span style={{ fontSize: 12, color: "var(--olive)" }}>✓ salvato</span>}
+            {syncStatus === "error"  && <span style={{ fontSize: 12, color: "var(--terra)" }}>⚠ errore sync</span>}
           </>
         )}
         <button
