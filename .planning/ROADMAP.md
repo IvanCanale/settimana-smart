@@ -94,7 +94,12 @@ Plans:
   5. A user who marks three shopping items as bought, closes the app, and reopens it finds those three items still marked as bought
   6. A meal that reuses leftovers from the previous day is explicitly labeled in the week view
   7. A user can swap a single meal and receive a suggested replacement compatible with their allergen profile
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 05-01-PLAN.md — Week utilities (ISO week helpers), PlanStatus/WeeklyPlanRecord types, multi-week SQL migration
+- [ ] 05-02-PLAN.md — Shopping canonicalization (Italian ingredient variant merging) and checked-item persistence
+- [ ] 05-03-PLAN.md — Multi-week plan persistence (Supabase save/load update), useWeeklyPlans hook, feedback note
+- [ ] 05-04-PLAN.md — Leftover badge in week view, regenerateSingleMeal fix to use live recipe pool
 
 ### Phase 6: Notifications
 **Goal**: Users receive timely push notifications that prompt weekly planning before the shopping day and are sent only on the day they chose
@@ -118,5 +123,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Auth and Onboarding | 2/2 | Complete   | 2026-03-21 |
 | 3. Engine Hardening and Cloud Sync | 2/2 | Complete   | 2026-03-21 |
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
-| 5. Plan Lifecycle and Shopping | 0/TBD | Not started | - |
+| 5. Plan Lifecycle and Shopping | 0/4 | Not started | - |
 | 6. Notifications | 0/TBD | Not started | - |
