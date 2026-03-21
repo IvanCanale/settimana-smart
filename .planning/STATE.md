@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 01-01-PLAN.md"
-last_updated: "2026-03-20T19:03:00Z"
+stopped_at: "Completed 01-02-PLAN.md"
+last_updated: "2026-03-21T00:00:00Z"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -23,26 +23,26 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 01 (foundation-hardening) — EXECUTING
-Plan: 2 of 2
+Phase: 01 (foundation-hardening) — COMPLETE
+Plan: 2 of 2 (all plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: 15 min
-- Total execution time: 0.25 hours
+- Total plans completed: 2
+- Average duration: 30 min
+- Total execution time: 1 hour
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation-hardening | 1 | 15 min | 15 min |
+| 01-foundation-hardening | 2 | 60 min | 30 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 15 min
+- Last 5 plans: 15 min, 45 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -61,6 +61,11 @@ Recent decisions affecting current work:
 - [01-01]: Vitest node environment for planEngine unit tests — no DOM needed, faster execution
 - [01-01]: coniglio classified as MEAT only — removed from POULTRY_INGREDIENTS (was causing 2/3 rotation exclusion bug)
 - [01-01]: Budget scoring via ingredient count proxy in scoreCandidate — budget<=30 penalizes >5 ingredients, budget<=50 penalizes >7
+- [01-02]: Tab components receive props from orchestrator (no context/store) — keeps data flow explicit and traceable
+- [01-02]: useLocalStorage<T> uses spread merge for objects, direct parse for primitives — handles both preferences (object) and seed (number)
+- [01-02]: ErrorBoundary clears all 5 localStorage keys on reload — prevents corrupted-state crash loops
+- [01-02]: FreezeToast auto-dismisses after 8 seconds (non-blocking window.alert replacement)
+- [01-02]: Google Fonts via link tag in layout.tsx head, not @import in CSS — avoids render-blocking
 
 ### Pending Todos
 
@@ -73,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T19:03:00Z
-Stopped at: Completed 01-01-PLAN.md
-Resume file: .planning/phases/01-foundation-hardening/01-02-PLAN.md
+Last session: 2026-03-21T00:00:00Z
+Stopped at: Completed 01-02-PLAN.md
+Resume file: .planning/phases/02-auth-supabase/ (phase 01 complete, advance to phase 02)

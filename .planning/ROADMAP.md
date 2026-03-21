@@ -12,7 +12,7 @@ Settimana Smart is a brownfield Next.js 16 PWA with a working plan generation en
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation Hardening** - Decompose the monolith, add test coverage, and clean dependencies so every subsequent phase builds on a solid base
+- [x] **Phase 1: Foundation Hardening** - Decompose the monolith, add test coverage, and clean dependencies so every subsequent phase builds on a solid base (completed 2026-03-21)
 - [ ] **Phase 2: Auth and Onboarding** - Activate Supabase auth and replace the unguided preferences form with a step-by-step onboarding flow including safety-critical allergen selection
 - [ ] **Phase 3: Engine Hardening and Cloud Sync** - Add allergen validation layer, multi-objective variety constraints, and activate Supabase cloud sync
 - [ ] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer
@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `planEngine.ts` business-critical functions are covered by Vitest tests — running `vitest` shows green with coverage on `buildPlan()`, `scoreCandidate()`, `aggregateShopping()`
   3. `framer-motion` and the `radix-ui` meta-package are removed from `package.json` and the bundle
   4. The app still opens in the browser and the plan, recipe, and shopping views all render without errors after refactoring
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 01-01-PLAN.md — Vitest setup, planEngine test coverage, engine bug fixes, dependency cleanup
 - [ ] 01-02-PLAN.md — CSS migration, monolith decomposition into tab components and hooks, error boundary
@@ -103,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Hardening | 1/2 | In progress | - |
+| 1. Foundation Hardening | 2/2 | Complete   | 2026-03-21 |
 | 2. Auth and Onboarding | 0/TBD | Not started | - |
 | 3. Engine Hardening and Cloud Sync | 0/TBD | Not started | - |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |

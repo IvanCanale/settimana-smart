@@ -63,7 +63,7 @@
 
 ### Refactoring Tecnico
 
-- [ ] **TECH-01**: Il monolith `page.tsx` (1738 righe) è decomposto in tab components separati e custom hooks (`usePlanEngine`, `useLocalStorage`, `useCloudSync`)
+- [x] **TECH-01**: Il monolith `page.tsx` (1738 righe) è decomposto in tab components separati e custom hooks (`usePlanEngine`, `useLocalStorage`, `useCloudSync`)
 - [x] **TECH-02**: I package inutilizzati sono rimossi dal bundle (`framer-motion`, `radix-ui` meta-package)
 
 ---
@@ -106,7 +106,7 @@ Aggiornato durante la creazione del roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TECH-01 | Phase 1 | Pending |
+| TECH-01 | Phase 1 | Complete |
 | TECH-02 | Phase 1 | Complete |
 | ENGINE-04 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Pending |
