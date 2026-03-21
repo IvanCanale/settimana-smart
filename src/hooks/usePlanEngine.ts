@@ -1,7 +1,7 @@
 "use client";
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety } from "@/lib/planEngine";
-import { saveWeeklyPlan, savePreferences } from "@/lib/supabase";
+import { saveWeeklyPlan, savePreferences, fetchRecipes } from "@/lib/supabase";
 import { RECIPE_LIBRARY } from "@/data/recipes";
 import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe } from "@/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -18,6 +18,41 @@ export function usePlanEngine(
     setSyncStatus: (v: "idle" | "saving" | "saved" | "error") => void;
   },
 ) {
+  // ── ASYNC RECIPE FETCH with localStorage cache and RECIPE_LIBRARY fallback ──
+  const [recipes, setRecipes] = useState<Recipe[]>(RECIPE_LIBRARY);
+  const [recipesLoading, setRecipesLoading] = useState(false);
+
+  useEffect(() => {
+    const CACHE_KEY = "ss_recipes_cache_v1";
+    const CACHE_TS_KEY = "ss_recipes_cache_ts_v1";
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTs = localStorage.getItem(CACHE_TS_KEY);
+    const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+    if (cached && cachedTs && (Date.now() - Number(cachedTs)) < CACHE_TTL) {
+      try {
+        const parsed = JSON.parse(cached) as Recipe[];
+        if (parsed.length > 0) setRecipes(parsed);
+      } catch { /* ignore corrupt cache */ }
+    }
+
+    if (!cloudSync?.sbClient) return;
+    setRecipesLoading(true);
+    fetchRecipes(cloudSync.sbClient)
+      .then((fetched) => {
+        if (fetched.length > 0) {
+          setRecipes(fetched);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(fetched));
+          localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
+        }
+      })
+      .catch(() => {
+        console.warn("fetchRecipes failed — using cached or static recipes");
+      })
+      .finally(() => setRecipesLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloudSync?.sbClient]);
+
   // Calcola le preferenze normalizzate
   const computedPrefs = useMemo(() => ({
     ...preferences,
@@ -32,10 +67,10 @@ export function usePlanEngine(
   const basePlan = useMemo(() => {
     const exclusions = computedPrefs.exclusions || [];
     if (exclusions.length === 0) {
-      return buildPlan(computedPrefs, pantryItems, seed, learning);
+      return buildPlan(computedPrefs, pantryItems, seed, learning, recipes);
     }
     for (let attempt = 0; attempt < 3; attempt++) {
-      const plan = buildPlan(computedPrefs, pantryItems, seed + attempt, learning);
+      const plan = buildPlan(computedPrefs, pantryItems, seed + attempt, learning, recipes);
       if (validateAllergenSafety(plan, exclusions)) {
         return plan;
       }
@@ -43,12 +78,12 @@ export function usePlanEngine(
       console.warn(`Allergen gate failed for plan seed ${seed + attempt}, attempt ${attempt + 1}/3 — retrying with seed ${seed + attempt + 1}`);
     }
     // Tutti e 3 i tentativi falliti — ritorna l'ultimo tentativo con alert
-    const fallback = buildPlan(computedPrefs, pantryItems, seed + 2, learning);
+    const fallback = buildPlan(computedPrefs, pantryItems, seed + 2, learning, recipes);
     return {
       ...fallback,
       alerts: [...fallback.alerts, "Non e stato possibile generare un piano sicuro. Riprova modificando le preferenze."],
     };
-  }, [computedPrefs, pantryItems, seed, learning]);
+  }, [computedPrefs, pantryItems, seed, learning, recipes]);
 
   // Piano finale con override manuali applicati
   const generated = useMemo(() => {
@@ -67,7 +102,7 @@ export function usePlanEngine(
       if (lunch) usedIds.add(lunch.id);
       if (dinner && usedIds.has(dinner.id)) {
         const replacement = seededShuffle(
-          RECIPE_LIBRARY.filter((rec) => {
+          recipes.filter((rec) => {
             if (!rec.diet.includes(computedPrefs.diet)) return false;
             if (rec.time > computedPrefs.maxTime) return false;
             if (computedPrefs.exclusions.some((ex) => rec.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
@@ -126,7 +161,7 @@ export function usePlanEngine(
       stats,
       freezeItems: computeFreeze(dedupedDays, computedPrefs),
     };
-  }, [basePlan, manualOverrides, pantryItems, computedPrefs, seed]);
+  }, [basePlan, manualOverrides, pantryItems, computedPrefs, seed, recipes]);
 
   // ── AUTO-SAVE CLOUD SYNC ──
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -161,5 +196,5 @@ export function usePlanEngine(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generated, cloudSync?.sbClient, cloudSync?.userId, seed, preferences, manualOverrides, learning]);
 
-  return { computedPrefs, basePlan, generated };
+  return { computedPrefs, basePlan, generated, recipesLoading, recipeCount: recipes.length };
 }

@@ -304,7 +304,8 @@ export function validateAllergenSafety(plan: PlanResult, exclusions: string[]): 
   );
 }
 
-export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: number, learning?: PreferenceLearning): PlanResult {
+export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], seed: number, learning?: PreferenceLearning, recipesOverride?: Recipe[]): PlanResult {
+  const pool_source = recipesOverride ?? RECIPE_LIBRARY;
   const pantrySet = new Set(pantryItems.map((x) => normalize(x.name)));
   const exclusions = preferences.exclusions || [];
 
@@ -344,7 +345,7 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
 
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
 
-  const eligible = RECIPE_LIBRARY.filter((recipeItem) => {
+  const eligible = pool_source.filter((recipeItem) => {
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
@@ -357,7 +358,7 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     return true;
   });
 
-  const specialEligible = RECIPE_LIBRARY.filter((recipeItem) => {
+  const specialEligible = pool_source.filter((recipeItem) => {
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (!(recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica"))) return false;
     if (recipeItem.time > Math.max(preferences.maxTime, 60)) return false;
