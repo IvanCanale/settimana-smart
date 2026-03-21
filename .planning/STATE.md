@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-21T20:37:22.296Z"
+stopped_at: Completed 05-04-PLAN.md
+last_updated: "2026-03-21T20:42:16.297Z"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -55,6 +55,7 @@ Plan: 1 of 4
 | Phase 04-ai-recipe-generation P04 | 4 | 2 tasks | 6 files |
 | Phase 05 P01 | 10 | 2 tasks | 5 files |
 | Phase 05 P02 | 8 | 2 tasks | 3 files |
+| Phase 05 P04 | 15 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase 05-01]: Migration 003 drops weekly_plan_user_id_key and adds composite UNIQUE (user_id, week_iso) for multi-week plan support
 - [Phase 05-02]: CANONICAL_INGREDIENT map in planEngine.ts collapses Italian ingredient variants as aggregateShopping key; canonicalizeName fallback to normalize for unknown names
 - [Phase 05-02]: checkedShoppingItems stored as string[] under ss_checked_shopping_v1 — Set not JSON-serializable; reconstructed with useMemo; wrapper accepts both direct Set and updater function
+- [Phase 05-04]: recipes prop threads from usePlanEngine return through page.tsx to WeekTab — explicit prop-based data flow, no context/store
+- [Phase 05-04]: recipeContainsAllergen replaces manual string-includes check in regenerateSingleMeal — unified allergen logic, same map as buildPlan
+- [Phase 05-04]: Avanzi badge applied in both mealsPerDay rendering paths (dinner-only and lunch+dinner) for consistent leftover labeling
 
 ### Pending Todos
 
@@ -119,6 +123,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T20:37:22.293Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-03-21T20:42:16.293Z
+Stopped at: Completed 05-04-PLAN.md
 Resume file: None

@@ -41,8 +41,8 @@
 - [x] **PLAN-02**: Il piano della settimana corrente diventa automaticamente "archiviato" quando inizia la nuova settimana
 - [ ] **PLAN-03**: L'utente può creare/rigenerare il piano per la settimana successiva mentre è ancora attivo il piano corrente
 - [ ] **PLAN-04**: L'utente può rigenerare il piano fornendo feedback testuale ("meno pesce questa settimana", "più piatti veloci")
-- [ ] **PLAN-05**: Il piano segnala esplicitamente i pasti che riutilizzano avanzi del giorno precedente
-- [ ] **PLAN-06**: L'utente può scambiare un singolo pasto con un'alternativa suggerita compatibile con il profilo
+- [x] **PLAN-05**: Il piano segnala esplicitamente i pasti che riutilizzano avanzi del giorno precedente
+- [x] **PLAN-06**: L'utente può scambiare un singolo pasto con un'alternativa suggerita compatibile con il profilo
 
 ### Lista della Spesa
 
@@ -130,8 +130,8 @@ Aggiornato durante la creazione del roadmap.
 | PLAN-02 | Phase 5 | Complete |
 | PLAN-03 | Phase 5 | Pending |
 | PLAN-04 | Phase 5 | Pending |
-| PLAN-05 | Phase 5 | Pending |
-| PLAN-06 | Phase 5 | Pending |
+| PLAN-05 | Phase 5 | Complete |
+| PLAN-06 | Phase 5 | Complete |
 | SHOP-01 | Phase 5 | Complete |
 | SHOP-02 | Phase 5 | Complete |
 | SHOP-03 | Phase 5 | Complete |
