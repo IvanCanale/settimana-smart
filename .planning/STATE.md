@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-04-PLAN.md — Phase 04 complete
-last_updated: "2026-03-21T20:10:54.825Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-21T20:37:22.296Z"
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 04 — ai-recipe-generation
+**Current focus:** Phase 05 — plan-lifecycle-and-shopping
 
 ## Current Position
 
-Phase: 04 (ai-recipe-generation) — EXECUTING
-Plan: 4 of 4
+Phase: 05 (plan-lifecycle-and-shopping) — EXECUTING
+Plan: 1 of 4
 
 ## Performance Metrics
 
@@ -53,6 +53,8 @@ Plan: 4 of 4
 | Phase 04-ai-recipe-generation P02 | 5 | 3 tasks | 5 files |
 | Phase 04-ai-recipe-generation P03 | 3 | 2 tasks | 2 files |
 | Phase 04-ai-recipe-generation P04 | 4 | 2 tasks | 6 files |
+| Phase 05 P01 | 10 | 2 tasks | 5 files |
+| Phase 05 P02 | 8 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -100,6 +102,11 @@ Recent decisions affecting current work:
 - [04-04]: onToggleWishlist receives full Recipe object — planEngine can include wishlisted recipes even if absent from Supabase fetch
 - [04-04]: Allergen check never bypassed for wishlisted recipes — food safety hard constraint regardless of user wishlist preference
 - [04-04]: maxTime warning badge on recipe cards — user sees when wishlisted recipe exceeds their configured time limit
+- [Phase 05-01]: getISOWeekYear from date-fns used (not getFullYear) to handle ISO year boundaries correctly
+- [Phase 05-01]: ISO week string format YYYY-WNN enables lexicographic comparison for isWeekExpired without parsing
+- [Phase 05-01]: Migration 003 drops weekly_plan_user_id_key and adds composite UNIQUE (user_id, week_iso) for multi-week plan support
+- [Phase 05-02]: CANONICAL_INGREDIENT map in planEngine.ts collapses Italian ingredient variants as aggregateShopping key; canonicalizeName fallback to normalize for unknown names
+- [Phase 05-02]: checkedShoppingItems stored as string[] under ss_checked_shopping_v1 — Set not JSON-serializable; reconstructed with useMemo; wrapper accepts both direct Set and updater function
 
 ### Pending Todos
 
@@ -112,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T20:02:44.334Z
-Stopped at: Completed 04-04-PLAN.md — Phase 04 complete
+Last session: 2026-03-21T20:37:22.293Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
