@@ -61,9 +61,9 @@ Ogni ricetta nel catalogo Supabase deve avere:
 
 ### UX: scoperta ricette nuove
 
-- Badge discreto nel **tab Ricette** quando ci sono ricette aggiunte nell'ultima settimana (`added_at > now() - 7 days`)
-- Nessuna notifica push in Fase 4 — la push notification "20 nuove ricette disponibili" è **demandata alla Fase 6** come nuovo tipo di notifica
-- L'utente genera il piano normalmente — non nota la differenza nel flusso, trova solo ricette che non aveva mai visto
+- **Nessun badge o indicatore visivo in Fase 4** — il catalogo cresce silenziosamente
+- L'utente scopre le ricette nuove naturalmente quando il piano viene generato (trova piatti che non aveva mai visto)
+- La push notification "N nuove ricette disponibili" è **demandata alla Fase 6** come nuovo tipo di notifica insieme al resto dell'infrastruttura push
 
 ### Claude's Discretion
 
@@ -102,7 +102,7 @@ Ogni ricetta nel catalogo Supabase deve avere:
 - `planEngine.ts → validateAllergenSafety()`: già esportata da Fase 3 — viene applicata identicamente al catalogo Supabase
 - `planEngine.ts → buildPlan()`: accetta `RecipeItem[]` — basta passargli le ricette da Supabase invece di quelle statiche
 - `supabase.ts`: client già configurato, pattern `saveWeeklyPlan`/`loadWeeklyPlan` da estendere per `fetchRecipes`
-- `RicetteTab.tsx`: tab esistente che mostra le ricette — da estendere con badge "novità"
+- `RicetteTab.tsx`: tab esistente che mostra le ricette — nessuna modifica richiesta in Fase 4
 
 ### Established Patterns
 - Zod validation per output LLM strutturato — da applicare anche allo schema ricette parsate dall'AI
