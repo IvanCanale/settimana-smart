@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-21T09:42:27.224Z"
+stopped_at: Completed 02-auth-and-onboarding-02-01-PLAN.md
+last_updated: "2026-03-21T09:58:38.254Z"
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 01 — foundation-hardening
+**Current focus:** Phase 02 — auth-and-onboarding
 
 ## Current Position
 
-Phase: 01 (foundation-hardening) — COMPLETE
-Plan: 2 of 2 (all plans complete)
+Phase: 02 (auth-and-onboarding) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Plan: 2 of 2 (all plans complete)
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 02-auth-and-onboarding P01 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Recent decisions affecting current work:
 - [01-02]: ErrorBoundary clears all 5 localStorage keys on reload — prevents corrupted-state crash loops
 - [01-02]: FreezeToast auto-dismisses after 8 seconds (non-blocking window.alert replacement)
 - [01-02]: Google Fonts via link tag in layout.tsx head, not @import in CSS — avoids render-blocking
+- [Phase 02-auth-and-onboarding]: OnboardingFlow sbClient passed as prop not via useAuth hook — keeps component portable and prop interface explicit
+- [Phase 02-auth-and-onboarding]: Dynamic import of supabase.ts in migration useEffect — avoids bundling Supabase for anonymous users
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T09:42:27.221Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-auth-and-onboarding/02-CONTEXT.md
+Last session: 2026-03-21T09:58:38.251Z
+Stopped at: Completed 02-auth-and-onboarding-02-01-PLAN.md
+Resume file: None

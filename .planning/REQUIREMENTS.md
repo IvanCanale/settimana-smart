@@ -9,16 +9,16 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: L'utente può registrarsi con email e password
+- [x] **AUTH-01**: L'utente può registrarsi con email e password
 - [ ] **AUTH-02**: L'utente può fare login e rimanere loggato tra sessioni
 - [ ] **AUTH-03**: L'utente può fare logout da qualsiasi schermata
 
 ### Onboarding & Profilo
 
-- [ ] **ONBOARD-01**: Alla prima apertura l'utente completa un onboarding guidato step-by-step prima di accedere all'app
-- [ ] **ONBOARD-02**: L'utente seleziona intolleranze/allergie nel profilo (filtro hard obbligatorio — safety-critical)
-- [ ] **ONBOARD-03**: L'utente indica le proprie preferenze alimentari (cibi preferiti, cibi da evitare)
-- [ ] **ONBOARD-04**: L'utente indica il numero di persone in casa (calibra le quantità)
+- [x] **ONBOARD-01**: Alla prima apertura l'utente completa un onboarding guidato step-by-step prima di accedere all'app
+- [x] **ONBOARD-02**: L'utente seleziona intolleranze/allergie nel profilo (filtro hard obbligatorio — safety-critical)
+- [x] **ONBOARD-03**: L'utente indica le proprie preferenze alimentari (cibi preferiti, cibi da evitare)
+- [x] **ONBOARD-04**: L'utente indica il numero di persone in casa (calibra le quantità)
 - [ ] **ONBOARD-05**: L'utente può modificare il profilo dopo l'onboarding
 
 ### Motore Piano
@@ -109,13 +109,13 @@ Aggiornato durante la creazione del roadmap.
 | TECH-01 | Phase 1 | Complete |
 | TECH-02 | Phase 1 | Complete |
 | ENGINE-04 | Phase 1 | Complete |
-| AUTH-01 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Complete |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |
-| ONBOARD-01 | Phase 2 | Pending |
-| ONBOARD-02 | Phase 2 | Pending |
-| ONBOARD-03 | Phase 2 | Pending |
-| ONBOARD-04 | Phase 2 | Pending |
+| ONBOARD-01 | Phase 2 | Complete |
+| ONBOARD-02 | Phase 2 | Complete |
+| ONBOARD-03 | Phase 2 | Complete |
+| ONBOARD-04 | Phase 2 | Complete |
 | ONBOARD-05 | Phase 2 | Pending |
 | ENGINE-01 | Phase 3 | Pending |
 | ENGINE-02 | Phase 3 | Pending |

@@ -45,7 +45,7 @@ Plans:
   3. A user can log in, remain logged in across browser sessions, and log out from any screen
   4. A returning user can open Profile and change their intolerances, dietary preferences, or household size after onboarding
   5. The plan generated after onboarding reflects the household size and dietary preferences entered during onboarding
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 02-01-PLAN.md — Extend OnboardingFlow to 5 steps with allergen selection and optional registration
 - [ ] 02-02-PLAN.md — ProfileDrawer component with preference editing and auth management
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Hardening | 2/2 | Complete   | 2026-03-21 |
-| 2. Auth and Onboarding | 0/2 | Not started | - |
+| 2. Auth and Onboarding | 1/2 | In Progress|  |
 | 3. Engine Hardening and Cloud Sync | 0/TBD | Not started | - |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |
 | 5. Plan Lifecycle and Shopping | 0/TBD | Not started | - |
