@@ -127,7 +127,7 @@ Plans:
   3. A user can reset all preferences to default values with a single confirmed action — all 5 localStorage keys are cleared
   4. ProfileDrawer shows user email, account creation date, and number of plans generated for logged-in users
   5. All destructive actions (delete, reset) require an explicit Italian confirmation step before executing
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 07-01-PLAN.md — Supabase Edge Function delete-account + exportUserData() client utility
 - [ ] 07-02-PLAN.md — ProfileDrawer: enhanced profile info card + Zona pericolosa (delete/export/reset)
@@ -145,4 +145,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. AI Recipe Generation | 4/4 | Complete   | 2026-03-21 |
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
-| 7. Account Management | 0/2 | Planning   | — |
+| 7. Account Management | 1/2 | In Progress|  |

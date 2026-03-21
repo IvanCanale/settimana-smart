@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-21T21:40:36.474Z"
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-21T23:25:48.995Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 19
+  completed_plans: 18
   percent: 94
 ---
 
@@ -34,12 +34,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 06 — notifications
+**Current focus:** Phase 07 — account-management
 
 ## Current Position
 
-Phase: 06 (notifications) — EXECUTING
-Plan: 2 of 3
+Phase: 07 (account-management) — EXECUTING
+Plan: 1 of 2
 
 ## Performance Metrics
 
@@ -74,8 +74,13 @@ Plan: 2 of 3
 | Phase 05 P04 | 15 | 2 tasks | 4 files |
 | Phase 06-notifications P02 | 3 | 2 tasks | 6 files |
 | Phase 06-notifications P03 | 20 | 3 tasks | 2 files |
+| Phase 07 P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 7 added: Account Management — eliminazione account, export dati GDPR, reset preferenze, pagina profilo
 
 ### Decisions
 
@@ -141,6 +146,9 @@ Recent decisions affecting current work:
 - [Phase 06-03]: web-push npm package does NOT run in Deno — VAPID JWT built with Web Crypto API (crypto.subtle.sign) directly
 - [Phase 06-03]: Two-query pattern for push_subscriptions + preferences: no direct FK between tables, PostgREST embedded join unavailable
 - [Phase 06-03]: 410 Gone from push service triggers automatic deletion of expired subscription from push_subscriptions
+- [Phase 07-01]: delete-account validates JWT with anon client before using admin client — defense in depth
+- [Phase 07-01]: notifications table skipped in deletion — shared global catalog with no user_id column
+- [Phase 07-01]: exportUserData exports endpoint+created_at only from push_subscriptions — private keys excluded from GDPR export
 
 ### Pending Todos
 
@@ -153,6 +161,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T21:34:46.313Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-03-21T23:25:48.991Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
