@@ -13,7 +13,7 @@ Settimana Smart is a brownfield Next.js 16 PWA with a working plan generation en
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation Hardening** - Decompose the monolith, add test coverage, and clean dependencies so every subsequent phase builds on a solid base (completed 2026-03-21)
-- [ ] **Phase 2: Auth and Onboarding** - Activate Supabase auth and replace the unguided preferences form with a step-by-step onboarding flow including safety-critical allergen selection
+- [x] **Phase 2: Auth and Onboarding** - Activate Supabase auth and replace the unguided preferences form with a step-by-step onboarding flow including safety-critical allergen selection (completed 2026-03-21)
 - [ ] **Phase 3: Engine Hardening and Cloud Sync** - Add allergen validation layer, multi-objective variety constraints, and activate Supabase cloud sync
 - [ ] **Phase 4: AI Recipe Generation** - Replace the static 150-recipe library with GPT-4o-mini generated recipes validated through a deterministic allergen layer
 - [ ] **Phase 5: Plan Lifecycle and Shopping** - Formalize the DRAFT/ACTIVE/ARCHIVED plan state machine, week-scoped plan co-existence, and canonical shopping list aggregation
@@ -45,10 +45,10 @@ Plans:
   3. A user can log in, remain logged in across browser sessions, and log out from any screen
   4. A returning user can open Profile and change their intolerances, dietary preferences, or household size after onboarding
   5. The plan generated after onboarding reflects the household size and dietary preferences entered during onboarding
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 02-01-PLAN.md — Extend OnboardingFlow to 5 steps with allergen selection and optional registration
-- [ ] 02-02-PLAN.md — ProfileDrawer component with preference editing and auth management
+- [x] 02-01-PLAN.md — Extend OnboardingFlow to 5 steps with allergen selection and optional registration
+- [x] 02-02-PLAN.md — ProfileDrawer component with preference editing and auth management
 
 ### Phase 3: Engine Hardening and Cloud Sync
 **Goal**: The plan engine enforces allergen safety deterministically, guarantees meal variety, and user plans are persisted to the cloud and accessible from multiple devices
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Hardening | 2/2 | Complete   | 2026-03-21 |
-| 2. Auth and Onboarding | 1/2 | In Progress|  |
+| 2. Auth and Onboarding | 2/2 | Complete   | 2026-03-21 |
 | 3. Engine Hardening and Cloud Sync | 0/TBD | Not started | - |
 | 4. AI Recipe Generation | 0/TBD | Not started | - |
 | 5. Plan Lifecycle and Shopping | 0/TBD | Not started | - |

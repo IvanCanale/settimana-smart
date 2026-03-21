@@ -10,8 +10,8 @@
 ### Authentication
 
 - [x] **AUTH-01**: L'utente può registrarsi con email e password
-- [ ] **AUTH-02**: L'utente può fare login e rimanere loggato tra sessioni
-- [ ] **AUTH-03**: L'utente può fare logout da qualsiasi schermata
+- [x] **AUTH-02**: L'utente può fare login e rimanere loggato tra sessioni
+- [x] **AUTH-03**: L'utente può fare logout da qualsiasi schermata
 
 ### Onboarding & Profilo
 
@@ -19,7 +19,7 @@
 - [x] **ONBOARD-02**: L'utente seleziona intolleranze/allergie nel profilo (filtro hard obbligatorio — safety-critical)
 - [x] **ONBOARD-03**: L'utente indica le proprie preferenze alimentari (cibi preferiti, cibi da evitare)
 - [x] **ONBOARD-04**: L'utente indica il numero di persone in casa (calibra le quantità)
-- [ ] **ONBOARD-05**: L'utente può modificare il profilo dopo l'onboarding
+- [x] **ONBOARD-05**: L'utente può modificare il profilo dopo l'onboarding
 
 ### Motore Piano
 
@@ -110,13 +110,13 @@ Aggiornato durante la creazione del roadmap.
 | TECH-02 | Phase 1 | Complete |
 | ENGINE-04 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Complete |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
 | ONBOARD-01 | Phase 2 | Complete |
 | ONBOARD-02 | Phase 2 | Complete |
 | ONBOARD-03 | Phase 2 | Complete |
 | ONBOARD-04 | Phase 2 | Complete |
-| ONBOARD-05 | Phase 2 | Pending |
+| ONBOARD-05 | Phase 2 | Complete |
 | ENGINE-01 | Phase 3 | Pending |
 | ENGINE-02 | Phase 3 | Pending |
 | ENGINE-03 | Phase 3 | Pending |
@@ -146,4 +146,4 @@ Aggiornato durante la creazione del roadmap.
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-20 — ENGINE-04 and TECH-02 completed in plan 01-01*
+*Last updated: 2026-03-21 — AUTH-02, AUTH-03, ONBOARD-05 completed in plan 02-02*

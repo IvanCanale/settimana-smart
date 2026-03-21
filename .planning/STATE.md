@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-auth-and-onboarding-02-01-PLAN.md
-last_updated: "2026-03-21T09:58:38.254Z"
+stopped_at: Completed 02-auth-and-onboarding-02-02-PLAN.md
+last_updated: "2026-03-21T11:30:00.000Z"
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 02 (auth-and-onboarding) — EXECUTING
-Plan: 2 of 2
+Phase: 02 (auth-and-onboarding) — COMPLETE
+Plan: 2 of 2 (all complete)
 
 ## Performance Metrics
 
@@ -69,6 +69,10 @@ Recent decisions affecting current work:
 - [01-02]: Google Fonts via link tag in layout.tsx head, not @import in CSS — avoids render-blocking
 - [Phase 02-auth-and-onboarding]: OnboardingFlow sbClient passed as prop not via useAuth hook — keeps component portable and prop interface explicit
 - [Phase 02-auth-and-onboarding]: Dynamic import of supabase.ts in migration useEffect — avoids bundling Supabase for anonymous users
+- [02-02]: Auth UI removed from AppHeader entirely — now lives exclusively in ProfileDrawer to avoid duplication
+- [02-02]: exclusions[] and exclusionsText merged in usePlanEngine — allergen chips were previously ignored by the plan engine (safety-critical fix)
+- [02-02]: useLocalStorage spread merge restricted to plain objects — Array.isArray guard prevents arrays being converted to objects on reload
+- [02-02]: Allergen→ingredient keyword map added to usePlanEngine — deterministic EU allergen coverage, precursor to Phase 3 validation layer
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T09:58:38.251Z
-Stopped at: Completed 02-auth-and-onboarding-02-01-PLAN.md
+Last session: 2026-03-21T11:30:00.000Z
+Stopped at: Completed 02-auth-and-onboarding-02-02-PLAN.md
 Resume file: None
