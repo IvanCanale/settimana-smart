@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/AuthProvider";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePlanEngine } from "@/hooks/usePlanEngine";
@@ -49,7 +49,15 @@ export default function SettimanaSmartMVP() {
   const [showGeneratedBanner, setShowGeneratedBanner] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [swappedDays, setSwappedDays] = useState<Set<string>>(new Set());
-  const [checkedShoppingItems, setCheckedShoppingItems] = useState<Set<string>>(new Set());
+  const [checkedItemsArray, setCheckedItemsArray] = useLocalStorage<string[]>("ss_checked_shopping_v1", []);
+  const checkedShoppingItems = useMemo(() => new Set(checkedItemsArray), [checkedItemsArray]);
+  const setCheckedShoppingItems = useCallback((updater: ((prev: Set<string>) => Set<string>) | Set<string>) => {
+    setCheckedItemsArray((prev) => {
+      const prevSet = new Set(prev);
+      const nextSet = typeof updater === "function" ? updater(prevSet) : updater;
+      return Array.from(nextSet);
+    });
+  }, [setCheckedItemsArray]);
   const [extraShoppingItems, setExtraShoppingItems] = useState<string[]>([]);
   const [freezeReminderTimers, setFreezeReminderTimers] = useState<number[]>([]);
   const [pantryInput, setPantryInput] = useState({ name: "", quantity: "", unit: "g" });
@@ -104,7 +112,7 @@ export default function SettimanaSmartMVP() {
     setTimeout(() => {
       const usedHerbs = Array.from(new Set(generated.days.flatMap((d) => [d.lunch, d.dinner].filter(Boolean) as Recipe[]).flatMap((r) => r.ingredients).filter((i) => PERISHABLE_HERBS.includes(normalize(i.name))).map((i) => i.name)));
       if (usedHerbs.length > 0) { setHerbsToCheck(usedHerbs); setHerbAnswers({}); setShowHerbBanner(true); }
-      setManualOverrides({}); setSwappedDays(new Set()); setCheckedShoppingItems(new Set()); setExtraShoppingItems([]);
+      setManualOverrides({}); setSwappedDays(new Set()); setCheckedItemsArray([]); setExtraShoppingItems([]);
       setSeed((prev) => prev + 1); setIsGenerating(false); setShowGeneratedBanner(true);
       setLastMessage(`Piano generato alle ${new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`);
     }, 500);
