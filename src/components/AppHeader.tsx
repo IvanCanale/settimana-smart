@@ -55,19 +55,32 @@ export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, on
             width: 40,
             height: 40,
             borderRadius: "50%",
-            background: "var(--cream)",
-            border: "1.5px solid rgba(61,43,31,0.12)",
+            background: hasUnread ? "var(--terra)" : "var(--cream)",
+            border: hasUnread ? "1.5px solid var(--terra)" : "1.5px solid rgba(61,43,31,0.12)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: 20,
-            transition: "all 0.15s",
+            transition: "all 0.2s",
             position: "relative",
+            boxShadow: hasUnread ? "0 2px 10px rgba(196,103,58,0.45)" : "none",
           }}
           title="Notifiche"
         >
-          {hasUnread ? <BellDot size={20} color="var(--terra)" /> : <Bell size={20} color="var(--sepia-light)" />}
+          {hasUnread ? <Bell size={20} color="white" /> : <Bell size={20} color="var(--sepia-light)" />}
+          {hasUnread && (
+            <span style={{
+              position: "absolute",
+              top: 5,
+              right: 5,
+              width: 9,
+              height: 9,
+              borderRadius: "50%",
+              background: "#fff",
+              border: "1.5px solid var(--terra)",
+            }} />
+          )}
         </button>
         <button
           onClick={onProfileOpen}

@@ -9,6 +9,15 @@ export function useNotifications(sbClient: SupabaseClient | null) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // MOCK temporaneo — rimuovere dopo verifica UI
+    setNotifications([{
+      id: "test-1",
+      type: "new_recipes",
+      payload: { count: 5 },
+      created_at: new Date().toISOString(),
+      read: false,
+    }]);
+    return;
     if (!sbClient) return;
     setLoading(true);
     fetchNotifications(sbClient)
@@ -20,10 +29,12 @@ export function useNotifications(sbClient: SupabaseClient | null) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAllRead = useCallback(async () => {
+    // Update local state immediately (optimistic)
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    // Sync to Supabase if available
     if (!sbClient) return;
     const unread = notifications.filter((n) => !n.read);
     await Promise.all(unread.map((n) => markNotificationRead(sbClient, n.id)));
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   }, [sbClient, notifications]);
 
   return { notifications, loading, unreadCount, markAllRead };

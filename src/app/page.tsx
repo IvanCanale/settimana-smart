@@ -36,9 +36,11 @@ export default function SettimanaSmartMVP() {
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
+  const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
   const { computedPrefs, generated, recipeCount } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
     { sbClient, userId: user?.id ?? null, setSyncStatus },
+    wishlistedRecipes,
   );
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("planner");
@@ -278,8 +280,10 @@ export default function SettimanaSmartMVP() {
           {activeTab === "ricette-nuove" && (
             <NuoveRicettePage
               sbClient={sbClient}
+              maxTime={preferences.maxTime}
               wishlistedIds={preferences.wishlistedRecipeIds ?? []}
-              onToggleWishlist={(recipeId) => {
+              onToggleWishlist={(recipe) => {
+                const recipeId = recipe.id;
                 setPreferences((p) => {
                   const ids = p.wishlistedRecipeIds ?? [];
                   return {
@@ -288,6 +292,13 @@ export default function SettimanaSmartMVP() {
                       ? ids.filter((id) => id !== recipeId)
                       : [...ids, recipeId],
                   };
+                });
+                setWishlistedRecipes((prev) => {
+                  if (prev.find((r) => r.id === recipeId)) {
+                    return prev.filter((r) => r.id !== recipeId);
+                  }
+                  const { source_url, added_by, created_at, ...recipeFields } = recipe as typeof recipe & { source_url?: string; added_by?: string; created_at?: string };
+                  return [...prev, recipeFields as Recipe];
                 });
               }}
               onBack={() => setActiveTab("planner")}

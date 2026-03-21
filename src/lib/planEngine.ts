@@ -346,11 +346,14 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
   const excludedProtein = proteinRotation === 0 ? MEAT_INGREDIENTS : proteinRotation === 1 ? FISH_INGREDIENTS : POULTRY_INGREDIENTS;
 
   const eligible = pool_source.filter((recipeItem) => {
+    const isWishlisted = preferences.wishlistedRecipeIds?.includes(recipeItem.id) ?? false;
+    // Allergen check: mai bypassato — sicurezza alimentare
+    if (exclusions.some((ex) => recipeContainsAllergen(recipeItem, ex))) return false;
+    // Ricette in wishlist bypassano dieta, tempo e rotazione proteica
+    if (isWishlisted) return true;
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
-    // Escludi ricette che contengono allergie dichiarate
-    if (exclusions.some((ex) => recipeContainsAllergen(recipeItem, ex))) return false;
     // Escludi la categoria proteica di questa settimana (solo per diete onnivore/mediterranee)
     if (["onnivora","mediterranea"].includes(preferences.diet)) {
       if (recipeItem.ingredients.some((i) => excludedProtein.includes(normalize(i.name)))) return false;
@@ -528,6 +531,8 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
 
     if (currentCount === 0 && ["pesce", "legumi", "uova"].includes(category)) score += 10;
     if (currentCount === 0 && category === "verdure") score += 6;
+    // Ricette in wishlist: priorità assoluta — l'utente le ha scelte esplicitamente
+    if (preferences.wishlistedRecipeIds?.includes(recipeItem.id)) score += 300;
     score -= (usedRecipeCounts[recipeItem.id] || 0) * 40;
     if (usedThisWeek.has(recipeItem.id)) score -= 60;
     if (lastPickedId === recipeItem.id) score -= 80;

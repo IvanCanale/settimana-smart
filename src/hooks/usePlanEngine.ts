@@ -17,6 +17,7 @@ export function usePlanEngine(
     userId: string | null;
     setSyncStatus: (v: "idle" | "saving" | "saved" | "error") => void;
   },
+  wishlistedRecipes?: Recipe[],
 ) {
   // ── ASYNC RECIPE FETCH with localStorage cache and RECIPE_LIBRARY fallback ──
   const [recipes, setRecipes] = useState<Recipe[]>(RECIPE_LIBRARY);
@@ -65,12 +66,18 @@ export function usePlanEngine(
 
   // Piano base con allergen safety gate — retry fino a 3 tentativi con seed+1
   const basePlan = useMemo(() => {
+    // Merge ricette in wishlist nel pool (deduplicando per id)
+    const existingIds = new Set(recipes.map((r) => r.id));
+    const mergedRecipes = wishlistedRecipes?.length
+      ? [...recipes, ...wishlistedRecipes.filter((r) => !existingIds.has(r.id))]
+      : recipes;
+
     const exclusions = computedPrefs.exclusions || [];
     if (exclusions.length === 0) {
-      return buildPlan(computedPrefs, pantryItems, seed, learning, recipes);
+      return buildPlan(computedPrefs, pantryItems, seed, learning, mergedRecipes);
     }
     for (let attempt = 0; attempt < 3; attempt++) {
-      const plan = buildPlan(computedPrefs, pantryItems, seed + attempt, learning, recipes);
+      const plan = buildPlan(computedPrefs, pantryItems, seed + attempt, learning, mergedRecipes);
       if (validateAllergenSafety(plan, exclusions)) {
         return plan;
       }
@@ -78,12 +85,12 @@ export function usePlanEngine(
       console.warn(`Allergen gate failed for plan seed ${seed + attempt}, attempt ${attempt + 1}/3 — retrying with seed ${seed + attempt + 1}`);
     }
     // Tutti e 3 i tentativi falliti — ritorna l'ultimo tentativo con alert
-    const fallback = buildPlan(computedPrefs, pantryItems, seed + 2, learning, recipes);
+    const fallback = buildPlan(computedPrefs, pantryItems, seed + 2, learning, mergedRecipes);
     return {
       ...fallback,
       alerts: [...fallback.alerts, "Non e stato possibile generare un piano sicuro. Riprova modificando le preferenze."],
     };
-  }, [computedPrefs, pantryItems, seed, learning, recipes]);
+  }, [computedPrefs, pantryItems, seed, learning, recipes, wishlistedRecipes]);
 
   // Piano finale con override manuali applicati
   const generated = useMemo(() => {
