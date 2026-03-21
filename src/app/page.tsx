@@ -33,7 +33,7 @@ export default function SettimanaSmartMVP() {
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
-  const { computedPrefs, generated } = usePlanEngine(
+  const { computedPrefs, generated, recipeCount } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
     { sbClient, userId: user?.id ?? null, setSyncStatus },
   );
@@ -224,7 +224,7 @@ export default function SettimanaSmartMVP() {
 
           <AppHeader isMounted={isMounted} generated={generated} user={user} syncStatus={syncStatus} sbClient={sbClient}
             onSignIn={() => setShowAuthModal(true)} onSignOut={() => sbClient?.auth.signOut()}
-            onProfileOpen={() => setShowProfile(true)} />
+            onProfileOpen={() => setShowProfile(true)} recipeCount={recipeCount} />
           <OfflineBanner isOffline={isOffline} />
           <ProfileDrawer
             isOpen={showProfile}
