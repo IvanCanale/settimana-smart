@@ -10,6 +10,7 @@ import { TourOverlay, TOUR_STEPS } from "@/components/TourOverlay";
 import { HerbBanner } from "@/components/HerbBanner";
 import { RecipeModal } from "@/components/RecipeModal";
 import { AppHeader } from "@/components/AppHeader";
+import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { PlannerTab } from "@/components/PlannerTab";
 import { WeekTab } from "@/components/WeekTab";
 import { ShoppingTab } from "@/components/ShoppingTab";
@@ -61,6 +62,7 @@ export default function SettimanaSmartMVP() {
   const [herbsToCheck, setHerbsToCheck] = useState<string[]>([]);
   const [herbAnswers, setHerbAnswers] = useState<Record<string, boolean>>({});
   const [showHerbBanner, setShowHerbBanner] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => { setIsMounted(true); }, []);
@@ -171,7 +173,14 @@ export default function SettimanaSmartMVP() {
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(14px, 4vw, 28px) clamp(12px, 4vw, 20px)" }}>
 
           <AppHeader isMounted={isMounted} generated={generated} user={user} syncStatus={syncStatus} sbClient={sbClient}
-            onSignIn={() => setShowAuthModal(true)} onSignOut={() => sbClient?.auth.signOut()} />
+            onSignIn={() => setShowAuthModal(true)} onSignOut={() => sbClient?.auth.signOut()}
+            onProfileOpen={() => setShowProfile(true)} />
+          <ProfileDrawer
+            isOpen={showProfile}
+            onClose={() => setShowProfile(false)}
+            preferences={preferences}
+            setPreferences={setPreferences}
+          />
           {isMounted && currentRecipe && (
             <div style={{ background: "linear-gradient(135deg, var(--terra), var(--terra-dark))", borderRadius: 18, padding: "16px 18px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, boxShadow: "0 4px 20px rgba(196,103,58,0.3)", flexWrap: "wrap" }} className="animate-in">
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>

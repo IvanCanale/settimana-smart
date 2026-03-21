@@ -12,9 +12,10 @@ interface AppHeaderProps {
   sbClient: SupabaseClient | null;
   onSignIn: () => void;
   onSignOut: () => void;
+  onProfileOpen: () => void;
 }
 
-export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, onSignIn, onSignOut }: AppHeaderProps) {
+export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, onSignIn, onSignOut, onProfileOpen }: AppHeaderProps) {
   return (
     <div className="animate-in mobile-stack" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "start", gap: 12, marginBottom: 20 }}>
       <div>
@@ -36,17 +37,33 @@ export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, on
           <span style={{ fontSize: 22 }}>💶</span>
         </div>
       </div>
-      <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", marginTop: -8 }}>
-        {isMounted && (user ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10, marginTop: -8 }}>
+        {isMounted && user && (
+          <>
             {syncStatus === "saving" && <span style={{ fontSize: 11, color: "var(--sepia-light)" }}>↑ salvataggio...</span>}
             {syncStatus === "saved"  && <span style={{ fontSize: 11, color: "var(--olive)" }}>✓ salvato</span>}
             {syncStatus === "error"  && <span style={{ fontSize: 11, color: "var(--terra)" }}>⚠ errore sync</span>}
-            <button onClick={onSignOut} style={{ background: "none", border: "1px solid var(--cream-dark)", borderRadius: 100, padding: "5px 14px", fontSize: 12, cursor: "pointer", color: "var(--sepia-light)", fontWeight: 600 }}>{user?.email?.split("@")[0] ?? "Account"} · Esci</button>
-          </div>
-        ) : (
-          <button onClick={onSignIn} className="btn-terra" style={{ padding: "7px 16px", fontSize: 13 }}>Accedi · Salva i tuoi dati ☁️</button>
-        ))}
+          </>
+        )}
+        <button
+          onClick={onProfileOpen}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "var(--cream)",
+            border: "1.5px solid rgba(61,43,31,0.12)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 20,
+            transition: "all 0.15s",
+          }}
+          title="Apri profilo"
+        >
+          👤
+        </button>
       </div>
     </div>
   );
