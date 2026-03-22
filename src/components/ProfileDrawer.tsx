@@ -701,6 +701,16 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
         )}
       </div>
 
+      {/* Legal links */}
+      <div style={{ padding: "16px 20px", borderTop: "1px solid var(--cream-dark)", display: "flex", gap: 20, justifyContent: "center" }}>
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "var(--sepia-light)", textDecoration: "none" }}>
+          Privacy Policy
+        </a>
+        <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "var(--sepia-light)", textDecoration: "none" }}>
+          Termini di Servizio
+        </a>
+      </div>
+
       {/* Auth modal on top */}
       {showAuthModal && (
         <AuthModalInline
