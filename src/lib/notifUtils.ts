@@ -1,5 +1,3 @@
-import { getDay } from "date-fns";
-
 /** Check if push notifications are supported in this browser context */
 export function isPushSupported(): boolean {
   if (typeof window === "undefined") return false;
@@ -33,7 +31,7 @@ export function isEveningBeforeShoppingDay(
   const localStr = now.toLocaleString("en-US", { timeZone: timezone });
   const local = new Date(localStr);
   const dayBefore = (shoppingDay - 1 + 7) % 7; // wrap Sunday-1 = Saturday
-  return getDay(local) === dayBefore && local.getHours() >= 18;
+  return local.getDay() === dayBefore && local.getHours() >= 18;
 }
 
 /**
@@ -48,7 +46,7 @@ export function isDayOfShoppingTime(
 ): boolean {
   const localStr = now.toLocaleString("en-US", { timeZone: timezone });
   const local = new Date(localStr);
-  if (getDay(local) !== shoppingDay) return false;
+  if (local.getDay() !== shoppingDay) return false;
   const [h, m] = notifTime.split(":").map(Number);
   const targetMinutes = h * 60 + m;
   const currentMinutes = local.getHours() * 60 + local.getMinutes();
