@@ -378,9 +378,10 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     const isWishlisted = preferences.wishlistedRecipeIds?.includes(recipeItem.id) ?? false;
     // Allergen check: mai bypassato — sicurezza alimentare
     if (exclusions.some((ex) => recipeContainsAllergen(recipeItem, ex))) return false;
-    // Ricette in wishlist bypassano dieta, tempo e rotazione proteica
-    if (isWishlisted) return true;
+    // Filtro dieta: mai bypassato — include la wishlist
     if (!recipeItem.diet.includes(preferences.diet)) return false;
+    // Ricette in wishlist bypassano tempo e rotazione proteica, ma non la dieta
+    if (isWishlisted) return true;
     if (recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica")) return false;
     if (recipeItem.time > preferences.maxTime) return false;
     // Escludi la categoria proteica di questa settimana (solo per diete onnivore/mediterranee)
