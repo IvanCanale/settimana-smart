@@ -28,6 +28,7 @@ export function OnboardingFlow({
     )
   );
   const [showAuthInline, setShowAuthInline] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   const noneSelected = selectedAllergens.includes("nessuna");
 
@@ -227,10 +228,30 @@ export function OnboardingFlow({
             />
           ) : (
             <>
+              {/* Consent checkbox — must be checked before opening registration */}
+              <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", padding: "12px 16px", borderRadius: 12, background: consentAccepted ? "rgba(196,103,58,0.06)" : "var(--cream-dark)", border: `1.5px solid ${consentAccepted ? "var(--terra)" : "rgba(61,43,31,0.15)"}`, transition: "all 0.15s" }}>
+                <input
+                  type="checkbox"
+                  checked={consentAccepted}
+                  onChange={(e) => setConsentAccepted(e.target.checked)}
+                  style={{ marginTop: 2, accentColor: "var(--terra)", width: 16, height: 16, flexShrink: 0, cursor: "pointer" }}
+                />
+                <span style={{ fontSize: 13, color: "var(--sepia-light)", lineHeight: 1.5 }}>
+                  Ho letto e accetto la{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--terra)", textDecoration: "underline" }}>
+                    Privacy Policy
+                  </a>
+                  {" "}e i{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--terra)", textDecoration: "underline" }}>
+                    Termini di Servizio
+                  </a>
+                </span>
+              </label>
               <button
                 onClick={() => setShowAuthInline(true)}
+                disabled={!consentAccepted}
                 className="btn-terra"
-                style={{ justifyContent: "center", width: "100%" }}
+                style={{ justifyContent: "center", width: "100%", opacity: consentAccepted ? 1 : 0.45, cursor: consentAccepted ? "pointer" : "not-allowed" }}
               >
                 Crea account o accedi
               </button>
