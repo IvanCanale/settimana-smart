@@ -78,6 +78,7 @@ export default function SettimanaSmartMVP() {
   const [runningStepIndex, setRunningStepIndex] = useState(0);
   const [currentStepChecked, setCurrentStepChecked] = useState(false);
   const [freezeToastMessage, setFreezeToastMessage] = useState("");
+  const [networkErrorToast, setNetworkErrorToast] = useState(false);
   const reminderTimerRef = useRef<number | null>(null);
   const recipeDetailRef = useRef<HTMLDivElement>(null);
   const [herbsToCheck, setHerbsToCheck] = useState<string[]>([]);
@@ -93,6 +94,7 @@ export default function SettimanaSmartMVP() {
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { if (syncStatus === "error") { setNetworkErrorToast(true); const t = window.setTimeout(() => setNetworkErrorToast(false), 6000); return () => window.clearTimeout(t); } }, [syncStatus]);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);
   useEffect(() => {
@@ -334,6 +336,7 @@ export default function SettimanaSmartMVP() {
       </div>
 
       {runningRecipe && <RecipeModal recipe={runningRecipe} stepIndex={runningStepIndex} stepChecked={currentStepChecked} onClose={() => closeRecipeFlow()} onAdvance={advanceRecipeFlow} onStepCheck={(checked) => { setCurrentStepChecked(checked); if (!checked) return; window.setTimeout(() => advanceRecipeFlow(), 250); }} />}
+      {networkErrorToast && <div style={{ position: "fixed", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", zIndex: 9999, backgroundColor: "#9B4E2B", color: "white", padding: "1rem 1.5rem", borderRadius: "0.75rem", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", maxWidth: "90vw", display: "flex", alignItems: "center", gap: "0.75rem" }}><span>⚠ Impossibile salvare i dati. Controlla la connessione.</span><button onClick={() => setNetworkErrorToast(false)} style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontSize: "1.2rem", padding: "0 0.25rem" }}>×</button></div>}
       {freezeToastMessage && <div style={{ position: "fixed", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", zIndex: 9999, backgroundColor: "var(--sepia, #3D2B1F)", color: "white", padding: "1rem 1.5rem", borderRadius: "0.75rem", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", maxWidth: "90vw", display: "flex", alignItems: "center", gap: "0.75rem" }}><span>{freezeToastMessage}</span><button onClick={() => setFreezeToastMessage("")} style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontSize: "1.2rem", padding: "0 0.25rem" }}>x</button></div>}
     </>
   );
