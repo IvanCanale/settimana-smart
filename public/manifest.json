@@ -1,6 +1,6 @@
 {
   "name": "Menumix",
-  "short_name": "SettSmart",
+  "short_name": "Menumix",
   "description": "Meal planning settimanale automatico",
   "start_url": "/",
   "display": "standalone",
