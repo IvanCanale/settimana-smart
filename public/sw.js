@@ -1,4 +1,4 @@
-const CACHE_NAME = 'settimana-smart-v2';
+const CACHE_NAME = 'menumix-v2';
 const urlsToCache = ['/'];
 
 self.addEventListener('install', (event) => {
@@ -45,7 +45,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {};
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Settimana Smart', {
+    self.registration.showNotification(data.title || 'Menumix', {
       body: data.body || '',
       icon: '/icon-192.png',
       badge: '/icon-192.png',

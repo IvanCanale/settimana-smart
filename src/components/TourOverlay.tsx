@@ -13,7 +13,7 @@ export type TourStep = {
 };
 
 export const TOUR_STEPS: TourStep[] = [
-  { tab: "planner", emoji: "👋", title: "Benvenuto in Settimana Smart!", body: "Questa app pianifica i tuoi pasti settimanali, crea la lista della spesa e ti guida in cucina — tutto in automatico.", instruction: null, waitFor: null, highlight: null, position: "bottom" },
+  { tab: "planner", emoji: "👋", title: "Benvenuto in Menumix!", body: "Questa app pianifica i tuoi pasti settimanali, crea la lista della spesa e ti guida in cucina — tutto in automatico.", instruction: null, waitFor: null, highlight: null, position: "bottom" },
   { tab: "planner", emoji: "🎛️", title: "Il Planner", body: "Qui imposti le tue preferenze: quante persone, che dieta segui, quanto tempo hai per cucinare.", instruction: "👇 Premi 'Genera piano' per creare la tua prima settimana", waitFor: "generate", highlight: "btn-genera", position: "top" },
   { tab: "week", emoji: "📅", title: "La tua settimana", body: "Ecco il piano generato! Ogni giorno ha pranzo e cena bilanciati.", instruction: "👇 Tocca uno dei piatti per vedere la ricetta", waitFor: "recipe_selected", highlight: "meal-slot", position: "top" },
   { tab: "week", emoji: "⇅", title: "Personalizza i pasti", body: "Puoi rigenerare un singolo piatto con ↺, oppure invertire pranzo e cena.", instruction: "👇 Premi ↺ su uno dei piatti per rigenerarlo", waitFor: "regenerated", highlight: "rigenera", position: "top" },

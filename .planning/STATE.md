@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-21T23:34:32.582Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-22T00:07:44.957Z"
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 7
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 21
+  completed_plans: 20
   percent: 94
 ---
 
@@ -76,12 +76,14 @@ Plan: 1 of 2
 | Phase 06-notifications P03 | 20 | 3 tasks | 2 files |
 | Phase 07 P01 | 2 | 2 tasks | 2 files |
 | Phase 07 P02 | 3 | 2 tasks | 1 files |
+| Phase 08 P01 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 
 - Phase 7 added: Account Management — eliminazione account, export dati GDPR, reset preferenze, pagina profilo
+- Phase 8 added: Legal — Privacy Policy, Terms of Service, consenso esplicito al signup
 
 ### Decisions
 
@@ -164,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T23:30:58.507Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-03-22T00:07:44.953Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None

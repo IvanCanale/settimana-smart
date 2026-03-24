@@ -28,9 +28,9 @@ export default function PrivacyPage() {
 
           <Section title="Titolare del trattamento">
             <p>
-              Settimana Smart è un servizio offerto da un privato. Per qualsiasi questione relativa ai tuoi dati, contattaci a:{" "}
-              <a href="mailto:privacy@settimana-smart.app" style={{ color: "var(--terra)" }}>
-                privacy@settimana-smart.app
+              Menumix è un servizio offerto da un privato. Per qualsiasi questione relativa ai tuoi dati, contattaci a:{" "}
+              <a href="mailto:privacy@menumix.app" style={{ color: "var(--terra)" }}>
+                privacy@menumix.app
               </a>
             </p>
           </Section>
@@ -83,8 +83,8 @@ export default function PrivacyPage() {
               </li>
               <li style={{ marginBottom: 6 }}>
                 <strong>Opporti al trattamento</strong> — contattaci a{" "}
-                <a href="mailto:privacy@settimana-smart.app" style={{ color: "var(--terra)" }}>
-                  privacy@settimana-smart.app
+                <a href="mailto:privacy@menumix.app" style={{ color: "var(--terra)" }}>
+                  privacy@menumix.app
                 </a>
               </li>
             </ul>
@@ -99,8 +99,8 @@ export default function PrivacyPage() {
           <Section title="Contatti">
             <p>
               Per qualsiasi domanda sulla privacy, scrivi a:{" "}
-              <a href="mailto:privacy@settimana-smart.app" style={{ color: "var(--terra)" }}>
-                privacy@settimana-smart.app
+              <a href="mailto:privacy@menumix.app" style={{ color: "var(--terra)" }}>
+                privacy@menumix.app
               </a>
             </p>
           </Section>
