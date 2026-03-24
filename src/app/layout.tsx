@@ -7,7 +7,7 @@ import { UpdateToast } from "@/components/UpdateToast";
 
 export const metadata: Metadata = {
   title: "Menumix",
-  description: "Meal planning settimanale automatico",
+  description: "Mangia bene ogni giorno, tante ricette con istruzioni dettagliate",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

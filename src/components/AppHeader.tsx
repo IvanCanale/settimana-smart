@@ -26,7 +26,7 @@ export function AppHeader({ isMounted, generated, user, syncStatus, sbClient, on
           <div style={{ width: 52, height: 52, borderRadius: 16, background: "var(--terra)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, boxShadow: "0 4px 16px rgba(196,103,58,0.35)" }}>🍳</div>
           <div>
             <h1 className="font-display" style={{ fontSize: "clamp(22px, 6vw, 32px)", fontWeight: 700, color: "var(--sepia)", margin: 0, lineHeight: 1.1 }}>Menumix</h1>
-            <p style={{ margin: 0, fontSize: 14, color: "var(--sepia-light)", fontWeight: 400 }}>Meal planning · {recipeCount} ricette con istruzioni dettagliate</p>
+            <p style={{ margin: 0, fontSize: 14, color: "var(--sepia-light)", fontWeight: 400 }}>Mangia bene ogni giorno · {recipeCount} ricette con istruzioni dettagliate</p>
           </div>
         </div>
       </div>
