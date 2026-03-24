@@ -141,7 +141,7 @@ export default function SettimanaSmartMVP() {
       let daysUntil = (targetDayJS - now.getDay() + 7) % 7; if (daysUntil === 0 && now.getHours() >= 20) daysUntil = 7;
       target.setDate(target.getDate() + daysUntil); target.setHours(20, 0, 0, 0);
       const delay = target.getTime() - now.getTime();
-      if (delay > 0) { const msg = `⏰ Ricordati di mettere a scongelare ${item.name} (${item.qtyToFreeze}${item.unit}) per domani — serve per: ${item.recipe}`; const t = window.setTimeout(() => { if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Settimana Smart — Scongela!", { body: msg }); setFreezeToastMessage(msg); }, delay); newTimers.push(t); }
+      if (delay > 0) { const msg = `⏰ Ricordati di mettere a scongelare ${item.name} (${item.qtyToFreeze}${item.unit}) per domani — serve per: ${item.recipe}`; const t = window.setTimeout(() => { if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Menumix — Scongela!", { body: msg }); setFreezeToastMessage(msg); }, delay); newTimers.push(t); }
     });
     setFreezeReminderTimers(newTimers);
   };
@@ -155,7 +155,7 @@ export default function SettimanaSmartMVP() {
     const [h, m] = prepTime.split(":").map(Number); const now = new Date(); const target = new Date(); target.setHours(h, m, 0, 0);
     if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 1);
     if (typeof Notification !== "undefined" && Notification.permission === "default") { try { await Notification.requestPermission(); } catch {} }
-    reminderTimerRef.current = window.setTimeout(() => { const msg = prepReminderMessage || "È ora di iniziare a cucinare"; if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Settimana Smart", { body: msg }); if ("speechSynthesis" in window) { const u = new SpeechSynthesisUtterance(msg); const v = window.speechSynthesis.getVoices().find((vx) => vx.name === selectedVoiceName); if (v) u.voice = v; u.lang = v?.lang || "it-IT"; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }, target.getTime() - now.getTime());
+    reminderTimerRef.current = window.setTimeout(() => { const msg = prepReminderMessage || "È ora di iniziare a cucinare"; if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Menumix", { body: msg }); if ("speechSynthesis" in window) { const u = new SpeechSynthesisUtterance(msg); const v = window.speechSynthesis.getVoices().find((vx) => vx.name === selectedVoiceName); if (v) u.voice = v; u.lang = v?.lang || "it-IT"; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }, target.getTime() - now.getTime());
     setScheduledReminderText(`Promemoria impostato per le ${prepTime}`);
   };
 

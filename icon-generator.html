@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Menumix Icon Generator</title>
+  <style>
+    body { background: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: sans-serif; gap: 20px; }
+    canvas { border-radius: 16px; }
+    button { background: #C4673A; color: white; border: none; padding: 12px 32px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #a8562e; }
+    .previews { display: flex; align-items: center; gap: 24px; }
+    .preview-label { color: #888; font-size: 12px; text-align: center; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="previews">
+    <div>
+      <canvas id="icon" width="1024" height="1024" style="width:256px;height:256px;"></canvas>
+      <div class="preview-label">256px</div>
+    </div>
+    <div>
+      <canvas id="icon48" width="192" height="192" style="width:96px;height:96px;"></canvas>
+      <div class="preview-label">96px</div>
+    </div>
+    <div>
+      <canvas id="icon16" width="192" height="192" style="width:48px;height:48px;"></canvas>
+      <div class="preview-label">48px</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button onclick="downloadSize(1024)">1024px</button>
+    <button onclick="downloadSize(512)">512px</button>
+    <button onclick="downloadSize(192)">192px</button>
+    <button onclick="downloadSize(48)">48px</button>
+  </div>
+
+<script>
+function drawIcon(canvas) {
+  const c = canvas.getContext('2d');
+  const S = canvas.width;
+  const cx = S / 2;
+  const cy = S / 2;
+
+  // Background gradient
+  const bg = c.createRadialGradient(cx, cy * 0.7, 0, cx, cy, S * 0.65);
+  bg.addColorStop(0, '#D4784A');
+  bg.addColorStop(1, '#A84E28');
+  c.fillStyle = bg;
+  c.fillRect(0, 0, S, S);
+
+  // Subtle texture: a few concentric thin rings
+  c.strokeStyle = 'rgba(255,255,255,0.04)';
+  for (let r = S * 0.15; r < S * 0.75; r += S * 0.12) {
+    c.beginPath();
+    c.arc(cx, cy, r, 0, Math.PI * 2);
+    c.lineWidth = S * 0.008;
+    c.stroke();
+  }
+
+  // --- FORK & SPOON crossed ---
+  const lw = S * 0.028;   // line weight
+  const iconTop = S * 0.18;
+  const iconBot = S * 0.72;
+  const iconH = iconBot - iconTop;
+
+  c.save();
+  c.translate(cx, iconTop + iconH * 0.5);
+  c.strokeStyle = '#F5E6D3';
+  c.lineWidth = lw;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+
+  // --- FORK (left, rotated -18deg) ---
+  c.save();
+  c.rotate(-0.32);
+  c.translate(-iconH * 0.13, 0);
+
+  const fH = iconH * 0.88;
+  const fTop = -fH / 2;
+  const tineLen = fH * 0.22;
+  const tineSpread = fH * 0.065;
+  const neckY = fTop + tineLen + fH * 0.1;
+
+  // 4 tines
+  const tineXs = [-tineSpread * 1.5, -tineSpread * 0.5, tineSpread * 0.5, tineSpread * 1.5];
+  for (const tx of tineXs) {
+    c.beginPath();
+    c.moveTo(tx, fTop);
+    c.lineTo(tx, fTop + tineLen);
+    c.stroke();
+  }
+
+  // Tine base curve (merging into neck)
+  c.beginPath();
+  c.moveTo(tineXs[0], fTop + tineLen);
+  c.bezierCurveTo(tineXs[0], neckY, 0, neckY - fH * 0.02, 0, neckY);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(tineXs[3], fTop + tineLen);
+  c.bezierCurveTo(tineXs[3], neckY, 0, neckY - fH * 0.02, 0, neckY);
+  c.stroke();
+
+  // Handle straight down
+  c.beginPath();
+  c.moveTo(0, neckY);
+  c.lineTo(0, fH / 2);
+  c.stroke();
+
+  c.restore();
+
+  // --- SPOON (right, rotated +18deg) ---
+  c.save();
+  c.rotate(0.32);
+  c.translate(iconH * 0.13, 0);
+
+  const sH = iconH * 0.88;
+  const sTop = -sH / 2;
+  const bowlR = sH * 0.14;
+  const bowlCy = sTop + bowlR * 1.1;
+  const neckSY = bowlCy + bowlR * 1.05;
+
+  // Bowl (ellipse)
+  c.beginPath();
+  c.ellipse(0, bowlCy, bowlR * 0.72, bowlR, 0, 0, Math.PI * 2);
+  c.stroke();
+
+  // Neck + handle
+  c.beginPath();
+  c.moveTo(0, neckSY);
+  c.bezierCurveTo(0, neckSY + sH * 0.06, 0, neckSY + sH * 0.1, 0, sH / 2);
+  c.stroke();
+
+  c.restore();
+  c.restore();
+
+  // --- TEXT: "menumix" ---
+  const textY = S * 0.84;
+  c.fillStyle = '#F5E6D3';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+
+  const fontSize = S * 0.108;
+  c.font = `300 ${fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  c.fillStyle = 'rgba(245,230,211,0.75)';
+  c.fillText('menu', cx - S * 0.115, textY);
+
+  c.font = `600 ${fontSize}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  c.fillStyle = '#F5E6D3';
+  c.fillText('mix', cx + S * 0.098, textY);
+}
+
+const main = document.getElementById('icon');
+const sm = document.getElementById('icon48');
+const xs = document.getElementById('icon16');
+drawIcon(main);
+drawIcon(sm);
+drawIcon(xs);
+
+function downloadSize(size) {
+  const tmp = document.createElement('canvas');
+  tmp.width = size;
+  tmp.height = size;
+  drawIcon(tmp);
+  const link = document.createElement('a');
+  link.download = `menumix-icon-${size}.png`;
+  link.href = tmp.toDataURL('image/png');
+  link.click();
+}
+</script>
+</body>
+</html>

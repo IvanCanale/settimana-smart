@@ -142,7 +142,7 @@ Plans:
   3. Both pages are accessible without authentication and use the existing design system (no external dependencies)
   4. The onboarding Step 4 (registration) shows a consent checkbox linking to /privacy and /terms — "Crea account o accedi" is disabled until checked
   5. "Continua senza account" requires no consent — anonymous use remains frictionless
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 08-01-PLAN.md — Privacy Policy page (/privacy) and Terms of Service page (/terms) as static server components
 - [ ] 08-02-PLAN.md — Consent checkbox in OnboardingFlow Step 4 with links to legal pages
@@ -161,4 +161,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Plan Lifecycle and Shopping | 4/4 | Complete   | 2026-03-21 |
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
 | 7. Account Management | 2/2 | Complete   | 2026-03-21 |
-| 8. Legal | 0/2 | In Progress | — |
+| 8. Legal | 1/2 | In Progress|  |

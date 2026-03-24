@@ -3,15 +3,16 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/AuthProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { UpdateToast } from "@/components/UpdateToast";
 
 export const metadata: Metadata = {
-  title: "Settimana Smart",
+  title: "Menumix",
   description: "Meal planning settimanale automatico",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Settimana Smart",
+    title: "Menumix",
   },
 };
 
@@ -42,6 +43,7 @@ export default function RootLayout({
             {children}
           </ErrorBoundary>
         </AuthProvider>
+        <UpdateToast />
         <script
           dangerouslySetInnerHTML={{
             __html: `

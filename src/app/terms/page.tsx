@@ -28,12 +28,12 @@ export default function TermsPage() {
 
           <Section title="Il Servizio">
             <p>
-              Settimana Smart è un&apos;app web per la pianificazione dei pasti settimanali. Il servizio genera piani pasto personalizzati, liste della spesa e ricette in base alle tue preferenze alimentari.
+              Menumix è un&apos;app web per la pianificazione dei pasti settimanali. Il servizio genera piani pasto personalizzati, liste della spesa e ricette in base alle tue preferenze alimentari.
             </p>
           </Section>
 
           <Section title="Utilizzo del Servizio">
-            <p>Utilizzando Settimana Smart, accetti di:</p>
+            <p>Utilizzando Menumix, accetti di:</p>
             <ul style={{ paddingLeft: 20, margin: "8px 0" }}>
               <li style={{ marginBottom: 6 }}>Usare il servizio solo per scopi personali e non commerciali</li>
               <li style={{ marginBottom: 6 }}>Non tentare di accedere ai sistemi interni o all&apos;infrastruttura del servizio</li>
@@ -79,8 +79,8 @@ export default function TermsPage() {
           <Section title="Contatti">
             <p>
               Per qualsiasi domanda sui presenti termini, scrivi a:{" "}
-              <a href="mailto:privacy@settimana-smart.app" style={{ color: "var(--terra)" }}>
-                privacy@settimana-smart.app
+              <a href="mailto:privacy@menumix.app" style={{ color: "var(--terra)" }}>
+                privacy@menumix.app
               </a>
             </p>
           </Section>
