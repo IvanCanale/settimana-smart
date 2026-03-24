@@ -147,10 +147,31 @@ Plans:
 - [ ] 08-01-PLAN.md — Privacy Policy page (/privacy) and Terms of Service page (/terms) as static server components
 - [ ] 08-02-PLAN.md — Consent checkbox in OnboardingFlow Step 4 with links to legal pages
 
+### Phase 9: Abbonamenti e pagamenti - Stripe trial 14gg, Piano Base 4.99 mese, Piano Pro 7.99 mese, feature gating
+**Goal**: Users can subscribe to Piano Base or Piano Pro via Stripe Checkout, start with a 14-day free trial (no credit card), and the app enforces plan-specific limits on people count, regeneration frequency, and recipe access
+**Depends on**: Phase 8
+**Requirements**: SUB-01, SUB-02, SUB-03, SUB-04, SUB-05, SUB-06, SUB-07
+**Success Criteria** (what must be TRUE):
+  1. A new user starts with a 14-day free trial with full Pro access — no credit card is required to begin
+  2. Piano Base (EUR 4,99/mese) limits: 1 persona, max 2 rigenerazioni/giorno, max 3 giorni rigenerabili/settimana, solo 100 ricette (no AI)
+  3. Piano Pro (EUR 7,99/mese) gives unlimited access: people, regenerations, all recipes including AI
+  4. Subscription state is synced from Stripe to Supabase via webhooks — the subscriptions table is always current
+  5. Feature gating is enforced server-side: recipe limit in fetchRecipes query, regeneration limits checked before execution
+  6. Users can manage their subscription (upgrade/downgrade/cancel) via Stripe Customer Portal from ProfileDrawer
+  7. The /abbonamento page shows three plan cards (Free trial, Base, Pro) with correct Italian text and prices
+**Plans:** 5 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Subscription types, Supabase migration (customers + subscriptions tables), Stripe lib + getSubscription helper
+- [ ] 09-02-PLAN.md — Stripe webhook handler + Checkout/Portal server actions
+- [ ] 09-03-PLAN.md — Feature gating: tier-aware fetchRecipes (100 limit for Base) + regeneration limits utility
+- [ ] 09-04-PLAN.md — Pricing page (/abbonamento) + ProfileDrawer subscription status and Customer Portal button
+- [ ] 09-05-PLAN.md — End-to-end wiring: page.tsx subscription read, usePlanEngine tier, WeekTab rigenera enforcement
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -162,3 +183,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
 | 7. Account Management | 2/2 | Complete   | 2026-03-21 |
 | 8. Legal | 1/2 | In Progress|  |
+| 9. Abbonamenti e pagamenti | 0/5 | Planned |  |
