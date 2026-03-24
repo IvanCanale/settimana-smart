@@ -49,7 +49,7 @@ created: 2026-03-24
 | 09-04-01 | 04 | 3 | SUB-07, SUB-01, SUB-04 | smoke | `grep -q "Piano Base" src/app/abbonamento/PricingCards.tsx` | ✅ (grep) | ⬜ pending |
 | 09-04-02 | 04 | 3 | SUB-07 | smoke | `grep -q "createPortalSession" src/components/ProfileDrawer.tsx` | ✅ (grep) | ⬜ pending |
 | 09-05-01 | 05 | 4 | SUB-02, SUB-06 | integration | `grep -q "subscription.tier" src/app/page.tsx && grep -q "canRegenerate" src/components/WeekTab.tsx` | ✅ (grep) | ⬜ pending |
-| 09-05-03 | 05 | 4 | SUB-07, SUB-08 | manual | manual Stripe test mode checkout | N/A | ⬜ pending |
+| 09-05-03 | 05 | 4 | SUB-07, SUB-04 | manual | manual Stripe test mode checkout | N/A | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

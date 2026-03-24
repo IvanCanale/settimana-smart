@@ -84,6 +84,7 @@ Plan: 1 of 2
 
 - Phase 7 added: Account Management — eliminazione account, export dati GDPR, reset preferenze, pagina profilo
 - Phase 8 added: Legal — Privacy Policy, Terms of Service, consenso esplicito al signup
+- Phase 9 added: Abbonamenti e pagamenti — Stripe, trial 14gg, Piano Base €4,99, Piano Pro €7,99, feature gating
 
 ### Decisions
 
