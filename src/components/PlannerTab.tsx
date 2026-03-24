@@ -97,6 +97,7 @@ export function PlannerTab({
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <div>
             <label>💶 Budget: €{preferences.budget}/settimana</label>
+            <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--sepia-light)", fontStyle: "italic" }}>(Fase Beta, potrebbe non rispettarlo)</p>
             <input type="range" min={20} max={150} step={5} value={preferences.budget} onChange={(e) => setPreferences((p) => ({ ...p, budget: Number(e.target.value) }))} className="slider-warm" style={{ marginTop: 10 }} />
           </div>
           <div>
