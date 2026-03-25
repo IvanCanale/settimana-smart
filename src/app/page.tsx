@@ -98,7 +98,14 @@ export default function SettimanaSmartMVP() {
   const cloudLoadDoneRef = useRef(false);
 
   // ── Effects ───────────────────────────────────────────────────────────────
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    setIsMounted(true);
+    // Auto-apri ProfileDrawer se arriva da /abbonamento senza login
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("login") === "1") {
+      setShowProfile(true);
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
   useEffect(() => {
     if (!user?.id) {
       setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });

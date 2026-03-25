@@ -12,7 +12,7 @@ const PLANS = [
     annual:  { price: 29.99, label: "€29,99", perMonth: "€2,50", perDay: "€0,08", saving: "2 mesi gratis" },
     features: [
       { text: "Piano settimanale completo", highlight: false },
-      { text: "200+ ricette italiane", highlight: false },
+      { text: "200 ricette italiane", highlight: false },
       { text: "Fino a 2 persone", highlight: false },
       { text: "2 rigenerazioni al giorno", highlight: false },
       { text: "Lista della spesa", highlight: false },
@@ -140,11 +140,23 @@ function PricingCardsInner() {
 
       {error && <p style={{ color: "var(--terra, #c0392b)", textAlign: "center", marginBottom: 16, fontSize: 14 }}>{error}</p>}
 
+      <style>{`
+        @keyframes fadePrice { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .price-animate { animation: fadePrice 0.22s ease; }
+        .plan-card { transition: box-shadow 0.2s, transform 0.2s; }
+        .plan-card:hover { box-shadow: 0 8px 32px rgba(61,43,31,0.12); transform: translateY(-2px); }
+        .cta-base { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: 2px solid var(--sepia-border, #d4c5a9); background: white; color: var(--sepia, #5c4f3d); transition: all 0.18s; }
+        .cta-base:hover:not(:disabled) { border-color: var(--terra, #C4673A); color: var(--terra, #C4673A); background: rgba(196,103,58,0.05); }
+        .cta-pro { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; background: var(--olive, #6b7c45); color: white; transition: all 0.18s; box-shadow: 0 4px 12px rgba(107,124,69,0.3); }
+        .cta-pro:hover:not(:disabled) { background: var(--olive-dark, #3d4f2f); box-shadow: 0 6px 18px rgba(107,124,69,0.4); }
+        .cta-base:disabled, .cta-pro:disabled { opacity: 0.6; cursor: not-allowed; }
+      `}</style>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
         {PLANS.map((plan) => {
           const pricing = billing === "annual" ? plan.annual : plan.monthly;
           return (
-            <div key={plan.id} style={{
+            <div key={plan.id} className="plan-card" style={{
               border: plan.highlight ? "2px solid var(--olive, #6b7c45)" : "1px solid var(--sepia-border, #d4c5a9)",
               borderRadius: 16, padding: 28, background: "white", position: "relative",
             }}>
@@ -156,23 +168,22 @@ function PricingCardsInner() {
 
               <h3 style={{ fontSize: 18, marginBottom: 12, marginTop: 0, color: "var(--sepia, #5c4f3d)", fontWeight: 600 }}>{plan.name}</h3>
 
-              {/* Prezzo */}
-              <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 36, fontWeight: 800, color: "var(--olive-dark, #3d4f2f)" }}>{pricing.label}</span>
-                <span style={{ fontSize: 14, color: "var(--sepia-light, #8b7d6b)", marginLeft: 4 }}>
-                  {billing === "annual" ? "/anno" : "/mese"}
-                </span>
-              </div>
-
-              {/* Annuale: mostra equivalente mensile + risparmio */}
-              {billing === "annual" && "perMonth" in pricing && (
-                <div style={{ fontSize: 13, color: "var(--sepia-light, #8b7d6b)", marginBottom: 4 }}>
-                  {pricing.perMonth}/mese · <span style={{ color: "var(--olive, #6b7c45)", fontWeight: 600 }}>{plan.annual.saving}</span>
+              {/* Prezzo animato */}
+              <div key={`${plan.id}-${billing}`} className="price-animate">
+                <div style={{ marginBottom: 4 }}>
+                  <span style={{ fontSize: 36, fontWeight: 800, color: "var(--olive-dark, #3d4f2f)" }}>{pricing.label}</span>
+                  <span style={{ fontSize: 14, color: "var(--sepia-light, #8b7d6b)", marginLeft: 4 }}>
+                    {billing === "annual" ? "/anno" : "/mese"}
+                  </span>
                 </div>
-              )}
-
-              <div style={{ fontSize: 12, color: "var(--sepia-light, #8b7d6b)", marginBottom: 20 }}>
-                {pricing.perDay} al giorno
+                {billing === "annual" && "perMonth" in pricing && (
+                  <div style={{ fontSize: 13, color: "var(--sepia-light, #8b7d6b)", marginBottom: 4 }}>
+                    {pricing.perMonth}/mese · <span style={{ color: "var(--olive, #6b7c45)", fontWeight: 600 }}>{plan.annual.saving}</span>
+                  </div>
+                )}
+                <div style={{ fontSize: 12, color: "var(--sepia-light, #8b7d6b)", marginBottom: 20 }}>
+                  {pricing.perDay} al giorno
+                </div>
               </div>
 
               <div style={{ height: 1, background: "var(--sepia-border, #d4c5a9)", marginBottom: 20 }} />
@@ -188,12 +199,11 @@ function PricingCardsInner() {
               </ul>
 
               <button
-                className="btn-primary"
-                style={{ width: "100%", background: plan.highlight ? "var(--olive, #6b7c45)" : undefined }}
+                className={plan.highlight ? "cta-pro" : "cta-base"}
                 disabled={loading === plan.id}
                 onClick={() => handleSubscribe(plan.id)}
               >
-                {loading === plan.id ? "Caricamento..." : !user ? "Accedi e abbonati" : plan.cta}
+                {loading === plan.id ? "⏳ Caricamento..." : !user ? "Accedi per abbonarti →" : plan.cta + " →"}
               </button>
             </div>
           );
