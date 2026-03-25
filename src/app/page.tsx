@@ -24,6 +24,7 @@ import { RicetteTab } from "@/components/RicetteTab";
 import { normalize } from "@/lib/planEngine";
 import { loadUserData } from "@/lib/supabase";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { TrialBanner } from "@/components/TrialBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
 import { getSubscriptionAction } from "@/actions/stripeActions";
 import type { RigeneraEntry } from "@/lib/regenerationLimits";
@@ -293,6 +294,7 @@ export default function SettimanaSmartMVP() {
             onProfileOpen={() => setShowProfile(true)} recipeCount={recipeCount}
             onNotificationOpen={() => { setIsNotificationOpen(true); markAllRead(); }}
             hasUnread={unreadCount > 0} />
+          <TrialBanner user={user} subscription={subscription} />
           <OfflineBanner isOffline={isOffline} />
           <ProfileDrawer
             isOpen={showProfile}
