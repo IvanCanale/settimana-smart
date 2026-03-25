@@ -100,3 +100,12 @@ export type WeeklyPlanRecord = {
   feedback_note: string;
   checked_items: string[];
 };
+
+export type SubscriptionTier = "free" | "base" | "pro";
+
+export type SubscriptionStatus = {
+  tier: SubscriptionTier;
+  isTrialing: boolean;
+  trialEnd: Date | null;
+  status: string; // Stripe status: trialing | active | canceled | past_due | none
+};
