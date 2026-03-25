@@ -21,11 +21,12 @@ export async function createCheckoutSession(
   userId: string,
   userEmail: string,
   planType: "base" | "pro",
+  billing: "monthly" | "annual" = "monthly",
 ) {
   const priceId =
     planType === "base"
-      ? process.env.STRIPE_PRICE_ID_BASE!
-      : process.env.STRIPE_PRICE_ID_PRO!;
+      ? (billing === "annual" ? process.env.STRIPE_PRICE_ID_BASE_ANNUAL! : process.env.STRIPE_PRICE_ID_BASE!)
+      : (billing === "annual" ? process.env.STRIPE_PRICE_ID_PRO_ANNUAL! : process.env.STRIPE_PRICE_ID_PRO!);
 
   const supabase = adminClient();
 
