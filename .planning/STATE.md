@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-03-25T17:21:23.531Z"
+stopped_at: Completed 09-04-PLAN.md
+last_updated: "2026-03-25T17:28:04.578Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 27
-  completed_plans: 24
+  completed_plans: 25
   percent: 94
 ---
 
@@ -81,6 +81,7 @@ Plan: 1 of 6
 | Phase 09 P01 | 2 | 2 tasks | 4 files |
 | Phase 09 P02 | 3 | 2 tasks | 2 files |
 | Phase 09 P03 | 18 | 2 tasks | 4 files |
+| Phase 09 P04 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -169,6 +170,9 @@ Recent decisions affecting current work:
 - [Phase 09]: [09-03]: fetchRecipes enforces .neq('added_by','ai').limit(100) at query level for base tier — prevents client-side bypass
 - [Phase 09]: [09-03]: canRegenerate allows regen on same day even at 3-day weekly limit — repeated same-day regen doesn't consume new slot
 - [Phase 09]: [09-03]: Default tier='pro' in fetchRecipes ensures backward compatibility — existing callers need no changes until Plan 05
+- [Phase 09-04]: createCheckoutSession signature changed from priceId:string to planType:'base'|'pro' — priceId resolved server-side to keep STRIPE price IDs secret
+- [Phase 09-04]: PricingCards uses Suspense wrapper to handle useSearchParams() without blocking pricing page render in Next.js App Router
+- [Phase 09-04]: subscription prop is optional in ProfileDrawerProps — backward-compatible, existing callers pass nothing
 
 ### Pending Todos
 
@@ -181,6 +185,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T17:21:23.527Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-03-25T17:28:04.574Z
+Stopped at: Completed 09-04-PLAN.md
 Resume file: None
