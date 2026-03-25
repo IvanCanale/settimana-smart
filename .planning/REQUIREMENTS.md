@@ -68,12 +68,12 @@
 
 ### Abbonamenti e Pagamenti
 
-- [ ] **SUB-01**: L'utente inizia con una prova gratuita di 14 giorni con accesso completo (Piano Pro), senza carta di credito richiesta
-- [ ] **SUB-02**: Piano Base (EUR 4,99/mese): 1 persona max, max 2 rigenerazioni al giorno, Rigenera disponibile solo su 3 giorni a settimana, solo 100 ricette (no AI-generated)
-- [ ] **SUB-03**: Piano Pro (EUR 7,99/mese): persone illimitate, Rigenera illimitato tutti i giorni, tutte le ricette incluse quelle AI
-- [ ] **SUB-04**: Pagamento gestito tramite Stripe Checkout (hosted) — nessuna UI custom per pagamento
-- [ ] **SUB-05**: Stato abbonamento sincronizzato da Stripe a Supabase tramite webhook
-- [ ] **SUB-06**: Feature gating applicato server-side (recipe limit nella query, non client-side)
+- [x] **SUB-01**: L'utente inizia con una prova gratuita di 14 giorni con accesso completo (Piano Pro), senza carta di credito richiesta
+- [x] **SUB-02**: Piano Base (EUR 4,99/mese): 1 persona max, max 2 rigenerazioni al giorno, Rigenera disponibile solo su 3 giorni a settimana, solo 100 ricette (no AI-generated)
+- [x] **SUB-03**: Piano Pro (EUR 7,99/mese): persone illimitate, Rigenera illimitato tutti i giorni, tutte le ricette incluse quelle AI
+- [x] **SUB-04**: Pagamento gestito tramite Stripe Checkout (hosted) — nessuna UI custom per pagamento
+- [x] **SUB-05**: Stato abbonamento sincronizzato da Stripe a Supabase tramite webhook
+- [x] **SUB-06**: Feature gating applicato server-side (recipe limit nella query, non client-side)
 - [ ] **SUB-07**: Gestione abbonamento (upgrade/downgrade/cancellazione) tramite Stripe Customer Portal
 
 ---
