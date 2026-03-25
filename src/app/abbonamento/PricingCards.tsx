@@ -112,8 +112,10 @@ function PricingCardsInner() {
     try {
       const result = await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
       window.location.href = result.url;
-    } catch {
-      setError("Errore durante la creazione della sessione di pagamento.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[checkout]", msg, err);
+      setError(`Errore: ${msg}`);
       setLoading(null);
     }
   };
