@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SubscriptionTier } from "@/types";
 
 interface NewRecipe {
   id: string;
@@ -24,6 +25,7 @@ interface NuoveRicettePageProps {
   onToggleWishlist: (recipe: NewRecipe) => void;
   onBack: () => void;
   maxTime: number;
+  tier?: SubscriptionTier;
 }
 
 
@@ -90,7 +92,7 @@ function WishlistButton({
   );
 }
 
-export function NuoveRicettePage({ sbClient, wishlistedIds, onToggleWishlist, onBack, maxTime }: NuoveRicettePageProps) {
+export function NuoveRicettePage({ sbClient, wishlistedIds, onToggleWishlist, onBack, maxTime, tier }: NuoveRicettePageProps) {
   const [newRecipes, setNewRecipes] = useState<NewRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -148,6 +150,47 @@ export function NuoveRicettePage({ sbClient, wishlistedIds, onToggleWishlist, on
           Ricette della settimana
         </h1>
       </div>
+      {/* Locked banner for Base tier */}
+      {tier === "base" && (
+        <div style={{
+          background: "linear-gradient(135deg, var(--olive, #6b7c45) 0%, var(--olive-dark, #3d4f2f) 100%)",
+          borderRadius: 14,
+          padding: "20px 24px",
+          marginBottom: 24,
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          flexWrap: "wrap",
+        }}>
+          <span style={{ fontSize: 28, flexShrink: 0 }}>🔒</span>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, color: "white" }}>
+              20 nuove ricette questa settimana
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
+              Disponibili con Piano Pro
+            </p>
+          </div>
+          <a
+            href="/abbonamento"
+            style={{
+              display: "inline-block",
+              background: "white",
+              color: "var(--olive-dark, #3d4f2f)",
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "10px 20px",
+              borderRadius: 10,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            }}
+          >
+            Aggiorna piano →
+          </a>
+        </div>
+      )}
+
       {!loading && !error && (
         <p style={{ margin: "0 0 24px", fontSize: 14, fontWeight: 400, color: "var(--sepia-light)" }}>
           {newRecipes.length} ricett{newRecipes.length === 1 ? "a" : "e"} aggiunt{newRecipes.length === 1 ? "a" : "e"} negli ultimi 7 giorni

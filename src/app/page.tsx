@@ -365,6 +365,7 @@ export default function SettimanaSmartMVP() {
                 });
               }}
               onBack={() => setActiveTab("planner")}
+              tier={subscription.tier}
             />
           )}
           {activeTab === "planner" && (
