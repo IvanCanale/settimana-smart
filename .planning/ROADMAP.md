@@ -159,7 +159,7 @@ Plans:
   5. Feature gating is enforced server-side: recipe limit in fetchRecipes query, regeneration limits checked before execution
   6. Users can manage their subscription (upgrade/downgrade/cancel) via Stripe Customer Portal from ProfileDrawer
   7. The /abbonamento page shows three plan cards (Free trial, Base, Pro) with correct Italian text and prices
-**Plans:** 2/6 plans executed
+**Plans:** 4/6 plans executed
 
 Plans:
 - [ ] 09-00-PLAN.md — Wave 0: test stubs for subscriptions, fetchRecipes, webhook, and regeneration limits
@@ -184,4 +184,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Notifications | 3/3 | Complete   | 2026-03-21 |
 | 7. Account Management | 2/2 | Complete   | 2026-03-21 |
 | 8. Legal | 1/2 | In Progress|  |
-| 9. Abbonamenti e pagamenti | 2/6 | In Progress|  |
+| 9. Abbonamenti e pagamenti | 4/6 | In Progress|  |

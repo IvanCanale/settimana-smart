@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-25T17:15:47.486Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-25T17:21:23.531Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 27
-  completed_plans: 22
+  completed_plans: 24
   percent: 94
 ---
 
@@ -79,6 +79,8 @@ Plan: 1 of 6
 | Phase 08 P01 | 5 | 2 tasks | 2 files |
 | Phase 09 P00 | 5 | 2 tasks | 4 files |
 | Phase 09 P01 | 2 | 2 tasks | 4 files |
+| Phase 09 P02 | 3 | 2 tasks | 2 files |
+| Phase 09 P03 | 18 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -161,6 +163,12 @@ Recent decisions affecting current work:
 - [Phase 09-01]: SubscriptionTier union type (free|base|pro) — JSON-serializable, comparable with ===
 - [Phase 09-01]: getSubscription returns tier=pro during trial regardless of price — simplifies all downstream feature gating
 - [Phase 09-01]: customers table has no user RLS policies — service role only, protects stripe_customer_id mapping
+- [Phase 09-02]: current_period_start/end read from SubscriptionItem not Subscription — Stripe SDK v17+ moved these fields
+- [Phase 09-02]: payment_method_collection=if_required — no credit card required during 14-day trial
+- [Phase 09-02]: upsert onConflict=id for subscriptions — idempotent webhook handling, safe to replay events
+- [Phase 09]: [09-03]: fetchRecipes enforces .neq('added_by','ai').limit(100) at query level for base tier — prevents client-side bypass
+- [Phase 09]: [09-03]: canRegenerate allows regen on same day even at 3-day weekly limit — repeated same-day regen doesn't consume new slot
+- [Phase 09]: [09-03]: Default tier='pro' in fetchRecipes ensures backward compatibility — existing callers need no changes until Plan 05
 
 ### Pending Todos
 
@@ -173,6 +181,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T17:15:47.482Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-03-25T17:21:23.527Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None

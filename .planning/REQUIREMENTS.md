@@ -74,7 +74,7 @@
 - [x] **SUB-04**: Pagamento gestito tramite Stripe Checkout (hosted) — nessuna UI custom per pagamento
 - [x] **SUB-05**: Stato abbonamento sincronizzato da Stripe a Supabase tramite webhook
 - [x] **SUB-06**: Feature gating applicato server-side (recipe limit nella query, non client-side)
-- [ ] **SUB-07**: Gestione abbonamento (upgrade/downgrade/cancellazione) tramite Stripe Customer Portal
+- [x] **SUB-07**: Gestione abbonamento (upgrade/downgrade/cancellazione) tramite Stripe Customer Portal
 
 ---
 
