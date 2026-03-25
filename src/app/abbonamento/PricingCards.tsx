@@ -111,7 +111,10 @@ function PricingCardsInner() {
     setLoading(planId); setError(null);
     try {
       await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
-    } catch {
+    } catch (err) {
+      // Next.js redirect() throws a special NEXT_REDIRECT error — let it propagate
+      if (err instanceof Error && err.message === "NEXT_REDIRECT") throw err;
+      if (typeof err === "object" && err !== null && "digest" in err && String((err as {digest: unknown}).digest).startsWith("NEXT_REDIRECT")) throw err;
       setError("Errore durante la creazione della sessione di pagamento.");
       setLoading(null);
     }
