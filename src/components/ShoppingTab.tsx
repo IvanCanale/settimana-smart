@@ -92,6 +92,29 @@ export function ShoppingTab({
         </div>
       )}
 
+      {/* ── BANNER CONGELATORE: teaser per Base ── */}
+      {tier === "base" && (
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
+          background: "rgba(107,124,69,0.07)", border: "1px solid rgba(107,124,69,0.2)",
+          borderRadius: 14, padding: "14px 18px", marginTop: 16,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🧊</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--olive-dark, #3d4f2f)" }}>
+              Suggerimenti congelamento disponibili con Piano Pro
+            </span>
+          </div>
+          <a href="/abbonamento" style={{
+            fontSize: 13, fontWeight: 700, color: "white",
+            background: "var(--olive, #6b7c45)", padding: "7px 14px",
+            borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap",
+          }}>
+            Aggiorna piano →
+          </a>
+        </div>
+      )}
+
       {/* ── BANNER CONGELATORE (solo Piano Pro) ── */}
       {tier === "pro" && generated.freezeItems.length > 0 && (
         <div style={{ background: "linear-gradient(135deg, rgba(92,107,58,0.1), rgba(92,107,58,0.05))", border: "1.5px solid rgba(92,107,58,0.3)", borderRadius: 18, padding: "18px 20px", marginTop: 16 }}>
