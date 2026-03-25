@@ -39,6 +39,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
+  const [showPeopleProMsg, setShowPeopleProMsg] = useState(false);
 
   React.useEffect(() => {
     if (!preferences.timezone) {
@@ -261,7 +262,14 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
               </div>
             </div>
             <button
-              onClick={() => setPreferences((p) => ({ ...p, people: Math.min(subscription?.tier === "base" ? 2 : 12, p.people + 1) }))}
+              onClick={() => {
+                if (subscription?.tier === "base" && preferences.people >= 2) {
+                  setShowPeopleProMsg(true);
+                  return;
+                }
+                setShowPeopleProMsg(false);
+                setPreferences((p) => ({ ...p, people: Math.min(12, p.people + 1) }));
+              }}
               style={{
                 width: 48,
                 height: 48,
@@ -287,34 +295,47 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
               return (
                 <button
                   key={n}
-                  onClick={() => !isBaseCapped && setPreferences((p) => ({ ...p, people: n }))}
-                  disabled={isBaseCapped}
+                  onClick={() => {
+                    if (isBaseCapped) { setShowPeopleProMsg(true); return; }
+                    setShowPeopleProMsg(false);
+                    setPreferences((p) => ({ ...p, people: n }));
+                  }}
                   style={{
                     width: 40,
                     height: 40,
                     borderRadius: "50%",
-                    background: preferences.people === n ? "var(--terra)" : "var(--cream)",
+                    background: preferences.people === n ? "var(--terra)" : isBaseCapped ? "var(--cream-dark, #ede8dc)" : "var(--cream)",
                     border: `2px solid ${preferences.people === n ? "var(--terra)" : "rgba(61,43,31,0.12)"}`,
-                    fontSize: 14,
+                    fontSize: isBaseCapped ? 11 : 14,
                     fontWeight: 700,
-                    cursor: isBaseCapped ? "not-allowed" : "pointer",
-                    color: preferences.people === n ? "white" : "var(--sepia)",
+                    cursor: isBaseCapped ? "pointer" : "pointer",
+                    color: preferences.people === n ? "white" : isBaseCapped ? "var(--sepia-light)" : "var(--sepia)",
                     transition: "all 0.15s",
-                    opacity: isBaseCapped ? 0.35 : 1,
+                    position: "relative",
                   }}
                 >
-                  {n}
+                  {isBaseCapped ? "🔒" : n}
                 </button>
               );
             })}
           </div>
-          {subscription?.tier === "base" && (
-            <p style={{ textAlign: "center", fontSize: 12, color: "var(--sepia-light)", margin: "8px 0 0" }}>
-              Piano Base: max 1 persona.{" "}
-              <a href="/abbonamento" style={{ color: "var(--olive, #6b7c45)", textDecoration: "underline" }}>
-                Passa a Pro
+          {showPeopleProMsg && subscription?.tier === "base" && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap",
+              marginTop: 10, background: "rgba(107,124,69,0.08)", border: "1px solid rgba(107,124,69,0.25)",
+              borderRadius: 10, padding: "10px 14px",
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--olive-dark, #3d4f2f)" }}>
+                🔒 Disponibile con Piano Pro
+              </span>
+              <a href="/abbonamento" style={{
+                fontSize: 13, fontWeight: 700, color: "white",
+                background: "var(--olive, #6b7c45)", padding: "6px 14px",
+                borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap",
+              }}>
+                Aggiorna piano →
               </a>
-            </p>
+            </div>
           )}
         </div>
 
