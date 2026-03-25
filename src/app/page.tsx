@@ -100,9 +100,9 @@ export default function SettimanaSmartMVP() {
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
     setIsMounted(true);
-    // Auto-apri ProfileDrawer se arriva da /abbonamento senza login
+    // Auto-apri modal login se arriva da /abbonamento senza login
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("login") === "1") {
-      setShowProfile(true);
+      setShowAuthModal(true);
       window.history.replaceState({}, "", "/");
     }
   }, []);
