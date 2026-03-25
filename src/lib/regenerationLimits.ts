@@ -15,11 +15,10 @@ export type RigeneraCheckResult = {
 };
 
 const DAILY_LIMIT = 2;
-const WEEKLY_DAYS_LIMIT = 3;
 
 /**
  * Check if a user on the given tier can regenerate a meal.
- * Piano Base: max 2 regenerations per day, max 3 unique days per week.
+ * Piano Base: max 2 regenerations per day (no weekly day cap).
  * Piano Pro / trial (tier="pro"): always allowed.
  * Free (tier="free"): always allowed (during trial they have "pro").
  */
@@ -44,7 +43,7 @@ export function canRegenerate(
     (e) => e.timestamp.slice(0, 10) === today
   );
 
-  // Check daily limit
+  // Check daily limit only (no weekly day cap for Piano Base)
   if (todayEntries.length >= DAILY_LIMIT) {
     return {
       allowed: false,
@@ -52,22 +51,7 @@ export function canRegenerate(
       dailyUsed: todayEntries.length,
       dailyMax: DAILY_LIMIT,
       weeklyDaysUsed: 0,
-      weeklyDaysMax: WEEKLY_DAYS_LIMIT,
-    };
-  }
-
-  // Check weekly unique days limit
-  // A "week" is defined by entries sharing the same ISO week (Mon-Sun)
-  const uniqueDays = new Set(rigeneraLog.map((e) => e.day));
-  // If this day is already in the set, no new day is consumed
-  if (!uniqueDays.has(dayName) && uniqueDays.size >= WEEKLY_DAYS_LIMIT) {
-    return {
-      allowed: false,
-      reason: "weekly",
-      dailyUsed: todayEntries.length,
-      dailyMax: DAILY_LIMIT,
-      weeklyDaysUsed: uniqueDays.size,
-      weeklyDaysMax: WEEKLY_DAYS_LIMIT,
+      weeklyDaysMax: Infinity,
     };
   }
 
@@ -75,8 +59,8 @@ export function canRegenerate(
     allowed: true,
     dailyUsed: todayEntries.length,
     dailyMax: DAILY_LIMIT,
-    weeklyDaysUsed: uniqueDays.size,
-    weeklyDaysMax: WEEKLY_DAYS_LIMIT,
+    weeklyDaysUsed: 0,
+    weeklyDaysMax: Infinity,
   };
 }
 

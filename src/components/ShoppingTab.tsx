@@ -2,7 +2,7 @@
 import React from "react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { CATEGORY_ORDER, DAYS } from "@/lib/planEngine";
-import type { PlanResult } from "@/types";
+import type { PlanResult, SubscriptionTier } from "@/types";
 
 interface ShoppingTabProps {
   generated: PlanResult;
@@ -11,6 +11,7 @@ interface ShoppingTabProps {
   extraShoppingItems: string[];
   setExtraShoppingItems: React.Dispatch<React.SetStateAction<string[]>>;
   tourAdvance: (action: string) => void;
+  tier?: SubscriptionTier;
 }
 
 const categoryEmoji: Record<string, string> = {
@@ -28,6 +29,7 @@ export function ShoppingTab({
   extraShoppingItems,
   setExtraShoppingItems,
   tourAdvance,
+  tier = "free",
 }: ShoppingTabProps) {
   const [extraShoppingInput, setExtraShoppingInput] = React.useState("");
 
@@ -90,8 +92,8 @@ export function ShoppingTab({
         </div>
       )}
 
-      {/* ── BANNER CONGELATORE ── */}
-      {generated.freezeItems.length > 0 && (
+      {/* ── BANNER CONGELATORE (solo Piano Pro) ── */}
+      {tier === "pro" && generated.freezeItems.length > 0 && (
         <div style={{ background: "linear-gradient(135deg, rgba(92,107,58,0.1), rgba(92,107,58,0.05))", border: "1.5px solid rgba(92,107,58,0.3)", borderRadius: 18, padding: "18px 20px", marginTop: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
             <span style={{ fontSize: 24 }}>🧊</span>

@@ -261,7 +261,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
               </div>
             </div>
             <button
-              onClick={() => setPreferences((p) => ({ ...p, people: Math.min(subscription?.tier === "base" ? 1 : 12, p.people + 1) }))}
+              onClick={() => setPreferences((p) => ({ ...p, people: Math.min(subscription?.tier === "base" ? 2 : 12, p.people + 1) }))}
               style={{
                 width: 48,
                 height: 48,
@@ -283,7 +283,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
           </div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {[1, 2, 3, 4, 5, 6].map((n) => {
-              const isBaseCapped = subscription?.tier === "base" && n > 1;
+              const isBaseCapped = subscription?.tier === "base" && n > 2;
               return (
                 <button
                   key={n}
