@@ -109,15 +109,13 @@ function PricingCardsInner() {
       return;
     }
     setLoading(planId); setError(null);
-    try {
-      const result = await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
-      window.location.href = result.url;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[checkout]", msg, err);
-      setError(`Errore: ${msg}`);
+    const result = await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
+    if (result.error) {
+      setError(`Errore: ${result.error}`);
       setLoading(null);
+      return;
     }
+    window.location.href = result.url!;
   };
 
   return (

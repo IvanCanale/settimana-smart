@@ -22,49 +22,57 @@ export async function createCheckoutSession(
   userEmail: string,
   planType: "base" | "pro",
   billing: "monthly" | "annual" = "monthly",
-) {
-  const priceId =
-    planType === "base"
-      ? (billing === "annual" ? process.env.STRIPE_PRICE_ID_BASE_ANNUAL! : process.env.STRIPE_PRICE_ID_BASE!)
-      : (billing === "annual" ? process.env.STRIPE_PRICE_ID_PRO_ANNUAL! : process.env.STRIPE_PRICE_ID_PRO!);
+): Promise<{ url: string; error?: never } | { url?: never; error: string }> {
+  try {
+    const priceId =
+      planType === "base"
+        ? (billing === "annual" ? process.env.STRIPE_PRICE_ID_BASE_ANNUAL! : process.env.STRIPE_PRICE_ID_BASE!)
+        : (billing === "annual" ? process.env.STRIPE_PRICE_ID_PRO_ANNUAL! : process.env.STRIPE_PRICE_ID_PRO!);
 
-  const supabase = adminClient();
+    if (!priceId) return { error: `Price ID mancante: ${planType}_${billing}` };
 
-  // Find or create Stripe customer
-  const { data: existing } = await supabase
-    .from("customers")
-    .select("stripe_customer_id")
-    .eq("user_id", userId)
-    .single();
+    const supabase = adminClient();
 
-  let customerId = existing?.stripe_customer_id;
-  if (!customerId) {
-    const customer = await getStripe().customers.create({
-      email: userEmail,
-      metadata: { supabase_user_id: userId },
-    });
-    customerId = customer.id;
-    await supabase
+    // Find or create Stripe customer
+    const { data: existing } = await supabase
       .from("customers")
-      .insert({ user_id: userId, stripe_customer_id: customerId });
-  }
+      .select("stripe_customer_id")
+      .eq("user_id", userId)
+      .single();
 
-  const session = await getStripe().checkout.sessions.create({
-    customer: customerId,
-    mode: "subscription",
-    payment_method_collection: "if_required", // No card required to start trial
-    line_items: [{ price: priceId, quantity: 1 }],
-    subscription_data: {
-      trial_period_days: 14,
-      trial_settings: {
-        end_behavior: { missing_payment_method: "cancel" },
+    let customerId = existing?.stripe_customer_id;
+    if (!customerId) {
+      const customer = await getStripe().customers.create({
+        email: userEmail,
+        metadata: { supabase_user_id: userId },
+      });
+      customerId = customer.id;
+      await supabase
+        .from("customers")
+        .insert({ user_id: userId, stripe_customer_id: customerId });
+    }
+
+    const session = await getStripe().checkout.sessions.create({
+      customer: customerId,
+      mode: "subscription",
+      payment_method_collection: "if_required",
+      line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data: {
+        trial_period_days: 14,
+        trial_settings: {
+          end_behavior: { missing_payment_method: "cancel" },
+        },
       },
-    },
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?success=1`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?canceled=1`,
-  });
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?success=1`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?canceled=1`,
+    });
 
-  return { url: session.url! };
+    return { url: session.url! };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[createCheckoutSession]", msg);
+    return { error: msg };
+  }
 }
 
 /**
