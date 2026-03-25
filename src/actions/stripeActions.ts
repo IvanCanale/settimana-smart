@@ -64,7 +64,7 @@ export async function createCheckoutSession(
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?canceled=1`,
   });
 
-  redirect(session.url!);
+  return { url: session.url! };
 }
 
 /**
