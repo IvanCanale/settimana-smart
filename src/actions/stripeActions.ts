@@ -33,6 +33,13 @@ export async function createCheckoutSession(
 
     const supabase = adminClient();
 
+    // Calculate remaining trial days based on user.created_at
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+    const createdAt = authUser?.user?.created_at ? new Date(authUser.user.created_at) : new Date();
+    const trialEnd = new Date(createdAt.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const hasTrialRemaining = trialEnd > now;
+
     // Find or create Stripe customer
     const { data: existing } = await supabase
       .from("customers")
@@ -55,14 +62,14 @@ export async function createCheckoutSession(
     const session = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      payment_method_collection: "if_required",
+      payment_method_collection: hasTrialRemaining ? "if_required" : "always",
       line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: {
-        trial_period_days: 14,
-        trial_settings: {
-          end_behavior: { missing_payment_method: "cancel" },
+      ...(hasTrialRemaining ? {
+        subscription_data: {
+          trial_end: Math.floor(trialEnd.getTime() / 1000),
+          trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
         },
-      },
+      } : {}),
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento?canceled=1`,
     });
