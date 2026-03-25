@@ -24,7 +24,9 @@ import { RicetteTab } from "@/components/RicetteTab";
 import { normalize } from "@/lib/planEngine";
 import { loadUserData } from "@/lib/supabase";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem } from "@/types";
+import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
+import { getSubscriptionAction } from "@/actions/stripeActions";
+import type { RigeneraEntry } from "@/lib/regenerationLimits";
 
 const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [], wishlistedRecipeIds: [] };
 const DEFAULT_PANTRY: PantryItem[] = [{ name: "pasta", quantity: 500, unit: "g" }, { name: "olio extravergine", quantity: 200, unit: "ml" }, { name: "uova fresche", quantity: 2, unit: "pezzi" }];
@@ -40,10 +42,13 @@ export default function SettimanaSmartMVP() {
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
   const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
+  const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+  const [rigeneraLog, setRigeneraLog] = useLocalStorage<RigeneraEntry[]>("ss_rigenera_log_v1", []);
   const { computedPrefs, generated, recipeCount, recipes } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
     { sbClient, userId: user?.id ?? null, setSyncStatus },
     wishlistedRecipes,
+    subscription.tier,
   );
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("planner");
@@ -94,6 +99,16 @@ export default function SettimanaSmartMVP() {
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    if (!user?.id) {
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+      return;
+    }
+    getSubscriptionAction(user.id).then(setSubscription).catch(() => {
+      // On error, default to "pro" to avoid blocking users
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+    });
+  }, [user?.id]);
   useEffect(() => { if (syncStatus === "error") { setNetworkErrorToast(true); const t = window.setTimeout(() => setNetworkErrorToast(false), 6000); return () => window.clearTimeout(t); } }, [syncStatus]);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);
@@ -262,6 +277,7 @@ export default function SettimanaSmartMVP() {
             onClose={() => setShowProfile(false)}
             preferences={preferences}
             setPreferences={setPreferences}
+            subscription={subscription}
           />
           <NotificationDrawer
             isOpen={isNotificationOpen}

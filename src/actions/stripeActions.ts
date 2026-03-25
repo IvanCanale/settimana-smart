@@ -89,3 +89,12 @@ export async function createPortalSession(userId: string) {
 
   redirect(session.url);
 }
+
+/**
+ * Server action to fetch a user's subscription status.
+ * Used by page.tsx (client component) to read tier without importing server-only stripe.ts directly.
+ */
+export async function getSubscriptionAction(userId: string) {
+  const { getSubscription } = await import("@/lib/stripe");
+  return getSubscription(userId);
+}

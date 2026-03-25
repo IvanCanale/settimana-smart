@@ -3,7 +3,7 @@ import { useMemo, useEffect, useRef, useState } from "react";
 import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety } from "@/lib/planEngine";
 import { saveWeeklyPlan, savePreferences, fetchRecipes } from "@/lib/supabase";
 import { RECIPE_LIBRARY } from "@/data/recipes";
-import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe } from "@/types";
+import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe, SubscriptionTier } from "@/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export function usePlanEngine(
@@ -18,6 +18,7 @@ export function usePlanEngine(
     setSyncStatus: (v: "idle" | "saving" | "saved" | "error") => void;
   },
   wishlistedRecipes?: Recipe[],
+  tier: SubscriptionTier = "pro", // Subscription tier for recipe filtering
 ) {
   // ── ASYNC RECIPE FETCH with localStorage cache and RECIPE_LIBRARY fallback ──
   const [recipes, setRecipes] = useState<Recipe[]>(RECIPE_LIBRARY);
@@ -39,7 +40,7 @@ export function usePlanEngine(
 
     if (!cloudSync?.sbClient) return;
     setRecipesLoading(true);
-    fetchRecipes(cloudSync.sbClient)
+    fetchRecipes(cloudSync.sbClient, tier)
       .then((fetched) => {
         if (fetched.length > 0) {
           setRecipes(fetched);
@@ -52,7 +53,7 @@ export function usePlanEngine(
       })
       .finally(() => setRecipesLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudSync?.sbClient]);
+  }, [cloudSync?.sbClient, tier]);
 
   // Calcola le preferenze normalizzate
   const computedPrefs = useMemo(() => ({
