@@ -66,6 +66,16 @@
 - [x] **TECH-01**: Il monolith `page.tsx` (1738 righe) è decomposto in tab components separati e custom hooks (`usePlanEngine`, `useLocalStorage`, `useCloudSync`)
 - [x] **TECH-02**: I package inutilizzati sono rimossi dal bundle (`framer-motion`, `radix-ui` meta-package)
 
+### Abbonamenti e Pagamenti
+
+- [x] **SUB-01**: L'utente inizia con una prova gratuita di 14 giorni con accesso completo (Piano Pro), senza carta di credito richiesta
+- [x] **SUB-02**: Piano Base (EUR 4,99/mese): 1 persona max, max 2 rigenerazioni al giorno, Rigenera disponibile solo su 3 giorni a settimana, solo 100 ricette (no AI-generated)
+- [x] **SUB-03**: Piano Pro (EUR 7,99/mese): persone illimitate, Rigenera illimitato tutti i giorni, tutte le ricette incluse quelle AI
+- [x] **SUB-04**: Pagamento gestito tramite Stripe Checkout (hosted) — nessuna UI custom per pagamento
+- [x] **SUB-05**: Stato abbonamento sincronizzato da Stripe a Supabase tramite webhook
+- [x] **SUB-06**: Feature gating applicato server-side (recipe limit nella query, non client-side)
+- [x] **SUB-07**: Gestione abbonamento (upgrade/downgrade/cancellazione) tramite Stripe Customer Portal
+
 ---
 
 ## v2 Requirements
@@ -96,7 +106,6 @@
 | Calorie / macro tracking | Contraddice il posizionamento "senza pensieri" |
 | Social / condivisione piani | App personale, non social |
 | Grocery delivery integration | Partnership/API fuori scope v1 |
-| Pagamenti / abbonamento | Fuori scope v1 — prima validare il prodotto |
 
 ---
 
@@ -138,12 +147,19 @@ Aggiornato durante la creazione del roadmap.
 | NOTIF-01 | Phase 6 | Complete |
 | NOTIF-02 | Phase 6 | Complete |
 | NOTIF-03 | Phase 6 | Complete |
+| SUB-01 | Phase 9 | Planned |
+| SUB-02 | Phase 9 | Planned |
+| SUB-03 | Phase 9 | Planned |
+| SUB-04 | Phase 9 | Planned |
+| SUB-05 | Phase 9 | Planned |
+| SUB-06 | Phase 9 | Planned |
+| SUB-07 | Phase 9 | Planned |
 
 **Coverage:**
-- v1 requirements: 32 total
-- Mapped to phases: 32
-- Unmapped: 0 ✓
+- v1 requirements: 39 total
+- Mapped to phases: 39
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-21 — AUTH-02, AUTH-03, ONBOARD-05 completed in plan 02-02*
+*Last updated: 2026-03-24 — SUB-01 through SUB-07 added for Phase 9 (subscriptions)*

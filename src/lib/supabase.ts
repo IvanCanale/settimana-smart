@@ -1,7 +1,7 @@
 // lib/supabase.ts
 // Funzioni di utilità per il database - il client viene passato come parametro
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Recipe, WeeklyPlanRecord } from "@/types";
+import type { Recipe, WeeklyPlanRecord, SubscriptionTier } from "@/types";
 import { rowToRecipe } from "@/lib/recipeSchema";
 
 export type UserData = {
@@ -111,11 +111,23 @@ export async function migrateFromLocalStorage(client: SupabaseClient, userId: st
 
 // ── Recipe catalog (shared, public read) ─────────────────────────────────────
 
-export async function fetchRecipes(client: SupabaseClient): Promise<Recipe[]> {
-  const { data, error } = await client
+export async function fetchRecipes(
+  client: SupabaseClient,
+  tier: SubscriptionTier = "pro", // default "pro" for backward compatibility
+): Promise<Recipe[]> {
+  let query = client
     .from("recipes")
     .select("id, title, diet, tags, time, difficulty, servings, ingredients, steps")
     .order("created_at", { ascending: false });
+
+  if (tier === "base") {
+    // Piano Base: only 100 seed recipes, no AI-generated recipes
+    // MUST be enforced at query level, not client-side (prevents bypass)
+    query = query.neq("added_by", "ai").limit(100);
+  }
+  // "pro" and "free" (trial): all recipes, no limit
+
+  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []).map(rowToRecipe);
 }

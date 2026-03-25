@@ -24,7 +24,9 @@ import { RicetteTab } from "@/components/RicetteTab";
 import { normalize } from "@/lib/planEngine";
 import { loadUserData } from "@/lib/supabase";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem } from "@/types";
+import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
+import { getSubscriptionAction } from "@/actions/stripeActions";
+import type { RigeneraEntry } from "@/lib/regenerationLimits";
 
 const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [], wishlistedRecipeIds: [] };
 const DEFAULT_PANTRY: PantryItem[] = [{ name: "pasta", quantity: 500, unit: "g" }, { name: "olio extravergine", quantity: 200, unit: "ml" }, { name: "uova fresche", quantity: 2, unit: "pezzi" }];
@@ -40,10 +42,13 @@ export default function SettimanaSmartMVP() {
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
   const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
+  const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+  const [rigeneraLog, setRigeneraLog] = useLocalStorage<RigeneraEntry[]>("ss_rigenera_log_v1", []);
   const { computedPrefs, generated, recipeCount, recipes } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
     { sbClient, userId: user?.id ?? null, setSyncStatus },
     wishlistedRecipes,
+    subscription.tier,
   );
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("planner");
@@ -94,6 +99,16 @@ export default function SettimanaSmartMVP() {
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    if (!user?.id) {
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+      return;
+    }
+    getSubscriptionAction(user.id).then(setSubscription).catch(() => {
+      // On error, default to "pro" to avoid blocking users
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+    });
+  }, [user?.id]);
   useEffect(() => { if (syncStatus === "error") { setNetworkErrorToast(true); const t = window.setTimeout(() => setNetworkErrorToast(false), 6000); return () => window.clearTimeout(t); } }, [syncStatus]);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);
@@ -170,6 +185,15 @@ export default function SettimanaSmartMVP() {
       migrateFromLocalStorage(sbClient, user.id);
     });
   }, [user, sbClient, onboardingDone]);
+
+  // ── RIGENERA LOG RESET on week change ──
+  const prevWeekRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (prevWeekRef.current !== null && prevWeekRef.current !== activeWeek) {
+      setRigeneraLog([]);
+    }
+    prevWeekRef.current = activeWeek;
+  }, [activeWeek, setRigeneraLog]);
 
   // ── OFFLINE DETECTION ──
   useEffect(() => {
@@ -262,6 +286,7 @@ export default function SettimanaSmartMVP() {
             onClose={() => setShowProfile(false)}
             preferences={preferences}
             setPreferences={setPreferences}
+            subscription={subscription}
           />
           <NotificationDrawer
             isOpen={isNotificationOpen}
@@ -327,7 +352,7 @@ export default function SettimanaSmartMVP() {
             />
           )}
           {activeTab === "planner" && <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} feedbackNote={feedbackNote} setFeedbackNote={setFeedbackNote} activeWeek={activeWeek} switchWeek={switchWeek} />}
-          {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} recipes={recipes} />}
+          {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} recipes={recipes} tier={subscription.tier} rigeneraLog={rigeneraLog} onRigeneraLogged={(entry) => setRigeneraLog(prev => [...prev, entry])} />}
           {activeTab === "shopping" && <ShoppingTab generated={generated} checkedShoppingItems={checkedShoppingItems} setCheckedShoppingItems={setCheckedShoppingItems} extraShoppingItems={extraShoppingItems} setExtraShoppingItems={setExtraShoppingItems} tourAdvance={tourAdvance} />}
           {activeTab === "recipes" && <RicetteTab generated={generated} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} recipeDetailRef={recipeDetailRef} onStartRecipeFlow={startRecipeFlow} />}
           {activeTab === "reminder" && <CucinaTab prepTime={prepTime} setPrepTime={setPrepTime} prepReminderMessage={prepReminderMessage} setPrepReminderMessage={setPrepReminderMessage} scheduledReminderText={scheduledReminderText} availableVoices={availableVoices} selectedVoiceName={selectedVoiceName} setSelectedVoiceName={setSelectedVoiceName} onPlayReminderPreview={playReminderPreview} onScheduleReminder={scheduleReminder} />}

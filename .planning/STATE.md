@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-22T00:07:44.957Z"
+stopped_at: "09-05-PLAN.md — paused at Task 3 checkpoint:human-verify"
+last_updated: "2026-03-25T17:45:00.000Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 7
-  total_plans: 21
-  completed_plans: 20
+  total_plans: 27
+  completed_plans: 25
   percent: 94
 ---
 
@@ -34,12 +34,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** L'utente apre l'app a inizio settimana e trova già tutto deciso — cosa mangiare, come prepararlo, cosa comprare — senza sprechi e senza pensieri.
-**Current focus:** Phase 07 — account-management
+**Current focus:** Phase 09 — abbonamenti-e-pagamenti
 
 ## Current Position
 
-Phase: 07 (account-management) — EXECUTING
-Plan: 1 of 2
+Phase: 09 (abbonamenti-e-pagamenti) — EXECUTING
+Plan: 1 of 6
 
 ## Performance Metrics
 
@@ -77,6 +77,11 @@ Plan: 1 of 2
 | Phase 07 P01 | 2 | 2 tasks | 2 files |
 | Phase 07 P02 | 3 | 2 tasks | 1 files |
 | Phase 08 P01 | 5 | 2 tasks | 2 files |
+| Phase 09 P00 | 5 | 2 tasks | 4 files |
+| Phase 09 P01 | 2 | 2 tasks | 4 files |
+| Phase 09 P02 | 3 | 2 tasks | 2 files |
+| Phase 09 P03 | 18 | 2 tasks | 4 files |
+| Phase 09 P04 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -84,6 +89,7 @@ Plan: 1 of 2
 
 - Phase 7 added: Account Management — eliminazione account, export dati GDPR, reset preferenze, pagina profilo
 - Phase 8 added: Legal — Privacy Policy, Terms of Service, consenso esplicito al signup
+- Phase 9 added: Abbonamenti e pagamenti — Stripe, trial 14gg, Piano Base €4,99, Piano Pro €7,99, feature gating
 
 ### Decisions
 
@@ -154,6 +160,19 @@ Recent decisions affecting current work:
 - [Phase 07-01]: exportUserData exports endpoint+created_at only from push_subscriptions — private keys excluded from GDPR export
 - [Phase 07-02]: [07-02]: Both tasks implemented in single atomic pass — state declarations and handler functions are interleaved in one component, single commit is cohesive
 - [Phase 07-02]: [07-02]: defaultPrefs prop accepts Preferences from page.tsx; fallback hardcoded inline in handleReset for cases where defaultPrefs not passed
+- [Phase 09-00]: Test stubs use it.todo() not it.skip() — Vitest counts todo separately, never as failures; subsequent plans activate by uncommenting import and replacing it.todo with implementation
+- [Phase 09-01]: SubscriptionTier union type (free|base|pro) — JSON-serializable, comparable with ===
+- [Phase 09-01]: getSubscription returns tier=pro during trial regardless of price — simplifies all downstream feature gating
+- [Phase 09-01]: customers table has no user RLS policies — service role only, protects stripe_customer_id mapping
+- [Phase 09-02]: current_period_start/end read from SubscriptionItem not Subscription — Stripe SDK v17+ moved these fields
+- [Phase 09-02]: payment_method_collection=if_required — no credit card required during 14-day trial
+- [Phase 09-02]: upsert onConflict=id for subscriptions — idempotent webhook handling, safe to replay events
+- [Phase 09]: [09-03]: fetchRecipes enforces .neq('added_by','ai').limit(100) at query level for base tier — prevents client-side bypass
+- [Phase 09]: [09-03]: canRegenerate allows regen on same day even at 3-day weekly limit — repeated same-day regen doesn't consume new slot
+- [Phase 09]: [09-03]: Default tier='pro' in fetchRecipes ensures backward compatibility — existing callers need no changes until Plan 05
+- [Phase 09-04]: createCheckoutSession signature changed from priceId:string to planType:'base'|'pro' — priceId resolved server-side to keep STRIPE price IDs secret
+- [Phase 09-04]: PricingCards uses Suspense wrapper to handle useSearchParams() without blocking pricing page render in Next.js App Router
+- [Phase 09-04]: subscription prop is optional in ProfileDrawerProps — backward-compatible, existing callers pass nothing
 
 ### Pending Todos
 
@@ -166,6 +185,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T00:07:44.953Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-25T17:45:00.000Z
+Stopped at: 09-05-PLAN.md Task 3 checkpoint:human-verify
 Resume file: None

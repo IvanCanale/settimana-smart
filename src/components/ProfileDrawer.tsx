@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import type { Preferences, Diet } from "@/types";
+import type { Preferences, Diet, SubscriptionStatus } from "@/types";
 import { ALLERGEN_OPTIONS } from "@/types";
 import { useAuth } from "@/lib/AuthProvider";
+import { createPortalSession } from "@/actions/stripeActions";
 import { AuthModalInline } from "@/components/AuthModalInline";
 import { migrateFromLocalStorage, exportUserData } from "@/lib/supabase";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -25,9 +26,10 @@ interface ProfileDrawerProps {
   setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
   onResetAllLocalStorage?: () => void;
   defaultPrefs?: Preferences;
+  subscription?: SubscriptionStatus;
 }
 
-export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, onResetAllLocalStorage, defaultPrefs }: ProfileDrawerProps) {
+export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, onResetAllLocalStorage, defaultPrefs, subscription }: ProfileDrawerProps) {
   const { sbClient, user } = useAuth();
   const push = usePushSubscription(user?.id ?? null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -36,6 +38,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
   const [confirmReset, setConfirmReset] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
 
   React.useEffect(() => {
     if (!preferences.timezone) {
@@ -94,6 +97,19 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
       alert("Errore durante l'export dei dati. Riprova.");
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleOpenPortal = async () => {
+    if (!user) return;
+    setIsPortalLoading(true);
+    try {
+      await createPortalSession(user.id);
+    } catch (err) {
+      console.error("Errore apertura portale:", err);
+      alert("Errore durante l'apertura del portale di gestione abbonamento.");
+    } finally {
+      setIsPortalLoading(false);
     }
   };
 
@@ -245,7 +261,7 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
               </div>
             </div>
             <button
-              onClick={() => setPreferences((p) => ({ ...p, people: Math.min(12, p.people + 1) }))}
+              onClick={() => setPreferences((p) => ({ ...p, people: Math.min(subscription?.tier === "base" ? 1 : 12, p.people + 1) }))}
               style={{
                 width: 48,
                 height: 48,
@@ -266,27 +282,40 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
             </button>
           </div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <button
-                key={n}
-                onClick={() => setPreferences((p) => ({ ...p, people: n }))}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: preferences.people === n ? "var(--terra)" : "var(--cream)",
-                  border: `2px solid ${preferences.people === n ? "var(--terra)" : "rgba(61,43,31,0.12)"}`,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  color: preferences.people === n ? "white" : "var(--sepia)",
-                  transition: "all 0.15s",
-                }}
-              >
-                {n}
-              </button>
-            ))}
+            {[1, 2, 3, 4, 5, 6].map((n) => {
+              const isBaseCapped = subscription?.tier === "base" && n > 1;
+              return (
+                <button
+                  key={n}
+                  onClick={() => !isBaseCapped && setPreferences((p) => ({ ...p, people: n }))}
+                  disabled={isBaseCapped}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: preferences.people === n ? "var(--terra)" : "var(--cream)",
+                    border: `2px solid ${preferences.people === n ? "var(--terra)" : "rgba(61,43,31,0.12)"}`,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: isBaseCapped ? "not-allowed" : "pointer",
+                    color: preferences.people === n ? "white" : "var(--sepia)",
+                    transition: "all 0.15s",
+                    opacity: isBaseCapped ? 0.35 : 1,
+                  }}
+                >
+                  {n}
+                </button>
+              );
+            })}
           </div>
+          {subscription?.tier === "base" && (
+            <p style={{ textAlign: "center", fontSize: 12, color: "var(--sepia-light)", margin: "8px 0 0" }}>
+              Piano Base: max 1 persona.{" "}
+              <a href="/abbonamento" style={{ color: "var(--olive, #6b7c45)", textDecoration: "underline" }}>
+                Passa a Pro
+              </a>
+            </p>
+          )}
         </div>
 
         <hr style={divider} />
@@ -553,6 +582,83 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
             </div>
           )}
         </div>
+
+        {/* Subscription section */}
+        {user && (
+          <>
+            <hr style={divider} />
+            <div style={{ marginBottom: 20 }}>
+              <p style={sectionLabel}>Abbonamento</p>
+              {/* Plan tier badge */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                {(() => {
+                  const tier = subscription?.tier ?? "free";
+                  const isTrialing = subscription?.isTrialing ?? false;
+                  let badgeLabel = "Nessun piano";
+                  let badgeBg = "var(--cream-dark, #e8e0d0)";
+                  let badgeColor = "var(--sepia-light, #8b7d6b)";
+                  if (isTrialing) {
+                    badgeLabel = "Prova gratuita";
+                    badgeBg = "rgba(107,124,69,0.12)";
+                    badgeColor = "var(--olive-dark, #3d4f2f)";
+                  } else if (tier === "pro") {
+                    badgeLabel = "Piano Pro";
+                    badgeBg = "rgba(107,124,69,0.15)";
+                    badgeColor = "var(--olive-dark, #3d4f2f)";
+                  } else if (tier === "base") {
+                    badgeLabel = "Piano Base";
+                    badgeBg = "rgba(196,103,58,0.1)";
+                    badgeColor = "var(--terra, #c4673a)";
+                  }
+                  return (
+                    <span style={{
+                      background: badgeBg,
+                      color: badgeColor,
+                      borderRadius: 100,
+                      padding: "4px 12px",
+                      fontSize: 13,
+                      fontWeight: 700,
+                    }}>
+                      {badgeLabel}
+                    </span>
+                  );
+                })()}
+              </div>
+              {/* Trial end date */}
+              {subscription?.isTrialing && subscription.trialEnd && (
+                <p style={{ fontSize: 13, color: "var(--sepia-light)", margin: "0 0 10px" }}>
+                  Prova gratuita fino al{" "}
+                  {subscription.trialEnd.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              )}
+              {/* Manage subscription button */}
+              {subscription && subscription.status !== "none" && (
+                <button
+                  onClick={handleOpenPortal}
+                  disabled={isPortalLoading}
+                  className="btn-outline"
+                  style={{ width: "100%", justifyContent: "center", fontSize: 14, marginBottom: 8, opacity: isPortalLoading ? 0.6 : 1 }}
+                >
+                  {isPortalLoading ? "Caricamento..." : "Gestisci abbonamento"}
+                </button>
+              )}
+              {/* Link to pricing page */}
+              <a
+                href="/abbonamento"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  fontSize: 13,
+                  color: "var(--olive, #6b7c45)",
+                  textDecoration: "underline",
+                  marginTop: 4,
+                }}
+              >
+                Vedi tutti i piani
+              </a>
+            </div>
+          </>
+        )}
 
         {/* Danger Zone */}
         {user && (
