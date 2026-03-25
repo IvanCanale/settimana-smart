@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
-import { stripe, getPlanTier, getUserIdFromCustomer } from "@/lib/stripe";
+import { getStripe, getPlanTier, getUserIdFromCustomer } from "@/lib/stripe";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs"; // stripe SDK needs Node.js runtime
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
     return new Response("Webhook signature verification failed", { status: 400 });

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 function adminClient() {
   return createClient(
@@ -38,7 +38,7 @@ export async function createCheckoutSession(
 
   let customerId = existing?.stripe_customer_id;
   if (!customerId) {
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       email: userEmail,
       metadata: { supabase_user_id: userId },
     });
@@ -48,7 +48,7 @@ export async function createCheckoutSession(
       .insert({ user_id: userId, stripe_customer_id: customerId });
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_collection: "if_required", // No card required to start trial
@@ -82,7 +82,7 @@ export async function createPortalSession(userId: string) {
     throw new Error("No Stripe customer found for this user");
   }
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: data.stripe_customer_id,
     return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/abbonamento`,
   });

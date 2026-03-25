@@ -2,8 +2,17 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import type { SubscriptionTier, SubscriptionStatus } from "@/types";
 
-// Server-side Stripe singleton — only import this file in server contexts
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Server-side Stripe singleton — lazy to avoid build-time errors when env var is absent
+let _stripe: Stripe | null = null;
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not set");
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return _stripe;
+}
+/** @deprecated use getStripe() */
+export const stripe = { get instance() { return getStripe(); } } as unknown as Stripe;
 
 // Plan tier lookup from price ID
 export function getPlanTier(priceId: string | undefined): "base" | "pro" | null {
