@@ -107,5 +107,6 @@ export type SubscriptionStatus = {
   tier: SubscriptionTier;
   isTrialing: boolean;
   trialEnd: Date | null;
+  renewalDate: Date | null; // current_period_end from Stripe
   status: string; // Stripe status: trialing | active | canceled | past_due | none
 };

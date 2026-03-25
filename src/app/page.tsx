@@ -45,7 +45,7 @@ export default function SettimanaSmartMVP() {
   const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
   const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
-  const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+  const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
   const [rigeneraLog, setRigeneraLog] = useLocalStorage<RigeneraEntry[]>("ss_rigenera_log_v1", []);
   const { computedPrefs, generated, recipeCount, recipes } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
@@ -111,11 +111,11 @@ export default function SettimanaSmartMVP() {
   }, []);
   useEffect(() => {
     if (!user?.id) {
-      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
       return;
     }
     getSubscriptionAction(user.id).then(setSubscription).catch(() => {
-      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
+      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
     });
     // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
     const pendingPlan = sessionStorage.getItem("pending_plan");

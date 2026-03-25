@@ -38,7 +38,7 @@ export async function getSubscription(userId: string): Promise<SubscriptionStatu
   const supabase = adminClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("status, plan_tier, trial_end")
+    .select("status, plan_tier, trial_end, current_period_end")
     .eq("user_id", userId)
     .in("status", ["trialing", "active"])
     .order("created_at", { ascending: false })
@@ -46,7 +46,7 @@ export async function getSubscription(userId: string): Promise<SubscriptionStatu
     .single();
 
   if (!data) {
-    return { tier: "free", isTrialing: false, trialEnd: null, status: "none" };
+    return { tier: "free", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" };
   }
 
   // During trial, user gets full Pro access regardless of which price they signed up for
@@ -59,6 +59,7 @@ export async function getSubscription(userId: string): Promise<SubscriptionStatu
     tier,
     isTrialing: data.status === "trialing",
     trialEnd: data.trial_end ? new Date(data.trial_end) : null,
+    renewalDate: data.current_period_end ? new Date(data.current_period_end) : null,
     status: data.status,
   };
 }

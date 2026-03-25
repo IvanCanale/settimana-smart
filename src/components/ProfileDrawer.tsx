@@ -610,49 +610,47 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
             <hr style={divider} />
             <div style={{ marginBottom: 20 }}>
               <p style={sectionLabel}>Abbonamento</p>
-              {/* Plan tier badge */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                {(() => {
-                  const tier = subscription?.tier ?? "free";
-                  const isTrialing = subscription?.isTrialing ?? false;
-                  let badgeLabel = "Nessun piano";
-                  let badgeBg = "var(--cream-dark, #e8e0d0)";
-                  let badgeColor = "var(--sepia-light, #8b7d6b)";
-                  if (isTrialing) {
-                    badgeLabel = "Prova gratuita";
-                    badgeBg = "rgba(107,124,69,0.12)";
-                    badgeColor = "var(--olive-dark, #3d4f2f)";
-                  } else if (tier === "pro") {
-                    badgeLabel = "Piano Pro";
-                    badgeBg = "rgba(107,124,69,0.15)";
-                    badgeColor = "var(--olive-dark, #3d4f2f)";
-                  } else if (tier === "base") {
-                    badgeLabel = "Piano Base";
-                    badgeBg = "rgba(196,103,58,0.1)";
-                    badgeColor = "var(--terra, #c4673a)";
-                  }
-                  return (
-                    <span style={{
-                      background: badgeBg,
-                      color: badgeColor,
-                      borderRadius: 100,
-                      padding: "4px 12px",
-                      fontSize: 13,
-                      fontWeight: 700,
-                    }}>
-                      {badgeLabel}
-                    </span>
-                  );
-                })()}
-              </div>
-              {/* Trial end date */}
-              {subscription?.isTrialing && subscription.trialEnd && (
-                <p style={{ fontSize: 13, color: "var(--sepia-light)", margin: "0 0 10px" }}>
-                  Prova gratuita fino al{" "}
-                  {subscription.trialEnd.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
-                </p>
-              )}
-              {/* Manage subscription button */}
+
+              {/* Plan info card */}
+              {(() => {
+                const tier = subscription?.tier ?? "free";
+                const isTrialing = subscription?.isTrialing ?? false;
+                const fmt = (d: Date) => d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+                let label = "";
+                let sublabel = "";
+                let bg = "var(--cream-dark, #e8e0d0)";
+                let color = "var(--sepia-light, #8b7d6b)";
+
+                if (isTrialing && subscription?.trialEnd) {
+                  label = "Prova gratuita";
+                  sublabel = `scade il ${fmt(subscription.trialEnd)}`;
+                  bg = "rgba(107,124,69,0.1)";
+                  color = "var(--olive-dark, #3d4f2f)";
+                } else if (tier === "pro") {
+                  label = "Piano Pro";
+                  sublabel = subscription?.renewalDate ? `rinnovo il ${fmt(subscription.renewalDate)}` : "";
+                  bg = "rgba(107,124,69,0.1)";
+                  color = "var(--olive-dark, #3d4f2f)";
+                } else if (tier === "base") {
+                  label = "Piano Base";
+                  sublabel = subscription?.renewalDate ? `rinnovo il ${fmt(subscription.renewalDate)}` : "";
+                  bg = "rgba(196,103,58,0.08)";
+                  color = "var(--terra, #c4673a)";
+                } else {
+                  label = "Nessun piano";
+                  sublabel = "14 giorni di prova inclusi";
+                }
+
+                return (
+                  <div style={{ background: bg, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+                    <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color }}>{label}</p>
+                    {sublabel ? <p style={{ margin: "3px 0 0", fontSize: 13, color, opacity: 0.8 }}>{sublabel}</p> : null}
+                  </div>
+                );
+              })()}
+
+              {/* Gestisci abbonamento */}
               {subscription && subscription.status !== "none" && (
                 <button
                   onClick={handleOpenPortal}
@@ -663,20 +661,36 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
                   {isPortalLoading ? "Caricamento..." : "Gestisci abbonamento"}
                 </button>
               )}
-              {/* Link to pricing page */}
-              <a
-                href="/abbonamento"
-                style={{
-                  display: "block",
-                  textAlign: "center",
-                  fontSize: 13,
-                  color: "var(--olive, #6b7c45)",
-                  textDecoration: "underline",
-                  marginTop: 4,
-                }}
-              >
-                Vedi tutti i piani
-              </a>
+
+              {/* Aggiorna al Pro — solo per Base */}
+              {subscription?.tier === "base" && !subscription.isTrialing && (
+                <a
+                  href="/abbonamento"
+                  style={{
+                    display: "block", textAlign: "center",
+                    background: "var(--olive, #6b7c45)", color: "white",
+                    fontWeight: 700, fontSize: 14, padding: "12px",
+                    borderRadius: 10, textDecoration: "none",
+                    marginBottom: 8,
+                  }}
+                >
+                  Aggiorna al Pro →
+                </a>
+              )}
+
+              {/* Vedi piani — per free */}
+              {(!subscription || subscription.status === "none") && (
+                <a
+                  href="/abbonamento"
+                  style={{
+                    display: "block", textAlign: "center",
+                    fontSize: 13, color: "var(--olive, #6b7c45)",
+                    textDecoration: "underline", marginTop: 4,
+                  }}
+                >
+                  Scegli un piano
+                </a>
+              )}
             </div>
           </>
         )}
