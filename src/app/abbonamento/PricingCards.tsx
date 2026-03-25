@@ -178,7 +178,7 @@ function PricingCardsInner() {
                 </div>
                 {billing === "annual" && "perMonth" in pricing && (
                   <div style={{ fontSize: 13, color: "var(--sepia-light, #8b7d6b)", marginBottom: 4 }}>
-                    {pricing.perMonth}/mese · <span style={{ color: "var(--olive, #6b7c45)", fontWeight: 600 }}>{plan.annual.saving}</span>
+                    {(pricing as { perMonth: string }).perMonth}/mese · <span style={{ color: "var(--olive, #6b7c45)", fontWeight: 600 }}>{plan.annual.saving}</span>
                   </div>
                 )}
                 <div style={{ fontSize: 12, color: "var(--sepia-light, #8b7d6b)", marginBottom: 20 }}>
