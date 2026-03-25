@@ -6,22 +6,6 @@ import { createCheckoutSession } from "@/actions/stripeActions";
 
 const PLANS = [
   {
-    id: "free",
-    name: "Prova Gratuita",
-    price: "Gratis",
-    period: "14 giorni",
-    features: [
-      "Tutto incluso per 14 giorni",
-      "Nessuna carta di credito richiesta",
-      "Piano settimanale completo",
-      "Tutte le ricette incluse AI",
-      "Rigenera illimitato",
-      "Persone illimitate",
-    ],
-    cta: "Inizia la prova gratuita",
-    highlight: false,
-  },
-  {
     id: "base",
     name: "Piano Base",
     price: "\u20ac4,99",
@@ -100,6 +84,43 @@ function StatusBanner() {
   return null;
 }
 
+function TrialBanner({ createdAt }: { createdAt: string | undefined }) {
+  if (!createdAt) return null;
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const daysSince = Math.floor((Date.now() - new Date(createdAt).getTime()) / msPerDay);
+  const daysLeft = Math.max(0, 14 - daysSince);
+  if (daysLeft === 0) return null;
+  const pct = Math.round(((14 - daysLeft) / 14) * 100);
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, var(--terra, #C4673A) 0%, #a0522d 100%)",
+      borderRadius: 12, padding: "20px 24px", marginBottom: 28, color: "white",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div>
+          <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 2 }}>Prova gratuita in corso</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>
+            {daysLeft === 1 ? "Ultimo giorno!" : `${daysLeft} giorni rimasti`}
+          </div>
+        </div>
+        <div style={{ textAlign: "right", fontSize: 13, opacity: 0.85 }}>
+          <div>Iniziata il</div>
+          <div style={{ fontWeight: 600 }}>
+            {new Date(createdAt).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}
+          </div>
+        </div>
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 99, height: 6, overflow: "hidden" }}>
+        <div style={{ background: "white", width: `${pct}%`, height: "100%", borderRadius: 99, transition: "width 0.4s" }} />
+      </div>
+      <div style={{ fontSize: 12, opacity: 0.8, marginTop: 8 }}>
+        Scegli un piano prima della scadenza per non perdere i tuoi dati
+      </div>
+    </div>
+  );
+}
+
 function PricingCardsInner() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
@@ -129,6 +150,7 @@ function PricingCardsInner() {
 
   return (
     <>
+      <TrialBanner createdAt={user?.created_at} />
       <StatusBanner />
       {error && (
         <p
@@ -149,7 +171,7 @@ function PricingCardsInner() {
           gap: 20,
         }}
       >
-        {PLANS.map((plan) => (
+        {PLANS.filter(p => p.id !== "free").map((plan) => (
           <div
             key={plan.id}
             style={{
