@@ -5,7 +5,9 @@ import { TagPill } from "@/components/TagPill";
 import { TimeTag } from "@/components/TimeTag";
 import { FreezeToast } from "@/components/FreezeToast";
 import { seededShuffle, normalize, getRecipeCategory, DAYS, FREEZE_CANDIDATES, scaleQty, recipeContainsAllergen } from "@/lib/planEngine";
-import type { PlanResult, Preferences, ManualOverrides, PreferenceLearning, Recipe, MealSlot, FreezeItem } from "@/types";
+import { canRegenerate, createRigeneraEntry } from "@/lib/regenerationLimits";
+import type { RigeneraEntry } from "@/lib/regenerationLimits";
+import type { PlanResult, Preferences, ManualOverrides, PreferenceLearning, Recipe, MealSlot, FreezeItem, SubscriptionTier } from "@/types";
 
 interface WeekTabProps {
   generated: PlanResult;
@@ -27,6 +29,9 @@ interface WeekTabProps {
   onConfirmWeek: () => void;
   tourAdvance: (action: string) => void;
   recipes: Recipe[];
+  tier?: SubscriptionTier;
+  rigeneraLog?: RigeneraEntry[];
+  onRigeneraLogged?: (entry: RigeneraEntry) => void;
 }
 
 export function WeekTab({
@@ -47,8 +52,21 @@ export function WeekTab({
   setShowGeneratedBanner,
   tourAdvance,
   recipes,
+  tier,
+  rigeneraLog,
+  onRigeneraLogged,
 }: WeekTabProps) {
   const [freezeToastMessage, setFreezeToastMessage] = React.useState("");
+
+  const rigeneraStatus = React.useMemo(() => {
+    if (tier !== "base") return null;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayCount = (rigeneraLog ?? []).filter(e => e.timestamp.slice(0, 10) === today).length;
+    const uniqueDays = new Set((rigeneraLog ?? []).map(e => e.day)).size;
+    // Get max values from canRegenerate for a dummy check
+    const check = canRegenerate("base", rigeneraLog ?? [], "__probe__");
+    return { dailyUsed: todayCount, weeklyDaysUsed: uniqueDays, dailyMax: check.dailyMax, weeklyDaysMax: check.weeklyDaysMax };
+  }, [tier, rigeneraLog]);
 
   const swapMeals = (dayName: string) => {
     setSwappedDays((prev) => {
@@ -60,6 +78,19 @@ export function WeekTab({
   };
 
   const regenerateSingleMeal = (dayName: string, slot: MealSlot) => {
+    // Check regeneration limits for Base plan
+    if (tier === "base") {
+      const check = canRegenerate(tier, rigeneraLog ?? [], dayName);
+      if (!check.allowed) {
+        if (check.reason === "daily") {
+          setLastMessage(`Hai raggiunto il limite di ${check.dailyMax} rigenerazioni per oggi. Passa al Piano Pro per rigenerare senza limiti.`);
+        } else {
+          setLastMessage(`Hai gia rigenerato su ${check.weeklyDaysMax} giorni questa settimana. Passa al Piano Pro per rigenerare tutti i giorni.`);
+        }
+        return;
+      }
+    }
+
     const currentDay = generated.days.find((d) => d.day === dayName);
     const currentRecipe = currentDay?.[slot] || null;
     learnFromRecipe(currentRecipe, "regenerate");
@@ -98,6 +129,10 @@ export function WeekTab({
     const nextRecipe = scored[0]?.recipe || null;
     if (!nextRecipe) { setLastMessage(`Nessuna alternativa per ${dayName}`); return; }
     setManualOverrides((prev) => ({ ...prev, [dayName]: { ...(prev[dayName] || {}), [slot]: nextRecipe } }));
+    // Log regeneration for Base plan rate limiting
+    if (tier === "base" && onRigeneraLogged) {
+      onRigeneraLogged(createRigeneraEntry(dayName));
+    }
     setSelectedRecipe(nextRecipe);
     setLastMessage(`Rigenerato ${slot === "lunch" ? "pranzo" : "cena"} di ${dayName}`);
     setShowGeneratedBanner(true);
@@ -171,6 +206,15 @@ export function WeekTab({
             </div>
           ))}
         </div>
+
+        {/* Rigenera status bar for Piano Base */}
+        {tier === "base" && rigeneraStatus && (
+          <div style={{ marginTop: 12, padding: "8px 12px", background: "var(--cream-light, #faf8f0)", borderRadius: 8, fontSize: 13, color: "var(--sepia, #5c4f3d)" }}>
+            Rigenerazioni oggi: {rigeneraStatus.dailyUsed}/{rigeneraStatus.dailyMax} · Giorni questa settimana: {rigeneraStatus.weeklyDaysUsed}/{rigeneraStatus.weeklyDaysMax}
+            {" "}
+            <a href="/abbonamento" style={{ color: "var(--olive, #6b7c45)", textDecoration: "underline" }}>Passa a Pro</a>
+          </div>
+        )}
       </div>
 
       {/* Strategia + ricetta selezionata */}
