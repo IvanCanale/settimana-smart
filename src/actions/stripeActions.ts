@@ -15,12 +15,18 @@ function adminClient() {
  * Create a Stripe Checkout Session for a new subscription.
  * Includes 14-day free trial with no card required.
  * Redirects the user to Stripe's hosted checkout page.
+ * Accepts planType ("base" | "pro") and resolves the Stripe priceId server-side.
  */
 export async function createCheckoutSession(
   userId: string,
   userEmail: string,
-  priceId: string,
+  planType: "base" | "pro",
 ) {
+  const priceId =
+    planType === "base"
+      ? process.env.STRIPE_PRICE_ID_BASE!
+      : process.env.STRIPE_PRICE_ID_PRO!;
+
   const supabase = adminClient();
 
   // Find or create Stripe customer
