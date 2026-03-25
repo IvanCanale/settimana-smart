@@ -33,7 +33,6 @@ const PLANS = [
       "Rigenerazioni illimitate",
       "Suggerimenti congelamento",
       "Notifiche nuove ricette",
-      "Filtri dieta avanzati",
       "Supporto prioritario",
     ],
     cta: "Abbonati al Piano Pro",
