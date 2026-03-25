@@ -28,6 +28,7 @@ import { TrialBanner } from "@/components/TrialBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
 import { getSubscriptionAction } from "@/actions/stripeActions";
 import type { RigeneraEntry } from "@/lib/regenerationLimits";
+import { PaywallOverlay, useIsPaywalled } from "@/components/PaywallOverlay";
 
 const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [], wishlistedRecipeIds: [] };
 const DEFAULT_PANTRY: PantryItem[] = [{ name: "pasta", quantity: 500, unit: "g" }, { name: "olio extravergine", quantity: 200, unit: "ml" }, { name: "uova fresche", quantity: 2, unit: "pezzi" }];
@@ -364,9 +365,15 @@ export default function SettimanaSmartMVP() {
                 });
               }}
               onBack={() => setActiveTab("planner")}
+              tier={subscription.tier}
             />
           )}
-          {activeTab === "planner" && <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} feedbackNote={feedbackNote} setFeedbackNote={setFeedbackNote} activeWeek={activeWeek} switchWeek={switchWeek} />}
+          {activeTab === "planner" && (
+            <div style={{ position: "relative" }}>
+              <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} feedbackNote={feedbackNote} setFeedbackNote={setFeedbackNote} activeWeek={activeWeek} switchWeek={switchWeek} />
+              <PaywallOverlay user={user} subscription={subscription} />
+            </div>
+          )}
           {activeTab === "week" && <WeekTab generated={generated} computedPrefs={computedPrefs} preferences={preferences} manualOverrides={manualOverrides} setManualOverrides={setManualOverrides} swappedDays={swappedDays} setSwappedDays={setSwappedDays} seed={seed} learning={learning} learnFromRecipe={learnFromRecipe} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} setActiveTab={setActiveTab} onStartRecipeFlow={startRecipeFlow} setLastMessage={setLastMessage} setShowGeneratedBanner={setShowGeneratedBanner} onConfirmWeek={confirmWeek} tourAdvance={tourAdvance} recipes={recipes} tier={subscription.tier} rigeneraLog={rigeneraLog} onRigeneraLogged={(entry) => setRigeneraLog(prev => [...prev, entry])} />}
           {activeTab === "shopping" && <ShoppingTab generated={generated} checkedShoppingItems={checkedShoppingItems} setCheckedShoppingItems={setCheckedShoppingItems} extraShoppingItems={extraShoppingItems} setExtraShoppingItems={setExtraShoppingItems} tourAdvance={tourAdvance} tier={subscription.tier} />}
           {activeTab === "recipes" && <RicetteTab generated={generated} selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} recipeDetailRef={recipeDetailRef} onStartRecipeFlow={startRecipeFlow} />}
