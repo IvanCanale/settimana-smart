@@ -121,9 +121,9 @@ export async function fetchRecipes(
     .order("created_at", { ascending: false });
 
   if (tier === "base") {
-    // Piano Base: only 100 seed recipes, no AI-generated recipes
+    // Piano Base: 200 seed recipes, no AI-generated recipes
     // MUST be enforced at query level, not client-side (prevents bypass)
-    query = query.neq("added_by", "ai").limit(100);
+    query = query.neq("added_by", "ai").limit(200);
   }
   // "pro" and "free" (trial): all recipes, no limit
 
