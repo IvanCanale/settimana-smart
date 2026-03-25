@@ -105,9 +105,15 @@ export default function SettimanaSmartMVP() {
       return;
     }
     getSubscriptionAction(user.id).then(setSubscription).catch(() => {
-      // On error, default to "pro" to avoid blocking users
       setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, status: "none" });
     });
+    // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
+    const pendingPlan = sessionStorage.getItem("pending_plan");
+    if (pendingPlan) {
+      sessionStorage.removeItem("pending_plan");
+      sessionStorage.removeItem("pending_billing");
+      window.location.href = "/abbonamento";
+    }
   }, [user?.id]);
   useEffect(() => { if (syncStatus === "error") { setNetworkErrorToast(true); const t = window.setTimeout(() => setNetworkErrorToast(false), 6000); return () => window.clearTimeout(t); } }, [syncStatus]);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
