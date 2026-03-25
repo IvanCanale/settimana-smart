@@ -3,6 +3,7 @@ import React from "react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { normalize, SKIP_OPTIONS } from "@/lib/planEngine";
 import type { Preferences, PantryItem, PreferenceLearning, PlanResult, Diet, Skill } from "@/types";
+import type { RigeneraCheckResult } from "@/lib/regenerationLimits";
 
 interface PlannerTabProps {
   preferences: Preferences;
@@ -30,6 +31,7 @@ interface PlannerTabProps {
   setFeedbackNote?: React.Dispatch<React.SetStateAction<string>>;
   activeWeek?: string;
   switchWeek?: (week: string) => void;
+  rigeneraInfo?: RigeneraCheckResult;
 }
 
 export function PlannerTab({
@@ -54,6 +56,7 @@ export function PlannerTab({
   setFeedbackNote,
   activeWeek,
   switchWeek,
+  rigeneraInfo,
 }: PlannerTabProps) {
   const addPantryItem = () => {
     if (!pantryInput.name.trim()) return;
@@ -221,8 +224,34 @@ export function PlannerTab({
           </div>
         )}
 
+        {/* Rigenera limit info for Base tier */}
+        {rigeneraInfo && rigeneraInfo.dailyMax !== Infinity && (
+          rigeneraInfo.allowed ? (
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--sepia-light)" }}>
+              Rigenerazioni rimaste oggi: <strong>{rigeneraInfo.dailyMax - rigeneraInfo.dailyUsed}/{rigeneraInfo.dailyMax}</strong>
+            </p>
+          ) : (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10,
+              background: "rgba(196,103,58,0.08)", border: "1px solid rgba(196,103,58,0.25)",
+              borderRadius: 10, padding: "12px 16px", marginBottom: 10,
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--terra, #C4673A)" }}>
+                🚫 Rigenerazioni esaurite · Aggiorna al Pro per rigenerare illimitatamente
+              </span>
+              <a href="/abbonamento" style={{
+                fontSize: 13, fontWeight: 700, color: "white",
+                background: "var(--terra, #C4673A)", padding: "7px 14px",
+                borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap",
+              }}>
+                Aggiorna piano →
+              </a>
+            </div>
+          )
+        )}
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-          <button className="btn-terra" onClick={onGenerate} disabled={isGenerating}>{isGenerating ? "⏳ Generazione..." : "✨ Genera piano"}</button>
+          <button className="btn-terra" onClick={onGenerate} disabled={isGenerating || (rigeneraInfo ? !rigeneraInfo.allowed : false)}>{isGenerating ? "⏳ Generazione..." : "✨ Genera piano"}</button>
           <button className="btn-outline-terra" onClick={onConfirmWeek}>❤️ Conferma settimana</button>
           <button className="btn-ghost" onClick={onReset}>↺ Reset</button>
           <button className="btn-ghost" onClick={onRestartOnboarding} style={{ fontSize: 12, color: "var(--sepia-light)" }}>⚙ Ripeti configurazione iniziale</button>

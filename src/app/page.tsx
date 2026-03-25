@@ -27,6 +27,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
 import { getSubscriptionAction } from "@/actions/stripeActions";
+import { canRegenerate, createRigeneraEntry } from "@/lib/regenerationLimits";
 import type { RigeneraEntry } from "@/lib/regenerationLimits";
 import { PaywallOverlay, useIsPaywalled } from "@/components/PaywallOverlay";
 
@@ -143,6 +144,10 @@ export default function SettimanaSmartMVP() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorialDone]);
   const regenerate = () => {
+    // Check regeneration limit for Base users
+    const rigeneraCheck = canRegenerate(subscription.tier, rigeneraLog, "");
+    if (!rigeneraCheck.allowed) return; // blocked — UI already shows the banner
+
     tourAdvance("generate"); setIsGenerating(true); setShowGeneratedBanner(false); setShowHerbBanner(false); setLastMessage("Generazione in corso...");
     // Append feedback note to exclusions if present
     if (feedbackNote.trim()) {
@@ -152,6 +157,10 @@ export default function SettimanaSmartMVP() {
           ? `${prev.exclusionsText}, ${feedbackNote.trim()}`
           : feedbackNote.trim(),
       }));
+    }
+    // Record this regeneration for Base limit tracking
+    if (subscription.tier === "base") {
+      setRigeneraLog((prev) => [...prev, createRigeneraEntry("")]);
     }
     setTimeout(() => {
       const usedHerbs = Array.from(new Set(generated.days.flatMap((d) => [d.lunch, d.dinner].filter(Boolean) as Recipe[]).flatMap((r) => r.ingredients).filter((i) => PERISHABLE_HERBS.includes(normalize(i.name))).map((i) => i.name)));
@@ -370,7 +379,7 @@ export default function SettimanaSmartMVP() {
           )}
           {activeTab === "planner" && (
             <div style={{ position: "relative" }}>
-              <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} feedbackNote={feedbackNote} setFeedbackNote={setFeedbackNote} activeWeek={activeWeek} switchWeek={switchWeek} />
+              <PlannerTab preferences={preferences} setPreferences={setPreferences} pantryItems={pantryItems} setPantryItems={setPantryItems} pantryInput={pantryInput} setPantryInput={setPantryInput} seed={seed} setSeed={setSeed} isGenerating={isGenerating} lastMessage={lastMessage} showGeneratedBanner={showGeneratedBanner} generated={generated} learning={learning} onGenerate={regenerate} onConfirmWeek={confirmWeek} onReset={() => { setPreferences(DEFAULT_PREFS); setSeed(1); setManualOverrides({}); setLastMessage("Reset effettuato"); setShowGeneratedBanner(false); }} onRestartOnboarding={() => { localStorage.removeItem("ss_onboarding_done"); setOnboardingDone(false); setOnboardingStep(0); }} setManualOverrides={setManualOverrides} setShowGeneratedBanner={setShowGeneratedBanner} setLastMessage={setLastMessage} feedbackNote={feedbackNote} setFeedbackNote={setFeedbackNote} activeWeek={activeWeek} switchWeek={switchWeek} rigeneraInfo={canRegenerate(subscription.tier, rigeneraLog, "")} />
               <PaywallOverlay user={user} subscription={subscription} />
             </div>
           )}
