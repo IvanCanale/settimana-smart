@@ -9,9 +9,8 @@ interface TrialBannerProps {
 
 export function TrialBanner({ user, subscription }: TrialBannerProps) {
   if (!user) return null;
-  // Non mostrare se ha già un abbonamento attivo (non in trial)
+  // Non mostrare se ha un abbonamento attivo pagante (non in trial)
   if (subscription.status === "active" && !subscription.isTrialing) return null;
-  if (subscription.tier !== "free" && !subscription.isTrialing) return null;
 
   // Calcola giorni rimanenti
   const msPerDay = 1000 * 60 * 60 * 24;
