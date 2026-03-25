@@ -101,7 +101,13 @@ function PricingCardsInner() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubscribe = async (planId: string) => {
-    if (!user) { setError("Devi accedere per abbonarti. Vai al profilo per fare login."); return; }
+    if (!user) {
+      // Salva il piano scelto e rimanda al login
+      sessionStorage.setItem("pending_plan", planId);
+      sessionStorage.setItem("pending_billing", billing);
+      window.location.href = "/?login=1";
+      return;
+    }
     setLoading(planId); setError(null);
     try {
       await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
@@ -187,7 +193,7 @@ function PricingCardsInner() {
                 disabled={loading === plan.id}
                 onClick={() => handleSubscribe(plan.id)}
               >
-                {loading === plan.id ? "Caricamento..." : plan.cta}
+                {loading === plan.id ? "Caricamento..." : !user ? "Accedi e abbonati" : plan.cta}
               </button>
             </div>
           );
