@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { SubscriptionStatus } from "@/types";
 
 interface PaywallOverlayProps {
@@ -8,12 +8,18 @@ interface PaywallOverlayProps {
 }
 
 export function useIsPaywalled(user: { created_at: string } | null, subscription: SubscriptionStatus): boolean {
-  if (!user) return false;
-  if (subscription.tier !== "free") return false;
-  if (subscription.isTrialing) return false;
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const daysSince = Math.floor((Date.now() - new Date(user.created_at).getTime()) / msPerDay);
-  return daysSince >= 14;
+  const [isPaywalled, setIsPaywalled] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setIsPaywalled(false); return; }
+    if (subscription.tier !== "free") { setIsPaywalled(false); return; }
+    if (subscription.isTrialing) { setIsPaywalled(false); return; }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const daysSince = Math.floor((Date.now() - new Date(user.created_at).getTime()) / msPerDay);
+    setIsPaywalled(daysSince >= 14);
+  }, [user, subscription]);
+
+  return isPaywalled;
 }
 
 export function PaywallOverlay({ user, subscription }: PaywallOverlayProps) {
