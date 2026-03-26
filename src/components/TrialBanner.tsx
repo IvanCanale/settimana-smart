@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { SubscriptionStatus } from "@/types";
 
 interface TrialBannerProps {
@@ -8,20 +8,28 @@ interface TrialBannerProps {
 }
 
 export function TrialBanner({ user, subscription }: TrialBannerProps) {
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    if (subscription.status === "active" && !subscription.isTrialing) return;
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+    let days: number;
+
+    if (subscription.isTrialing && subscription.trialEnd) {
+      days = Math.max(0, Math.ceil((subscription.trialEnd.getTime() - Date.now()) / msPerDay));
+    } else {
+      const daysSince = Math.floor((Date.now() - new Date(user.created_at).getTime()) / msPerDay);
+      days = Math.max(0, 14 - daysSince);
+    }
+
+    setDaysLeft(days);
+  }, [user, subscription]);
+
   if (!user) return null;
   if (subscription.status === "active" && !subscription.isTrialing) return null;
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-  let daysLeft: number;
-
-  if (subscription.isTrialing && subscription.trialEnd) {
-    daysLeft = Math.max(0, Math.ceil((subscription.trialEnd.getTime() - Date.now()) / msPerDay));
-  } else {
-    const daysSince = Math.floor((Date.now() - new Date(user.created_at).getTime()) / msPerDay);
-    daysLeft = Math.max(0, 14 - daysSince);
-  }
-
-  if (daysLeft === 0) return null;
+  if (daysLeft === null || daysLeft === 0) return null;
 
   const daysUsed = 14 - daysLeft;
   const progress = Math.min(100, (daysUsed / 14) * 100);
