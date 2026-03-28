@@ -24,11 +24,10 @@ export function usePushSubscription(
     setPermission(perm === "default" ? "prompt" : perm as PermissionState);
 
     // Check if already subscribed
-    navigator.serviceWorker.ready.then((reg) => {
-      reg.pushManager.getSubscription().then((sub) => {
-        setIsSubscribed(!!sub);
-      });
-    });
+    navigator.serviceWorker.ready
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => setIsSubscribed(!!sub))
+      .catch(() => { /* service worker not available — isSubscribed stays false */ });
   }, []);
 
   const subscribe = useCallback(async () => {

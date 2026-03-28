@@ -67,7 +67,8 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
     try {
       const { error } = await sbClient.functions.invoke("delete-account", { method: "POST" });
       if (error) throw error;
-      ["ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1", "ss_manual_overrides_v1", "ss_checked_shopping_v1"].forEach(k => localStorage.removeItem(k));
+      // signOut fires SIGNED_OUT in AuthProvider which clears localStorage automatically.
+      // We call it first so the clear happens before navigation.
       await sbClient.auth.signOut();
       onClose();
     } catch (err) {
@@ -118,7 +119,8 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
 
   const handleReset = () => {
     const fallback = defaultPrefs ?? { people: 2, diet: "mediterranea" as const, maxTime: 20, budget: 60, skill: "beginner" as const, mealsPerDay: "dinner" as const, leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [] };
-    ["ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1", "ss_manual_overrides_v1", "ss_checked_shopping_v1"].forEach(k => localStorage.removeItem(k));
+    ["ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1", "ss_manual_overrides_v1",
+     "ss_checked_shopping_v1", "ss_rigenera_log_v1", "ss_learning_v1"].forEach(k => localStorage.removeItem(k));
     setPreferences(fallback as Preferences);
     onResetAllLocalStorage?.();
     setConfirmReset(false);

@@ -41,8 +41,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     const { data: { subscription } } = client.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
+      (event: string, session: Session | null) => {
         setUser(session?.user ?? null);
+        // Clear all user-specific localStorage on signout to prevent cross-user data leakage
+        // when multiple people share the same browser (e.g. family members).
+        if (event === "SIGNED_OUT" && typeof window !== "undefined") {
+          const USER_KEYS = [
+            "ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1",
+            "ss_manual_overrides_v1", "ss_checked_shopping_v1",
+            "ss_rigenera_log_v1", "ss_learning_v1", "ss_onboarding_done",
+            "ss_tutorial_done",
+          ];
+          USER_KEYS.forEach((k) => localStorage.removeItem(k));
+        }
       }
     );
 
