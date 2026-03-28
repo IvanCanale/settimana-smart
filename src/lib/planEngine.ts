@@ -395,7 +395,8 @@ export function buildPlan(preferences: Preferences, pantryItems: PantryItem[], s
     if (!recipeItem.diet.includes(preferences.diet)) return false;
     if (!(recipeItem.tags.includes("speciale") || recipeItem.tags.includes("domenica"))) return false;
     if (recipeItem.time > Math.max(preferences.maxTime, 60)) return false;
-    if (exclusions.some((ex) => recipeItem.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
+    // Use same allergen check as regular recipes (ALLERGEN_INGREDIENT_MAP keyword matching)
+    if (exclusions.some((ex) => recipeContainsAllergen(recipeItem, ex))) return false;
     return true;
   });
 

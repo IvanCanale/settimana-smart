@@ -53,6 +53,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             "ss_tutorial_done",
           ];
           USER_KEYS.forEach((k) => localStorage.removeItem(k));
+          // Clear tier-specific recipe caches
+          ["pro", "base", "free"].forEach((t) => {
+            localStorage.removeItem(`ss_recipes_cache_${t}_v1`);
+            localStorage.removeItem(`ss_recipes_cache_${t}_ts_v1`);
+          });
+          // Clear legacy cache key (before tier was included in key)
+          localStorage.removeItem("ss_recipes_cache_v1");
+          localStorage.removeItem("ss_recipes_cache_ts_v1");
         }
       }
     );

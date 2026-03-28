@@ -14,10 +14,12 @@ export function getStripe(): Stripe {
 /** @deprecated use getStripe() */
 export const stripe = { get instance() { return getStripe(); } } as unknown as Stripe;
 
-// Plan tier lookup from price ID
+// Plan tier lookup from price ID — covers both monthly and annual variants
 export function getPlanTier(priceId: string | undefined): "base" | "pro" | null {
   if (priceId === process.env.STRIPE_PRICE_ID_BASE) return "base";
+  if (priceId === process.env.STRIPE_PRICE_ID_BASE_ANNUAL) return "base";
   if (priceId === process.env.STRIPE_PRICE_ID_PRO) return "pro";
+  if (priceId === process.env.STRIPE_PRICE_ID_PRO_ANNUAL) return "pro";
   return null;
 }
 

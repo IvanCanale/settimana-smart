@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useEffect, useRef, useState } from "react";
-import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety } from "@/lib/planEngine";
+import { buildPlan, aggregateShopping, computeStats, seededShuffle, scaleQty, normalize, DAYS, FREEZE_CANDIDATES, validateAllergenSafety, recipeContainsAllergen } from "@/lib/planEngine";
 import { saveWeeklyPlan, savePreferences, fetchRecipes } from "@/lib/supabase";
 import { RECIPE_LIBRARY } from "@/data/recipes";
 import type { Preferences, PantryItem, PreferenceLearning, ManualOverrides, DayPlan, Recipe, SubscriptionTier } from "@/types";
@@ -25,8 +25,9 @@ export function usePlanEngine(
   const [recipesLoading, setRecipesLoading] = useState(false);
 
   useEffect(() => {
-    const CACHE_KEY = "ss_recipes_cache_v1";
-    const CACHE_TS_KEY = "ss_recipes_cache_ts_v1";
+    // Include tier in cache key so a tier downgrade (pro→base) always fetches fresh recipes
+    const CACHE_KEY = `ss_recipes_cache_${tier}_v1`;
+    const CACHE_TS_KEY = `ss_recipes_cache_${tier}_ts_v1`;
     const cached = localStorage.getItem(CACHE_KEY);
     const cachedTs = localStorage.getItem(CACHE_TS_KEY);
     const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
@@ -113,7 +114,7 @@ export function usePlanEngine(
           recipes.filter((rec) => {
             if (!rec.diet.includes(computedPrefs.diet)) return false;
             if (rec.time > computedPrefs.maxTime) return false;
-            if (computedPrefs.exclusions.some((ex) => rec.ingredients.some((i) => normalize(i.name).includes(ex)))) return false;
+            if (computedPrefs.exclusions.some((ex) => recipeContainsAllergen(rec, ex))) return false;
             if (usedIds.has(rec.id)) return false;
             if (rec.tags.includes("speciale") || rec.tags.includes("domenica")) return false;
             return true;
