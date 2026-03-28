@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe";
+import { verifyAccessToken } from "@/lib/serverAuth";
 
 function adminClient() {
   return createClient(
@@ -13,17 +14,17 @@ function adminClient() {
 
 /**
  * Create a Stripe Checkout Session for a new subscription.
- * Includes 14-day free trial with no card required.
- * Redirects the user to Stripe's hosted checkout page.
- * Accepts planType ("base" | "pro") and resolves the Stripe priceId server-side.
+ * Accepts the user's Supabase access token (not userId) to verify identity server-side.
  */
 export async function createCheckoutSession(
-  userId: string,
-  userEmail: string,
+  accessToken: string,
   planType: "base" | "pro",
   billing: "monthly" | "annual" = "monthly",
 ): Promise<{ url: string; error?: never } | { url?: never; error: string }> {
   try {
+    const user = await verifyAccessToken(accessToken);
+    if (!user) return { error: "Non autorizzato" };
+
     const priceId =
       planType === "base"
         ? (billing === "annual" ? process.env.STRIPE_PRICE_ID_BASE_ANNUAL! : process.env.STRIPE_PRICE_ID_BASE!)
@@ -34,29 +35,27 @@ export async function createCheckoutSession(
     const supabase = adminClient();
 
     // Calculate remaining trial days based on user.created_at
-    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
-    const createdAt = authUser?.user?.created_at ? new Date(authUser.user.created_at) : new Date();
+    const createdAt = user.created_at ? new Date(user.created_at) : new Date();
     const trialEnd = new Date(createdAt.getTime() + 14 * 24 * 60 * 60 * 1000);
-    const now = new Date();
-    const hasTrialRemaining = trialEnd > now;
+    const hasTrialRemaining = trialEnd > new Date();
 
     // Find or create Stripe customer
     const { data: existing } = await supabase
       .from("customers")
       .select("stripe_customer_id")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .single();
 
     let customerId = existing?.stripe_customer_id;
     if (!customerId) {
       const customer = await getStripe().customers.create({
-        email: userEmail,
-        metadata: { supabase_user_id: userId },
+        email: user.email,
+        metadata: { supabase_user_id: user.id },
       });
       customerId = customer.id;
       await supabase
         .from("customers")
-        .insert({ user_id: userId, stripe_customer_id: customerId });
+        .insert({ user_id: user.id, stripe_customer_id: customerId });
     }
 
     const session = await getStripe().checkout.sessions.create({
@@ -84,14 +83,16 @@ export async function createCheckoutSession(
 
 /**
  * Create a Stripe Customer Portal session for managing an existing subscription.
- * Redirects the user to Stripe's hosted portal (upgrade/downgrade/cancel/payment method).
  */
-export async function createPortalSession(userId: string) {
+export async function createPortalSession(accessToken: string) {
+  const user = await verifyAccessToken(accessToken);
+  if (!user) throw new Error("Non autorizzato");
+
   const supabase = adminClient();
   const { data } = await supabase
     .from("customers")
     .select("stripe_customer_id")
-    .eq("user_id", userId)
+    .eq("user_id", user.id)
     .single();
 
   if (!data?.stripe_customer_id) {
@@ -107,10 +108,11 @@ export async function createPortalSession(userId: string) {
 }
 
 /**
- * Server action to fetch a user's subscription status.
- * Used by page.tsx (client component) to read tier without importing server-only stripe.ts directly.
+ * Fetch a user's subscription status.
  */
-export async function getSubscriptionAction(userId: string) {
+export async function getSubscriptionAction(accessToken: string) {
+  const user = await verifyAccessToken(accessToken);
+  if (!user) return null;
   const { getSubscription } = await import("@/lib/stripe");
-  return getSubscription(userId);
+  return getSubscription(user.id);
 }

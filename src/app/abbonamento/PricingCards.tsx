@@ -95,13 +95,13 @@ function StatusBanner() {
 }
 
 function PricingCardsInner() {
-  const { user } = useAuth();
+  const { user, sbClient } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubscribe = async (planId: string) => {
-    if (!user) {
+    if (!user || !sbClient) {
       // Salva il piano scelto e rimanda al login
       sessionStorage.setItem("pending_plan", planId);
       sessionStorage.setItem("pending_billing", billing);
@@ -109,7 +109,9 @@ function PricingCardsInner() {
       return;
     }
     setLoading(planId); setError(null);
-    const result = await createCheckoutSession(user.id, user.email!, planId === "base" ? "base" : "pro", billing);
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (!session?.access_token) { setError("Sessione scaduta, riaccedi."); setLoading(null); return; }
+    const result = await createCheckoutSession(session.access_token, planId === "base" ? "base" : "pro", billing);
     if (result.error) {
       setError(`Errore: ${result.error}`);
       setLoading(null);

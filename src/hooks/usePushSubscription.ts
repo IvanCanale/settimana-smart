@@ -1,11 +1,15 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { isPushSupported, urlBase64ToUint8Array } from "@/lib/notifUtils";
 import { savePushSubscription, deletePushSubscription } from "@/actions/pushActions";
 
 type PermissionState = "prompt" | "granted" | "denied" | "unsupported";
 
-export function usePushSubscription(userId: string | null) {
+export function usePushSubscription(
+  userId: string | null,
+  supabaseClient: SupabaseClient | null,
+) {
   const [permission, setPermission] = useState<PermissionState>("prompt");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,12 +32,15 @@ export function usePushSubscription(userId: string | null) {
   }, []);
 
   const subscribe = useCallback(async () => {
-    if (!userId || !isPushSupported()) return false;
+    if (!userId || !supabaseClient || !isPushSupported()) return false;
     setLoading(true);
     try {
       const result = await Notification.requestPermission();
       setPermission(result === "default" ? "prompt" : result as PermissionState);
       if (result !== "granted") return false;
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session?.access_token) return false;
 
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
@@ -43,7 +50,7 @@ export function usePushSubscription(userId: string | null) {
         ) as unknown as BufferSource,
       });
       const subJSON = sub.toJSON();
-      await savePushSubscription(userId, {
+      await savePushSubscription(session.access_token, {
         endpoint: subJSON.endpoint!,
         keys: subJSON.keys as { p256dh: string; auth: string },
       });
@@ -54,23 +61,26 @@ export function usePushSubscription(userId: string | null) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, supabaseClient]);
 
   const unsubscribe = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !supabaseClient) return;
     setLoading(true);
     try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session?.access_token) return;
+
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
       if (sub) {
-        await deletePushSubscription(userId, sub.endpoint);
+        await deletePushSubscription(session.access_token, sub.endpoint);
         await sub.unsubscribe();
       }
       setIsSubscribed(false);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, supabaseClient]);
 
   return { permission, isSubscribed, loading, subscribe, unsubscribe };
 }

@@ -31,7 +31,7 @@ interface ProfileDrawerProps {
 
 export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, onResetAllLocalStorage, defaultPrefs, subscription }: ProfileDrawerProps) {
   const { sbClient, user } = useAuth();
-  const push = usePushSubscription(user?.id ?? null);
+  const push = usePushSubscription(user?.id ?? null, sbClient);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [planCount, setPlanCount] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -102,10 +102,12 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
   };
 
   const handleOpenPortal = async () => {
-    if (!user) return;
+    if (!user || !sbClient) return;
     setIsPortalLoading(true);
     try {
-      await createPortalSession(user.id);
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session?.access_token) throw new Error("Sessione scaduta");
+      await createPortalSession(session.access_token);
     } catch (err) {
       console.error("Errore apertura portale:", err);
       alert("Errore durante l'apertura del portale di gestione abbonamento.");

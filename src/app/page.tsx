@@ -110,12 +110,15 @@ export default function SettimanaSmartMVP() {
     }
   }, []);
   useEffect(() => {
-    if (!user?.id) {
+    if (!user?.id || !sbClient) {
       setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
       return;
     }
-    getSubscriptionAction(user.id).then(setSubscription).catch(() => {
-      setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
+    sbClient.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.access_token) return;
+      getSubscriptionAction(session.access_token).then((s) => { if (s) setSubscription(s); }).catch(() => {
+        setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
+      });
     });
     // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
     const pendingPlan = sessionStorage.getItem("pending_plan");
@@ -124,7 +127,7 @@ export default function SettimanaSmartMVP() {
       sessionStorage.removeItem("pending_billing");
       window.location.href = "/abbonamento";
     }
-  }, [user?.id]);
+  }, [user?.id, sbClient]);
   useEffect(() => { if (syncStatus === "error") { setNetworkErrorToast(true); const t = window.setTimeout(() => setNetworkErrorToast(false), 6000); return () => window.clearTimeout(t); } }, [syncStatus]);
   useEffect(() => { tutorialStepRef.current = tutorialStep; }, [tutorialStep]);
   useEffect(() => { const first = preferences.mealsPerDay === "both" ? generated.days[0]?.lunch || generated.days[0]?.dinner : generated.days[0]?.dinner; setSelectedRecipe(first || null); }, [generated, preferences.mealsPerDay]);

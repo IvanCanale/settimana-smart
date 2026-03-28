@@ -6,8 +6,11 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
+const ALLOWED_ORIGIN = Deno.env.get("SITE_URL") ?? "https://settimana-smart.vercel.app";
+
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Headers": "Authorization, Content-Type",
   "Content-Type": "application/json",
 };
 
