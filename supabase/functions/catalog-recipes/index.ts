@@ -105,7 +105,8 @@ Regole:
   try {
     const recipes = JSON.parse(jsonMatch[0]);
     return recipes.filter(validateParsedRecipe);
-  } catch {
+  } catch (e) {
+    console.error(`[${dietType}] r${round} JSON parse error:`, (e as Error).message, "| raw:", jsonMatch[0].slice(0, 300));
     return [];
   }
 }
@@ -178,7 +179,7 @@ serve(async (req) => {
       estimated_cost: (r.estimated_cost as number) ?? null,
       protein_category: (r.protein_category as string) ?? null,
       source_url: null,
-      added_by: "ai_job",
+      added_by: "ai",
     }));
 
     const { error } = await supabase

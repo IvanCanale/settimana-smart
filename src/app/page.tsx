@@ -22,7 +22,7 @@ import { ShoppingTab } from "@/components/ShoppingTab";
 import { CucinaTab } from "@/components/CucinaTab";
 import { RicetteTab } from "@/components/RicetteTab";
 import { normalize } from "@/lib/planEngine";
-import { loadUserData } from "@/lib/supabase";
+import { loadUserData, loadRigeneraLog, saveRigeneraLog } from "@/lib/supabase";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import type { Preferences, PantryItem, ManualOverrides, Recipe, VoiceOption, FreezeItem, SubscriptionStatus } from "@/types";
@@ -163,7 +163,14 @@ export default function SettimanaSmartMVP() {
     }
     // Record this regeneration for Base limit tracking
     if (subscription.tier === "base") {
-      setRigeneraLog((prev) => [...prev, createRigeneraEntry("")]);
+      setRigeneraLog((prev) => {
+        const next = [...prev, createRigeneraEntry("")];
+        // Sync to cloud to prevent multi-device bypass
+        if (sbClient && user?.id) {
+          saveRigeneraLog(sbClient, user.id, activeWeek, next).catch(() => {});
+        }
+        return next;
+      });
     }
     setTimeout(() => {
       const usedHerbs = Array.from(new Set(generated.days.flatMap((d) => [d.lunch, d.dinner].filter(Boolean) as Recipe[]).flatMap((r) => r.ingredients).filter((i) => PERISHABLE_HERBS.includes(normalize(i.name))).map((i) => i.name)));
@@ -221,6 +228,25 @@ export default function SettimanaSmartMVP() {
     }
     prevWeekRef.current = activeWeek;
   }, [activeWeek, setRigeneraLog]);
+
+  // ── RIGENERA LOG CLOUD SYNC ──
+  // Always load from cloud on login to prevent multi-device bypass of base-tier daily limit.
+  useEffect(() => {
+    if (!sbClient || !user?.id || subscription.tier !== "base") return;
+    loadRigeneraLog(sbClient, user.id, activeWeek).then((cloudLog) => {
+      if (cloudLog.length === 0) return;
+      setRigeneraLog((local) => {
+        // Merge local + cloud, dedup by timestamp, take the more restrictive set
+        const seen = new Set(local.map((e) => e.timestamp));
+        const merged = [...local];
+        for (const e of cloudLog) {
+          if (!seen.has(e.timestamp)) { seen.add(e.timestamp); merged.push(e); }
+        }
+        return merged;
+      });
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, sbClient, subscription.tier, activeWeek]);
 
   // ── OFFLINE DETECTION ──
   useEffect(() => {

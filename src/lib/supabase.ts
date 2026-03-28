@@ -109,6 +109,33 @@ export async function migrateFromLocalStorage(client: SupabaseClient, userId: st
   await Promise.all(ops);
 }
 
+export async function saveRigeneraLog(
+  client: SupabaseClient,
+  userId: string,
+  weekIso: string,
+  log: { day: string; timestamp: string }[]
+) {
+  return client
+    .from("weekly_plan")
+    .update({ rigenera_log: log })
+    .eq("user_id", userId)
+    .eq("week_iso", weekIso);
+}
+
+export async function loadRigeneraLog(
+  client: SupabaseClient,
+  userId: string,
+  weekIso: string
+): Promise<{ day: string; timestamp: string }[]> {
+  const { data } = await client
+    .from("weekly_plan")
+    .select("rigenera_log")
+    .eq("user_id", userId)
+    .eq("week_iso", weekIso)
+    .single();
+  return Array.isArray(data?.rigenera_log) ? data.rigenera_log : [];
+}
+
 // ── Recipe catalog (shared, public read) ─────────────────────────────────────
 
 export async function fetchRecipes(

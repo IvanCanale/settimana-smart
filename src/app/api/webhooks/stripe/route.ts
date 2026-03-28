@@ -76,6 +76,8 @@ export async function POST(request: Request) {
         console.error("Payment failed for invoice:", invoice.id);
         break;
       }
+      default:
+        console.warn("[stripe-webhook] Unhandled event type:", event.type);
     }
   } catch (err) {
     console.error("Webhook handler error:", err);
