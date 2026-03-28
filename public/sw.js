@@ -43,10 +43,13 @@ self.addEventListener('fetch', (event) => {
 
 // ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
-  const data = event.data?.json() ?? {};
+  // Some push services may not deliver the encrypted payload body —
+  // fall back to a generic reminder so the notification is never empty.
+  let data = {};
+  try { data = event.data?.json() ?? {}; } catch { data = {}; }
   event.waitUntil(
     self.registration.showNotification(data.title || 'Menumix', {
-      body: data.body || '',
+      body: data.body || 'Hai un promemoria in attesa. Apri l\'app.',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       tag: data.tag || 'reminder',
