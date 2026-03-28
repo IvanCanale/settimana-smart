@@ -32,6 +32,21 @@ import type { RigeneraEntry } from "@/lib/regenerationLimits";
 import { PaywallOverlay, useIsPaywalled } from "@/components/PaywallOverlay";
 
 const DEFAULT_PREFS: Preferences = { people: 2, diet: "mediterranea", maxTime: 20, budget: 60, skill: "beginner", mealsPerDay: "dinner", leftoversAllowed: true, exclusionsText: "", exclusions: [], sundaySpecial: true, sundayDinnerLeftovers: true, skippedMeals: [], coreIngredients: [], wishlistedRecipeIds: [] };
+
+// Whitelist of valid preference keys — prevents stale/unknown fields from cloud corrupting local state.
+const VALID_PREF_KEYS: ReadonlyArray<keyof Preferences> = [
+  "people", "diet", "maxTime", "budget", "skill", "mealsPerDay",
+  "leftoversAllowed", "exclusionsText", "exclusions", "sundaySpecial",
+  "sundayDinnerLeftovers", "skippedMeals", "coreIngredients", "wishlistedRecipeIds",
+  "shoppingDay", "shoppingNotificationTime", "timezone",
+];
+function sanitizePreferences(raw: Record<string, unknown>): Partial<Preferences> {
+  const out: Partial<Preferences> = {};
+  for (const key of VALID_PREF_KEYS) {
+    if (key in raw) (out as Record<string, unknown>)[key] = raw[key];
+  }
+  return out;
+}
 const DEFAULT_PANTRY: PantryItem[] = [{ name: "pasta", quantity: 500, unit: "g" }, { name: "olio extravergine", quantity: 200, unit: "ml" }, { name: "uova fresche", quantity: 2, unit: "pezzi" }];
 const TABS = [{ id: "planner", label: "Planner" }, { id: "week", label: "Settimana" }, { id: "shopping", label: "Spesa" }, { id: "recipes", label: "Ricette" }, { id: "reminder", label: "Reminder" }];
 const PERISHABLE_HERBS = ["basilico fresco","menta fresca","prezzemolo fresco","erba cipollina","salvia fresca","timo fresco","rosmarino fresco","menta o basilico fresco","basilico e menta freschi","aneto","erba cipollina o aneto"];
@@ -117,7 +132,8 @@ export default function SettimanaSmartMVP() {
     sbClient.auth.getSession().then(({ data: { session } }) => {
       if (!session?.access_token) return;
       getSubscriptionAction(session.access_token).then((s) => { if (s) setSubscription(s); }).catch(() => {
-        setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
+        // On network error keep the current state (was already set to trial-pro for non-logged-in users,
+        // or to the last loaded value for logged-in users). Don't downgrade a base subscriber to "pro".
       });
     });
     // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
@@ -277,7 +293,7 @@ export default function SettimanaSmartMVP() {
         const data = await loadUserData(sbClient, user.id);
         if (data.seed !== undefined) setSeed(data.seed);
         if (data.preferences && Object.keys(data.preferences).length > 0) {
-          setPreferences(prev => ({ ...prev, ...data.preferences as Partial<Preferences> }));
+          setPreferences(prev => ({ ...prev, ...sanitizePreferences(data.preferences as Record<string, unknown>) }));
         }
         if (data.manualOverrides && Object.keys(data.manualOverrides).length > 0) {
           setManualOverrides(data.manualOverrides as ManualOverrides);
