@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.menumixapp.app",
+      "sha256_cert_fingerprints": [
+        "A0:7F:C0:9B:DA:7F:9B:C9:8B:DB:B3:D4:C9:A5:26:90:F8:2A:A8:65:9B:A1:61:C9:22:4C:F8:CB:A3:76:AD:EB"
+      ]
+    }
+  }
+]
