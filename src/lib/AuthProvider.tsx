@@ -42,8 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const client = createClient(url, key);
     setSbClient(client);
 
+    // Controlla subito se è un redirect di recovery prima che getSession risolva
+    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
+      setIsPasswordRecovery(true);
+    }
+
     client.auth.getSession().then(({ data: { session } }: {data: {session: Session|null}}) => {
-      setUser(session?.user ?? null);
+      // Se è recovery non fare login automatico — aspettiamo che l'utente imposti la nuova password
+      if (!isPasswordRecovery && typeof window !== "undefined" && !window.location.hash.includes("type=recovery")) {
+        setUser(session?.user ?? null);
+      }
       setAuthLoading(false);
     });
 
