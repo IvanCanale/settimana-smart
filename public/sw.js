@@ -50,8 +50,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || 'Menumix', {
       body: data.body || 'Hai un promemoria in attesa. Apri l\'app.',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: '/menumix-icon-192.png',
+      badge: '/menumix-icon-192.png',
       tag: data.tag || 'reminder',
       data: { url: data.url || '/' },
     })

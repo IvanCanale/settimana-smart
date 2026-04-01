@@ -1,5 +1,10 @@
 "use client";
 import React, { useState } from "react";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 import type { Preferences, Diet, SubscriptionStatus } from "@/types";
 import { ALLERGEN_OPTIONS } from "@/types";
 import { useAuth } from "@/lib/AuthProvider";
@@ -40,6 +45,16 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
   const [isExporting, setIsExporting] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
   const [showPeopleProMsg, setShowPeopleProMsg] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  React.useEffect(() => {
+    const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setIsInstalled(true));
+    if (window.matchMedia("(display-mode: standalone)").matches) setIsInstalled(true);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   React.useEffect(() => {
     if (!preferences.timezone) {
@@ -555,6 +570,25 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
             <div style={{ marginBottom: 20 }}>
               <p style={sectionLabel}>Notifiche</p>
               <NotificationPrompt push={push} />
+            </div>
+          </>
+        )}
+
+        {/* Installa app */}
+        {installPrompt && !isInstalled && (
+          <>
+            <hr style={divider} />
+            <div style={{ marginBottom: 20 }}>
+              <p style={sectionLabel}>App</p>
+              <button
+                onClick={() => {
+                  (installPrompt as BeforeInstallPromptEvent).prompt();
+                  (installPrompt as BeforeInstallPromptEvent).userChoice.then(() => setInstallPrompt(null));
+                }}
+                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "12px 16px", borderRadius: 12, border: "1.5px solid var(--cream-dark)", background: "white", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--sepia)" }}
+              >
+                📲 Installa Menumix sul dispositivo
+              </button>
             </div>
           </>
         )}
