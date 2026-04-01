@@ -2,8 +2,8 @@
 import React from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function AuthModalInline({ onClose, client, forced = false }: { onClose: () => void; client: SupabaseClient | null; forced?: boolean }) {
-  const [mode, setMode] = React.useState<"login" | "signup" | "forgot" | "reset">("login");
+export function AuthModalInline({ onClose, client, forced = false, initialMode = "login" }: { onClose: () => void; client: SupabaseClient | null; forced?: boolean; initialMode?: "login" | "signup" | "forgot" | "reset" }) {
+  const [mode, setMode] = React.useState<"login" | "signup" | "forgot" | "reset">(initialMode);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
@@ -43,10 +43,9 @@ export function AuthModalInline({ onClose, client, forced = false }: { onClose: 
         if (newPassword.length < 6) throw new Error("La password deve essere di almeno 6 caratteri.");
         const { error } = await client.auth.updateUser({ password: newPassword });
         if (error) throw error;
-        setSuccess("Password aggiornata! Ora puoi accedere.");
-        // Pulisce il token dall'URL
+        setSuccess("Password aggiornata!");
         window.history.replaceState({}, "", "/");
-        setTimeout(() => { setMode("login"); setSuccess(""); }, 2000);
+        setTimeout(() => { onClose(); }, 1500);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Errore. Riprova.");

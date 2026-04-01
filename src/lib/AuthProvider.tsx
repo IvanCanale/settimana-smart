@@ -8,6 +8,8 @@ type AuthContextType = {
   sbClient: SupabaseClient | null;
   user: User | null;
   authLoading: boolean;
+  isPasswordRecovery: boolean;
+  setIsPasswordRecovery: (v: boolean) => void;
   showAuthModal: boolean;
   setShowAuthModal: (v: boolean) => void;
   syncStatus: "idle" | "saving" | "saved" | "error";
@@ -16,6 +18,7 @@ type AuthContextType = {
 
 export const AuthContext = createContext<AuthContextType>({
   sbClient: null, user: null, authLoading: true,
+  isPasswordRecovery: false, setIsPasswordRecovery: () => {},
   showAuthModal: false, setShowAuthModal: () => {},
   syncStatus: "idle", setSyncStatus: () => {},
 });
@@ -26,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sbClient, setSbClient] = useState<SupabaseClient | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
 
@@ -45,6 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = client.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
+        if (event === "PASSWORD_RECOVERY") {
+          setIsPasswordRecovery(true);
+          setAuthLoading(false);
+          return; // non fare login automatico
+        }
         setUser(session?.user ?? null);
         setAuthLoading(false);
         // Clear all user-specific localStorage on signout to prevent cross-user data leakage
@@ -73,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ sbClient, user, authLoading, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus }}>
+    <AuthContext.Provider value={{ sbClient, user, authLoading, isPasswordRecovery, setIsPasswordRecovery, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus }}>
       {children}
     </AuthContext.Provider>
   );

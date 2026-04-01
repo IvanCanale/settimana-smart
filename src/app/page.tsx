@@ -57,7 +57,7 @@ export default function SettimanaSmartMVP() {
   const [seed, setSeed] = useLocalStorage<number>("ss_seed_v1", 1);
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
-  const { sbClient, user, authLoading, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
+  const { sbClient, user, authLoading, isPasswordRecovery, setIsPasswordRecovery, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
   const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
@@ -338,6 +338,11 @@ export default function SettimanaSmartMVP() {
         <img src="/menumix-icon-192.png" alt="Menumix" style={{ width: 80, height: 80, borderRadius: 20, opacity: 0.8 }} />
       </div>
     );
+  }
+
+  // Schermata reset password (utente arriva dal link email)
+  if (isPasswordRecovery) {
+    return <AuthModalInline onClose={() => { setIsPasswordRecovery(false); }} client={sbClient} forced initialMode="reset" />;
   }
 
   // Schermata di login forzata se non autenticato
