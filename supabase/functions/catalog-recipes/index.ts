@@ -13,7 +13,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION = "2023-06-01";
-const MODEL = "claude-haiku-4-5-20251001";
+const MODEL = "claude-haiku-3-5-20241022";
 
 const VALID_DIETS = ["vegana", "vegetariana", "onnivora", "mediterranea"] as const;
 const TARGET = 20;
