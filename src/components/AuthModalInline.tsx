@@ -2,7 +2,7 @@
 import React from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function AuthModalInline({ onClose, client }: { onClose: () => void; client: SupabaseClient | null }) {
+export function AuthModalInline({ onClose, client, forced = false }: { onClose: () => void; client: SupabaseClient | null; forced?: boolean }) {
   const [mode, setMode] = React.useState<"login" | "signup" | "forgot" | "reset">("login");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -58,19 +58,24 @@ export function AuthModalInline({ onClose, client }: { onClose: () => void; clie
   }
 
   const title =
-    mode === "login" ? "Accedi" :
+    mode === "login" ? (forced ? "Benvenuto su Menumix" : "Accedi") :
     mode === "signup" ? "Crea account" :
     mode === "forgot" ? "Recupera password" :
     "Nuova password";
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(61,43,31,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "var(--warm-white)", borderRadius: 24, padding: 32, width: "100%", maxWidth: 400, boxShadow: "0 24px 60px rgba(61,43,31,0.25)" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: forced ? "var(--warm-white)" : "rgba(61,43,31,0.6)", backdropFilter: forced ? "none" : "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: "var(--warm-white)", borderRadius: forced ? 0 : 24, padding: 32, width: "100%", maxWidth: forced ? 440 : 400, boxShadow: forced ? "none" : "0 24px 60px rgba(61,43,31,0.25)" }}>
+        {forced && (
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <img src="/menumix-icon-192.png" alt="Menumix" style={{ width: 72, height: 72, borderRadius: 18, marginBottom: 12 }} />
+          </div>
+        )}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <h2 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: 22, color: "var(--sepia)" }}>
             {title}
           </h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "var(--sepia-light)" }}>×</button>
+          {!forced && <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "var(--sepia-light)" }}>×</button>}
         </div>
 
         {/* Bottoni OAuth — solo in login/signup */}

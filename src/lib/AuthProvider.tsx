@@ -7,6 +7,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 type AuthContextType = {
   sbClient: SupabaseClient | null;
   user: User | null;
+  authLoading: boolean;
   showAuthModal: boolean;
   setShowAuthModal: (v: boolean) => void;
   syncStatus: "idle" | "saving" | "saved" | "error";
@@ -14,7 +15,7 @@ type AuthContextType = {
 };
 
 export const AuthContext = createContext<AuthContextType>({
-  sbClient: null, user: null,
+  sbClient: null, user: null, authLoading: true,
   showAuthModal: false, setShowAuthModal: () => {},
   syncStatus: "idle", setSyncStatus: () => {},
 });
@@ -24,6 +25,7 @@ export function useAuth() { return useContext(AuthContext); }
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sbClient, setSbClient] = useState<SupabaseClient | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
 
@@ -31,18 +33,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     // Se le credenziali non sono configurate, auth rimane disabilitata
-    if (!url || !key) return;
+    if (!url || !key) { setAuthLoading(false); return; }
 
     const client = createClient(url, key);
     setSbClient(client);
 
     client.auth.getSession().then(({ data: { session } }: {data: {session: Session|null}}) => {
       setUser(session?.user ?? null);
+      setAuthLoading(false);
     });
 
     const { data: { subscription } } = client.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
         setUser(session?.user ?? null);
+        setAuthLoading(false);
         // Clear all user-specific localStorage on signout to prevent cross-user data leakage
         // when multiple people share the same browser (e.g. family members).
         if (event === "SIGNED_OUT" && typeof window !== "undefined") {
@@ -69,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus }}>
+    <AuthContext.Provider value={{ sbClient, user, authLoading, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus }}>
       {children}
     </AuthContext.Provider>
   );

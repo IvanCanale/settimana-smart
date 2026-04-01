@@ -57,7 +57,7 @@ export default function SettimanaSmartMVP() {
   const [seed, setSeed] = useLocalStorage<number>("ss_seed_v1", 1);
   const [manualOverrides, setManualOverrides] = useLocalStorage<ManualOverrides>("ss_manual_overrides_v1", {});
   const { learning, learnFromRecipe } = useLearning();
-  const { sbClient, user, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
+  const { sbClient, user, authLoading, showAuthModal, setShowAuthModal, syncStatus, setSyncStatus } = useAuth();
   const { activeWeek, switchWeek, isViewingNextWeek, feedbackNote, setFeedbackNote } = useWeeklyPlans(sbClient, user?.id ?? null);
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
@@ -331,6 +331,20 @@ export default function SettimanaSmartMVP() {
   const effLunch = isDaySwapped ? todayPlan?.dinner : todayPlan?.lunch;
   const effDinner = isDaySwapped ? todayPlan?.lunch : todayPlan?.dinner;
   const currentRecipe = preferences.mealsPerDay === "both" ? (isLunchTime ? effLunch || effDinner : effDinner || effLunch) : todayPlan?.dinner;
+  // Splash di caricamento durante il check sessione
+  if (!isMounted || authLoading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--warm-white)" }}>
+        <img src="/menumix-icon-192.png" alt="Menumix" style={{ width: 80, height: 80, borderRadius: 20, opacity: 0.8 }} />
+      </div>
+    );
+  }
+
+  // Schermata di login forzata se non autenticato
+  if (!user) {
+    return <AuthModalInline onClose={() => {}} client={sbClient} forced />;
+  }
+
   return (
     <>
       {showAuthModal && isMounted && <AuthModalInline onClose={() => setShowAuthModal(false)} client={sbClient} />}
