@@ -42,14 +42,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const client = createClient(url, key);
     setSbClient(client);
 
-    // Controlla subito se è un redirect di recovery prima che getSession risolva
-    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
-      setIsPasswordRecovery(true);
-    }
+    // Controlla subito se è un redirect di recovery (hash o query param per PKCE)
+    // Usa variabile locale per evitare stale closure con lo stato React
+    const isRecovery = typeof window !== "undefined" && (
+      window.location.hash.includes("type=recovery") ||
+      window.location.search.includes("type=recovery")
+    );
+    if (isRecovery) setIsPasswordRecovery(true);
 
     client.auth.getSession().then(({ data: { session } }: {data: {session: Session|null}}) => {
-      // Se è recovery non fare login automatico — aspettiamo che l'utente imposti la nuova password
-      if (!isPasswordRecovery && typeof window !== "undefined" && !window.location.hash.includes("type=recovery")) {
+      // Se è recovery non fare login automatico — aspettiamo la nuova password
+      if (!isRecovery) {
         setUser(session?.user ?? null);
       }
       setAuthLoading(false);
