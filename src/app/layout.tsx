@@ -7,8 +7,31 @@ import { UpdateToast } from "@/components/UpdateToast";
 
 export const metadata: Metadata = {
   title: "Menumix",
-  description: "Mangia bene ogni giorno, tante ricette con istruzioni dettagliate",
+  description: "Il tuo piano pasti settimanale. Ricette personalizzate, lista della spesa automatica e tanto altro.",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://menumixapp.com"),
+  openGraph: {
+    title: "Menumix — Il tuo piano pasti settimanale",
+    description: "Ricette personalizzate, lista della spesa automatica e tanto altro.",
+    url: "https://menumixapp.com",
+    siteName: "Menumix",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Menumix — Il tuo piano pasti settimanale",
+      },
+    ],
+    locale: "it_IT",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Menumix — Il tuo piano pasti settimanale",
+    description: "Ricette personalizzate, lista della spesa automatica e tanto altro.",
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -32,7 +55,7 @@ export default function RootLayout({
     <html lang="it">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href="/menumix-icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
