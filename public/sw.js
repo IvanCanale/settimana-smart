@@ -1,4 +1,4 @@
-const CACHE_NAME = 'menumix-v2';
+const CACHE_NAME = 'menumix-v3';
 const urlsToCache = ['/'];
 
 self.addEventListener('install', (event) => {
