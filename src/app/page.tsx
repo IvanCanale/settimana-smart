@@ -153,10 +153,9 @@ export default function SettimanaSmartMVP() {
       });
     });
     // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
-    const pendingPlan = sessionStorage.getItem("pending_plan");
+    const pendingPlan = (() => { try { return sessionStorage.getItem("pending_plan"); } catch { return null; } })();
     if (pendingPlan) {
-      sessionStorage.removeItem("pending_plan");
-      sessionStorage.removeItem("pending_billing");
+      try { sessionStorage.removeItem("pending_plan"); sessionStorage.removeItem("pending_billing"); } catch { /* ignore */ }
       window.location.href = "/abbonamento";
     }
   }, [user?.id, sbClient]);
@@ -276,7 +275,7 @@ export default function SettimanaSmartMVP() {
         }
         return merged;
       });
-    }).catch(() => {});
+    }).catch((err) => console.warn("[rigenera cloud load] failed:", err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, sbClient, subscription.tier, activeWeek]);
 
@@ -318,8 +317,12 @@ export default function SettimanaSmartMVP() {
           setManualOverrides(data.manualOverrides as ManualOverrides);
         }
       } catch (err) {
-        // Errore cloud load — fallback a stato locale
-        console.warn("[cloud load] Impossibile caricare dati dal cloud, uso dati locali:", err);
+        const code = (err as { code?: string })?.code;
+        if (code === "PGRST116") {
+          console.info("[cloud load] Utente nuovo, nessun dato cloud — uso default locali");
+        } else {
+          console.error("[cloud load] Errore inatteso, fallback a stato locale:", err);
+        }
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps

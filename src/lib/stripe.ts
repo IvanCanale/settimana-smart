@@ -11,8 +11,7 @@ export function getStripe(): Stripe {
   }
   return _stripe;
 }
-/** @deprecated use getStripe() */
-export const stripe = { get instance() { return getStripe(); } } as unknown as Stripe;
+// Rimosso: export stripe deprecated rimosso per evitare confusione — usare getStripe()
 
 // Plan tier lookup from price ID — covers both monthly and annual variants
 export function getPlanTier(priceId: string | undefined): "base" | "pro" | null {

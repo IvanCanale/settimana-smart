@@ -102,9 +102,11 @@ function PricingCardsInner() {
 
   const handleSubscribe = async (planId: string) => {
     if (!user || !sbClient) {
-      // Salva il piano scelto e rimanda al login
-      sessionStorage.setItem("pending_plan", planId);
-      sessionStorage.setItem("pending_billing", billing);
+      // Salva il piano scelto e rimanda al login (try/catch: Safari privato può bloccare sessionStorage)
+      try {
+        sessionStorage.setItem("pending_plan", planId);
+        sessionStorage.setItem("pending_billing", billing);
+      } catch { /* sessionStorage non disponibile — l'utente dovrà riselezionare il piano */ }
       window.location.href = "/?login=1";
       return;
     }

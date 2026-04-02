@@ -42,8 +42,13 @@ export function usePushSubscription(
       if (!session?.access_token) return false;
 
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey || vapidKey.length < 20) {
-        console.warn("VAPID_PUBLIC_KEY mancante o non valida");
+      if (!vapidKey) {
+        console.warn("NEXT_PUBLIC_VAPID_PUBLIC_KEY non configurata");
+        return false;
+      }
+      // Una VAPID public key Base64URL valida è esattamente 86 caratteri (256-bit)
+      if (vapidKey.length !== 86) {
+        console.warn(`VAPID_PUBLIC_KEY lunghezza non valida: ${vapidKey.length} (attesa 86)`);
         return false;
       }
       const reg = await navigator.serviceWorker.ready;
