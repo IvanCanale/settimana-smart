@@ -41,12 +41,15 @@ export function usePushSubscription(
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session?.access_token) return false;
 
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey || vapidKey.length < 20) {
+        console.warn("VAPID_PUBLIC_KEY mancante o non valida");
+        return false;
+      }
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-        ) as unknown as BufferSource,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey) as unknown as BufferSource,
       });
       const subJSON = sub.toJSON();
       await savePushSubscription(session.access_token, {

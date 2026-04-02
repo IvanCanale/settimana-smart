@@ -54,11 +54,12 @@ export async function POST(request: Request) {
         }
         // In newer Stripe SDK, current_period_start/end live on the SubscriptionItem
         const item = sub.items.data[0];
+        const planTier = getPlanTier(item?.price.id) ?? "base"; // default base se price ID sconosciuto
         await supabaseAdmin.from("subscriptions").upsert({
           id: sub.id,
           user_id: userId,
           status: sub.status,
-          plan_tier: getPlanTier(item?.price.id),
+          plan_tier: planTier,
           price_id: item?.price.id ?? null,
           cancel_at_period_end: sub.cancel_at_period_end,
           current_period_start: item?.current_period_start

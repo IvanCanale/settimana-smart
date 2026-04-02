@@ -69,7 +69,8 @@ export function ProfileDrawer({ isOpen, onClose, preferences, setPreferences, on
       .from("weekly_plan")
       .select("week_iso", { count: "exact", head: true })
       .eq("user_id", user.id)
-      .then(({ count }) => setPlanCount(count ?? 0));
+      .then(({ count }) => setPlanCount(count ?? 0))
+      .catch(() => setPlanCount(0));
   }, [user, sbClient]);
 
   const accountCreatedAt = user?.created_at

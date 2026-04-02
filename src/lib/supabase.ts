@@ -15,6 +15,8 @@ export type UserData = {
 export async function loadUserData(client: SupabaseClient, userId: string): Promise<Partial<UserData>> {
   const { currentWeekISO } = await import("@/lib/weekUtils");
   const currentWeek = currentWeekISO();
+  // Valida formato ISO week (es. "2024-W15") per evitare injection nella query OR
+  if (!/^\d{4}-W\d{2}$/.test(currentWeek)) throw new Error(`Invalid week format: ${currentWeek}`);
   const [prefRes, pantryRes, planRes] = await Promise.all([
     client.from("preferences").select("data").eq("user_id", userId).single(),
     client.from("pantry").select("items").eq("user_id", userId).single(),

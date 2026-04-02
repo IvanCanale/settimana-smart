@@ -23,11 +23,12 @@ export function useNotifications(sbClient: SupabaseClient | null, userId?: strin
   const markAllRead = useCallback(async () => {
     // Update local state immediately (optimistic)
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    // Sync to Supabase if available
-    if (!sbClient) return;
+    // Sync to Supabase if available e utente autenticato
+    if (!sbClient || !userId) return;
     const unread = notifications.filter((n) => !n.read);
-    await Promise.all(unread.map((n) => markNotificationRead(sbClient, n.id)));
-  }, [sbClient, notifications]);
+    await Promise.all(unread.map((n) => markNotificationRead(sbClient, n.id)))
+      .catch((err) => console.warn("markAllRead sync failed:", err));
+  }, [sbClient, userId, notifications]);
 
   return { notifications, loading, unreadCount, markAllRead };
 }

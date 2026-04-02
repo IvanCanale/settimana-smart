@@ -40,12 +40,13 @@ export async function createCheckoutSession(
     const hasTrialRemaining = trialEnd > new Date();
 
     // Find or create Stripe customer
-    const { data: existing } = await supabase
+    const { data: existing, error: customerErr } = await supabase
       .from("customers")
       .select("stripe_customer_id")
       .eq("user_id", user.id)
       .single();
 
+    if (customerErr && customerErr.code !== "PGRST116") return { error: "Errore database. Riprova." };
     let customerId = existing?.stripe_customer_id;
     if (!customerId) {
       const customer = await getStripe().customers.create({
@@ -89,12 +90,13 @@ export async function createPortalSession(accessToken: string) {
   if (!user) throw new Error("Non autorizzato");
 
   const supabase = adminClient();
-  const { data } = await supabase
+  const { data, error: portalErr } = await supabase
     .from("customers")
     .select("stripe_customer_id")
     .eq("user_id", user.id)
     .single();
 
+  if (portalErr && portalErr.code !== "PGRST116") throw new Error("Errore database nel recupero cliente");
   if (!data?.stripe_customer_id) {
     throw new Error("No Stripe customer found for this user");
   }

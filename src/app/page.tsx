@@ -198,7 +198,7 @@ export default function SettimanaSmartMVP() {
         const next = [...prev, createRigeneraEntry("")];
         // Sync to cloud to prevent multi-device bypass
         if (sbClient && user?.id) {
-          saveRigeneraLog(sbClient, user.id, activeWeek, next).catch(() => {});
+          saveRigeneraLog(sbClient, user.id, activeWeek, next).catch((err) => console.warn("[rigenera sync] failed:", err));
         }
         return next;
       });
