@@ -30,6 +30,16 @@ export default function ResetPasswordPage() {
     client.auth.getSession().then(({ data: { session } }) => {
       if (session) setSessionReady(true);
     });
+
+    // Timeout: se dopo 15 secondi la sessione non è pronta, il link è scaduto
+    const timeout = setTimeout(() => {
+      setSessionReady((prev) => {
+        if (!prev) setError("Il link è scaduto o non valido. Richiedi un nuovo link di reset.");
+        return prev;
+      });
+    }, 15000);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {

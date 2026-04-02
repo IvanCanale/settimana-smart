@@ -26,6 +26,11 @@ export async function loadUserData(client: SupabaseClient, userId: string): Prom
       .limit(1)
       .single(),
   ]);
+  // PGRST116 = no rows returned — normale per utenti nuovi, non è un errore
+  const NO_ROWS = "PGRST116";
+  if (prefRes.error && prefRes.error.code !== NO_ROWS) throw prefRes.error;
+  if (pantryRes.error && pantryRes.error.code !== NO_ROWS) throw pantryRes.error;
+  if (planRes.error && planRes.error.code !== NO_ROWS) throw planRes.error;
   return {
     preferences: prefRes.data?.data ?? {},
     pantry: pantryRes.data?.items ?? [],

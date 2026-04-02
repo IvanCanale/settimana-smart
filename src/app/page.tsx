@@ -62,9 +62,15 @@ export default function SettimanaSmartMVP() {
   const [wishlistedRecipes, setWishlistedRecipes] = useState<Recipe[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus>({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
   const [rigeneraLog, setRigeneraLog] = useLocalStorage<RigeneraEntry[]>("ss_rigenera_log_v1", []);
+  // useMemo per evitare che cloudSync sia un nuovo oggetto ad ogni render
+  // (causa loop di fetch in usePlanEngine se passato inline)
+  const cloudSync = useMemo(
+    () => ({ sbClient, userId: user?.id ?? null, setSyncStatus }),
+    [sbClient, user?.id, setSyncStatus]
+  );
   const { computedPrefs, generated, recipeCount, recipes } = usePlanEngine(
     preferences, pantryItems, seed, learning, manualOverrides,
-    { sbClient, userId: user?.id ?? null, setSyncStatus },
+    cloudSync,
     wishlistedRecipes,
     subscription.tier,
   );
@@ -124,6 +130,15 @@ export default function SettimanaSmartMVP() {
       window.history.replaceState({}, "", "/");
     }
   }, []);
+  // Pulisce i freeze reminder timers al logout per evitare che scattino sul prossimo utente
+  useEffect(() => {
+    if (!user) {
+      freezeReminderTimers.forEach((t) => window.clearTimeout(t));
+      setFreezeReminderTimers([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   useEffect(() => {
     if (!user?.id || !sbClient) {
       setSubscription({ tier: "pro", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
