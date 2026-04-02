@@ -305,25 +305,6 @@ export default function SettimanaSmartMVP() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sbClient, user]);
 
-  if (isMounted && !onboardingDone) return (
-    <OnboardingFlow
-      preferences={preferences}
-      setPreferences={setPreferences}
-      onboardingStep={onboardingStep}
-      setOnboardingStep={setOnboardingStep}
-      onComplete={() => {
-        localStorage.setItem("ss_onboarding_done", "1");
-        setOnboardingDone(true);
-        setSeed((p) => p + 1);
-        setShowGeneratedBanner(true);
-        setLastMessage("Piano generato — benvenuto!");
-        setActiveTab("week");
-        setTutorialDone(false);
-        setTutorialStep(0);
-      }}
-      sbClient={sbClient}
-    />
-  );
   const dayMap: Record<number, string> = { 1: "Lun", 2: "Mar", 3: "Mer", 4: "Gio", 5: "Ven", 6: "Sab", 0: "Dom" };
   const todayKey = dayMap[new Date().getDay()]; const isLunchTime = new Date().getHours() < 15;
   const todayPlan = generated.days.find((d) => d.day === todayKey);
@@ -344,6 +325,27 @@ export default function SettimanaSmartMVP() {
   if (!user) {
     return <AuthModalInline onClose={() => {}} client={sbClient} forced />;
   }
+
+  // Onboarding dopo il login (solo utenti autenticati)
+  if (!onboardingDone) return (
+    <OnboardingFlow
+      preferences={preferences}
+      setPreferences={setPreferences}
+      onboardingStep={onboardingStep}
+      setOnboardingStep={setOnboardingStep}
+      onComplete={() => {
+        localStorage.setItem("ss_onboarding_done", "1");
+        setOnboardingDone(true);
+        setSeed((p) => p + 1);
+        setShowGeneratedBanner(true);
+        setLastMessage("Piano generato — benvenuto!");
+        setActiveTab("week");
+        setTutorialDone(false);
+        setTutorialStep(0);
+      }}
+      sbClient={sbClient}
+    />
+  );
 
   return (
     <>
