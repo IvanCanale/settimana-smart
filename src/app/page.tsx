@@ -329,7 +329,16 @@ export default function SettimanaSmartMVP() {
     return <AuthModalInline onClose={() => {}} client={sbClient} forced />;
   }
 
-  // Onboarding dopo il login (solo utenti autenticati)
+  // Utente esistente (account >5min) → salta onboarding anche se localStorage è stato pulito
+  if (!onboardingDone && user.created_at) {
+    const accountAgeMs = Date.now() - new Date(user.created_at).getTime();
+    if (accountAgeMs > 5 * 60 * 1000) {
+      localStorage.setItem("ss_onboarding_done", "1");
+      setOnboardingDone(true);
+    }
+  }
+
+  // Onboarding dopo il login (solo nuovi utenti autenticati)
   if (!onboardingDone) return (
     <OnboardingFlow
       preferences={preferences}
