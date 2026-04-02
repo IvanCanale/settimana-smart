@@ -1,18 +1,35 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
-    // La pagina è pronta — il client Supabase gestisce automaticamente
-    // il token dall'hash URL quando viene inizializzato
-    setReady(true);
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    // Crea il client subito al mount — così Supabase rileva automaticamente
+    // il token (code o access_token) nell'URL e stabilisce la sessione
+    const client = createClient(url, key);
+    clientRef.current = client;
+
+    // Aspetta che la sessione sia pronta (PKCE code exchange o hash token)
+    client.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        setSessionReady(true);
+      }
+    });
+
+    // Controlla se c'è già una sessione attiva (es. hash implicit flow)
+    client.auth.getSession().then(({ data: { session } }) => {
+      if (session) setSessionReady(true);
+    });
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -20,9 +37,8 @@ export default function ResetPasswordPage() {
     if (password.length < 6) { setError("La password deve essere di almeno 6 caratteri."); return; }
     setLoading(true); setError("");
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const client = createClient(url, key);
+    const client = clientRef.current;
+    if (!client) { setError("Client non disponibile. Ricarica la pagina."); setLoading(false); return; }
 
     const { error } = await client.auth.updateUser({ password });
     if (error) {
@@ -33,8 +49,6 @@ export default function ResetPasswordPage() {
     setSuccess(true);
     setTimeout(() => { window.location.href = "/"; }, 2000);
   }
-
-  if (!ready) return null;
 
   return (
     <div style={{
@@ -57,6 +71,10 @@ export default function ResetPasswordPage() {
             <p style={{ fontSize: 16, color: "var(--olive)", fontWeight: 600, margin: 0 }}>
               ✅ Password aggiornata! Reindirizzamento in corso...
             </p>
+          </div>
+        ) : !sessionReady ? (
+          <div style={{ textAlign: "center", padding: 24, color: "var(--sepia-light)", fontSize: 15 }}>
+            Verifica token in corso...
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
