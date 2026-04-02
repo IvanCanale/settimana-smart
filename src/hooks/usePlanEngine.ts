@@ -39,7 +39,8 @@ export function usePlanEngine(
       } catch { /* ignore corrupt cache */ }
     }
 
-    if (!cloudSync?.sbClient) return;
+    // Aspetta anche userId — garantisce che la sessione Supabase sia attiva
+    if (!cloudSync?.sbClient || !cloudSync?.userId) return;
     setRecipesLoading(true);
     fetchRecipes(cloudSync.sbClient, tier)
       .then((fetched) => {
@@ -54,7 +55,7 @@ export function usePlanEngine(
       })
       .finally(() => setRecipesLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudSync?.sbClient, tier]);
+  }, [cloudSync?.sbClient, cloudSync?.userId, tier]);
 
   // Calcola le preferenze normalizzate
   const computedPrefs = useMemo(() => ({

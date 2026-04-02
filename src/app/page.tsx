@@ -109,7 +109,7 @@ export default function SettimanaSmartMVP() {
   const [showHerbBanner, setShowHerbBanner] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const { notifications, loading: notifLoading, unreadCount, markAllRead } = useNotifications(sbClient);
+  const { notifications, loading: notifLoading, unreadCount, markAllRead } = useNotifications(sbClient, user?.id);
   const [isOffline, setIsOffline] = useState(() =>
     typeof window !== "undefined" ? !navigator.onLine : false
   );

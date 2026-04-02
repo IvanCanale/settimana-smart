@@ -4,18 +4,19 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchNotifications, markNotificationRead } from "@/lib/supabase";
 import type { AppNotification } from "@/lib/supabase";
 
-export function useNotifications(sbClient: SupabaseClient | null) {
+export function useNotifications(sbClient: SupabaseClient | null, userId?: string | null) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!sbClient) return;
+    // Aspetta sia il client che l'utente autenticato (userId garantisce sessione attiva)
+    if (!sbClient || !userId) return;
     setLoading(true);
     fetchNotifications(sbClient)
       .then(setNotifications)
       .catch(() => console.warn("Failed to fetch notifications"))
       .finally(() => setLoading(false));
-  }, [sbClient]);
+  }, [sbClient, userId]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
