@@ -316,8 +316,9 @@ export default function SettimanaSmartMVP() {
         if (data.manualOverrides && Object.keys(data.manualOverrides).length > 0) {
           setManualOverrides(data.manualOverrides as ManualOverrides);
         }
-      } catch {
-        // Errore cloud load — fallback silenzioso a stato locale
+      } catch (err) {
+        // Errore cloud load — fallback a stato locale
+        console.warn("[cloud load] Impossibile caricare dati dal cloud, uso dati locali:", err);
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps

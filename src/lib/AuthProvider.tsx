@@ -1,7 +1,7 @@
 "use client";
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient, User, Session } from "@supabase/supabase-js";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
 // Context per condividere il client supabase
 type AuthContextType = {
@@ -22,12 +22,31 @@ export const AuthContext = createContext<AuthContextType>({
 
 export function useAuth() { return useContext(AuthContext); }
 
+const USER_KEYS = [
+  "ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1",
+  "ss_manual_overrides_v1", "ss_checked_shopping_v1",
+  "ss_rigenera_log_v1", "ss_learning_v1", "ss_onboarding_done",
+  "ss_tutorial_done",
+];
+
+function clearUserStorage() {
+  USER_KEYS.forEach((k) => localStorage.removeItem(k));
+  ["pro", "base", "free"].forEach((t) => {
+    localStorage.removeItem(`ss_recipes_cache_${t}_v1`);
+    localStorage.removeItem(`ss_recipes_cache_${t}_ts_v1`);
+  });
+  localStorage.removeItem("ss_recipes_cache_v1");
+  localStorage.removeItem("ss_recipes_cache_ts_v1");
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sbClient, setSbClient] = useState<SupabaseClient | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
+  // Traccia l'ultimo userId per rilevare cambio utente sullo stesso browser
+  const previousUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -40,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     client.auth.getSession().then(({ data: { session } }: {data: {session: Session|null}}) => {
       setUser(session?.user ?? null);
+      if (session?.user) previousUserIdRef.current = session.user.id;
       setAuthLoading(false);
     });
 
@@ -47,24 +67,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (event: string, session: Session | null) => {
         setUser(session?.user ?? null);
         setAuthLoading(false);
-        // Clear all user-specific localStorage on signout to prevent cross-user data leakage
-        // when multiple people share the same browser (e.g. family members).
-        if (event === "SIGNED_OUT" && typeof window !== "undefined") {
-          const USER_KEYS = [
-            "ss_preferences_v1", "ss_pantry_v1", "ss_seed_v1",
-            "ss_manual_overrides_v1", "ss_checked_shopping_v1",
-            "ss_rigenera_log_v1", "ss_learning_v1", "ss_onboarding_done",
-            "ss_tutorial_done",
-          ];
-          USER_KEYS.forEach((k) => localStorage.removeItem(k));
-          // Clear tier-specific recipe caches
-          ["pro", "base", "free"].forEach((t) => {
-            localStorage.removeItem(`ss_recipes_cache_${t}_v1`);
-            localStorage.removeItem(`ss_recipes_cache_${t}_ts_v1`);
-          });
-          // Clear legacy cache key (before tier was included in key)
-          localStorage.removeItem("ss_recipes_cache_v1");
-          localStorage.removeItem("ss_recipes_cache_ts_v1");
+
+        if (typeof window === "undefined") return;
+
+        if (event === "SIGNED_OUT") {
+          // Pulisce tutti i dati utente al logout
+          previousUserIdRef.current = null;
+          clearUserStorage();
+        } else if (event === "SIGNED_IN" && session?.user) {
+          // Se l'utente cambia (nuovo account sullo stesso browser senza logout esplicito),
+          // pulisce i dati locali del vecchio utente per evitare data leakage
+          if (previousUserIdRef.current && previousUserIdRef.current !== session.user.id) {
+            clearUserStorage();
+          }
+          previousUserIdRef.current = session.user.id;
         }
       }
     );

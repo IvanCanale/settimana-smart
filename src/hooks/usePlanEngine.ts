@@ -44,9 +44,11 @@ export function usePlanEngine(
     setRecipesLoading(true);
     fetchRecipes(cloudSync.sbClient, tier)
       .then((fetched) => {
-        if (fetched.length > 0) {
-          setRecipes(fetched);
-          localStorage.setItem(CACHE_KEY, JSON.stringify(fetched));
+        // Filtra ricette malformate (title e ingredients sono obbligatori)
+        const valid = fetched.filter(r => r.id && r.title && Array.isArray(r.ingredients));
+        if (valid.length > 0) {
+          setRecipes(valid);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(valid));
           localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
         }
       })

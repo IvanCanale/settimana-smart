@@ -26,6 +26,21 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  // Idempotency: controlla se questo evento è già stato processato
+  const { data: existing } = await supabaseAdmin
+    .from("stripe_events")
+    .select("id")
+    .eq("id", event.id)
+    .single();
+
+  if (existing) {
+    // Evento già processato — risponde 200 per evitare retry di Stripe
+    return new Response(null, { status: 200 });
+  }
+
+  // Registra l'evento prima di processarlo
+  await supabaseAdmin.from("stripe_events").insert({ id: event.id, type: event.type, processed_at: new Date().toISOString() });
+
   try {
     switch (event.type) {
       case "customer.subscription.created":
