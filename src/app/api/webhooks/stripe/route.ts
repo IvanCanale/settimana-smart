@@ -26,20 +26,27 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Idempotency: controlla se questo evento è già stato processato
+  // Idempotency: controlla se già processato, poi registra
   const { data: existing } = await supabaseAdmin
     .from("stripe_events")
     .select("id")
     .eq("id", event.id)
-    .single();
+    .maybeSingle();
 
   if (existing) {
-    // Evento già processato — risponde 200 per evitare retry di Stripe
     return new Response(null, { status: 200 });
   }
 
-  // Registra l'evento prima di processarlo
-  await supabaseAdmin.from("stripe_events").insert({ id: event.id, type: event.type, processed_at: new Date().toISOString() });
+  // Inserisce il record — se arriva un secondo identico per race condition,
+  // il constraint UNIQUE (id) lo blocca (errore 23505) e il process idempotente termina
+  const { error: insertErr } = await supabaseAdmin
+    .from("stripe_events")
+    .insert({ id: event.id, type: event.type, processed_at: new Date().toISOString() });
+
+  if (insertErr?.code === "23505") {
+    // Race condition: già inserito da un altro worker → già processato
+    return new Response(null, { status: 200 });
+  }
 
   try {
     switch (event.type) {

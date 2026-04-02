@@ -34,7 +34,7 @@ export function useWeeklyPlans(
           learning: p.learning as Record<string, unknown>,
           feedback_note: p.feedback_note,
           checked_items: p.checked_items,
-        });
+        }).catch((err) => console.warn("[weekly_plan archive] sync failed:", err));
       });
     }).catch(() => { /* offline — plans from localStorage */ });
   }, [sbClient, userId]);

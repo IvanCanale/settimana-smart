@@ -5,7 +5,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePlanEngine } from "@/hooks/usePlanEngine";
 import { useLearning } from "@/hooks/useLearning";
 import { useWeeklyPlans } from "@/hooks/useWeeklyPlans";
-import { currentWeekISO, nextWeekISO } from "@/lib/weekUtils";
+import { currentWeekISO } from "@/lib/weekUtils";
 import { AuthModalInline } from "@/components/AuthModalInline";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { TourOverlay, TOUR_STEPS } from "@/components/TourOverlay";
@@ -147,8 +147,9 @@ export default function SettimanaSmartMVP() {
     sbClient.auth.getSession().then(({ data: { session } }) => {
       if (!session?.access_token) return;
       getSubscriptionAction(session.access_token).then((s) => { if (s) setSubscription(s); }).catch(() => {
-        // On network error keep the current state (was already set to trial-pro for non-logged-in users,
-        // or to the last loaded value for logged-in users). Don't downgrade a base subscriber to "pro".
+        // Network error → downgrade a "free" per evitare accesso pro non autorizzato
+        // Il PaywallOverlay gestisce il trial separatamente tramite user.created_at
+        setSubscription({ tier: "free", isTrialing: false, trialEnd: null, renewalDate: null, status: "none" });
       });
     });
     // Dopo login: se l'utente arriva da /abbonamento con piano pendente, torna lì
