@@ -294,6 +294,9 @@ export default function SettimanaSmartMVP() {
         if (data.seed !== undefined) setSeed(data.seed);
         if (data.preferences && Object.keys(data.preferences).length > 0) {
           setPreferences(prev => ({ ...prev, ...sanitizePreferences(data.preferences as Record<string, unknown>) }));
+          // Utente esistente con preferenze salvate → onboarding già fatto
+          localStorage.setItem("ss_onboarding_done", "1");
+          setOnboardingDone(true);
         }
         if (data.manualOverrides && Object.keys(data.manualOverrides).length > 0) {
           setManualOverrides(data.manualOverrides as ManualOverrides);
