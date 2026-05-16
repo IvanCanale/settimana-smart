@@ -10,6 +10,8 @@ export function AuthModalInline({ onClose, client, forced = false, initialMode =
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showNewPassword, setShowNewPassword] = React.useState(false);
 
   // Se l'utente arriva dal link di reset password (token in URL hash)
   React.useEffect(() => {
@@ -101,12 +103,22 @@ export function AuthModalInline({ onClose, client, forced = false, initialMode =
         {/* Form */}
         <form onSubmit={handleEmail} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {mode === "reset" ? (
-            <input type="password" placeholder="Nuova password (min. 6 caratteri)" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const }} />
+            <div style={{ position: "relative" }}>
+              <input type={showNewPassword ? "text" : "password"} placeholder="Nuova password (min. 6 caratteri)" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const, paddingRight: 44 }} />
+              <button type="button" onClick={() => setShowNewPassword(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--sepia-light)", lineHeight: 1 }}>
+                {showNewPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
           ) : (
             <>
               <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const }} />
               {mode !== "forgot" && (
-                <input type="password" placeholder="Password (min. 6 caratteri)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const }} />
+                <div style={{ position: "relative" }}>
+                  <input type={showPassword ? "text" : "password"} placeholder="Password (min. 6 caratteri)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const, paddingRight: 44 }} />
+                  <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--sepia-light)", lineHeight: 1 }}>
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
               )}
             </>
           )}
