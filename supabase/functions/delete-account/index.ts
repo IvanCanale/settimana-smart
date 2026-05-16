@@ -6,25 +6,35 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const ALLOWED_ORIGIN = Deno.env.get("SITE_URL") ?? "https://settimana-smart.vercel.app";
+const ALLOWED_ORIGINS = [
+  "https://menumixapp.com",
+  "https://settimana-smart.vercel.app",
+  Deno.env.get("SITE_URL") ?? "",
+].filter(Boolean);
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
-  "Content-Type": "application/json",
-};
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Content-Type": "application/json",
+  };
+}
 
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: CORS_HEADERS });
+    return new Response(null, { status: 200, headers: getCorsHeaders(req) });
   }
 
   // Only allow POST
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: CORS_HEADERS }
+      { status: 405, headers: getCorsHeaders(req) }
     );
   }
 
@@ -36,7 +46,7 @@ serve(async (req) => {
     if (!jwt) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: CORS_HEADERS }
+        { status: 401, headers: getCorsHeaders(req) }
       );
     }
 
@@ -51,7 +61,7 @@ serve(async (req) => {
     if (userError || !userData?.user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: CORS_HEADERS }
+        { status: 401, headers: getCorsHeaders(req) }
       );
     }
 
@@ -72,19 +82,19 @@ serve(async (req) => {
       console.error("Failed to delete auth user:", deleteError.message);
       return new Response(
         JSON.stringify({ error: "Failed to delete auth user" }),
-        { status: 500, headers: CORS_HEADERS }
+        { status: 500, headers: getCorsHeaders(req) }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true }),
-      { status: 200, headers: CORS_HEADERS }
+      { status: 200, headers: getCorsHeaders(req) }
     );
   } catch (err) {
     console.error("delete-account error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: CORS_HEADERS }
+      { status: 500, headers: getCorsHeaders(req) }
     );
   }
 });
