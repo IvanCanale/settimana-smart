@@ -24,9 +24,8 @@ self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   const method = event.request.method;
 
-  // Do not cache API calls to Supabase or non-GET requests
+  // Do not intercept API calls to Supabase or non-GET requests — let browser handle natively
   if (url.includes('supabase.co') || method !== 'GET') {
-    event.respondWith(fetch(event.request));
     return;
   }
 
