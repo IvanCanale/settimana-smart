@@ -106,7 +106,10 @@ export function AuthModalInline({ onClose, client, forced = false, initialMode =
             <div style={{ position: "relative" }}>
               <input type={showNewPassword ? "text" : "password"} placeholder="Nuova password (min. 6 caratteri)" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const, paddingRight: 44 }} />
               <button type="button" onClick={() => setShowNewPassword(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--sepia-light)", lineHeight: 1 }}>
-                {showNewPassword ? "🙈" : "👁️"}
+                {showNewPassword
+                  ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                }
               </button>
             </div>
           ) : (
@@ -116,7 +119,10 @@ export function AuthModalInline({ onClose, client, forced = false, initialMode =
                 <div style={{ position: "relative" }}>
                   <input type={showPassword ? "text" : "password"} placeholder="Password (min. 6 caratteri)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="input-warm" style={{ width: "100%", boxSizing: "border-box" as const, paddingRight: 44 }} />
                   <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--sepia-light)", lineHeight: 1 }}>
-                    {showPassword ? "🙈" : "👁️"}
+                    {showPassword
+                      ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
                   </button>
                 </div>
               )}
